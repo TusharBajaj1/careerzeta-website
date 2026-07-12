@@ -1,34 +1,30 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import { Geist } from "next/font/google";
 import "./globals.css";
 
-const inter = Inter({
+import Navbar from "@/components/layout/Navbar";
+
+const geist = Geist({
   subsets: ["latin"],
-  variable: "--font-inter",
 });
 
 export const metadata: Metadata = {
-  title: "CareerZeta | Build Your Career in Business Analytics",
-  description:
-    "CareerZeta helps professionals transition into and grow their careers in Business Analytics through industry-led learning and mentorship.",
-  keywords: [
-    "Business Analytics",
-    "Business Analytics Course",
-    "CareerZeta",
-    "Business Analyst",
-    "Mentorship",
-  ],
+  title: "CareerZeta",
+  description: "Industry-led learning for Business Analytics professionals.",
 };
 
 export default function RootLayout({
   children,
-}: Readonly<{
+}: {
   children: React.ReactNode;
-}>) {
+}) {
   return (
-    <html lang="en" className={`${inter.variable} scroll-smooth`}>
-      <body className="bg-white text-slate-900 antialiased">
-        {children}
+    <html lang="en">
+      <body className={geist.className}>
+        <Navbar />
+
+        <main>{children}</main>
+
       </body>
     </html>
   );

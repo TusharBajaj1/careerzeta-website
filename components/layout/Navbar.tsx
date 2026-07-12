@@ -1,23 +1,47 @@
+import Link from "next/link";
+
 export default function Navbar() {
   return (
-    <nav className="w-full border-b border-gray-200 bg-white">
-      <div className="mx-auto flex h-20 max-w-7xl items-center justify-between px-8">
+    <nav className="sticky top-0 z-50 w-full border-b border-slate-200 bg-white/90 backdrop-blur-md">
+      <div className="mx-auto flex h-20 max-w-7xl items-center justify-between px-6 md:px-10 lg:px-16">
 
-        <h1 className="text-2xl font-bold">
-          Career<span className="text-blue-600">Zeta</span>
-        </h1>
+        {/* Logo */}
+        <Link href="/" className="text-2xl font-bold tracking-tight">
+          Career<span className="text-sky-600">Zeta</span>
+        </Link>
 
-        <div className="hidden gap-8 text-gray-700 md:flex">
-          <a href="#">Home</a>
-          <a href="#">Program</a>
-          <a href="#">Resources</a>
-          <a href="#">About</a>
-          <a href="#">Contact</a>
+        {/* Navigation */}
+        <div className="hidden items-center gap-8 text-sm font-medium text-slate-600 md:flex">
+
+          <Link href="/" className="transition hover:text-slate-950">
+            Home
+          </Link>
+
+          <Link href="/programs" className="transition hover:text-slate-950">
+            Programs
+          </Link>
+
+          <Link href="/resources" className="transition hover:text-slate-950">
+            Resources
+          </Link>
+
+          <Link href="/about" className="transition hover:text-slate-950">
+            About
+          </Link>
+
+          <Link href="/contact" className="transition hover:text-slate-950">
+            Contact
+          </Link>
+
         </div>
 
-        <button className="rounded-lg bg-slate-900 px-5 py-3 text-white hover:bg-blue-600 transition">
-          Apply Now
-        </button>
+        {/* CTA */}
+        <Link
+          href="/contact"
+          className="rounded-2xl bg-slate-950 px-5 py-3 text-sm font-semibold text-white transition hover:bg-slate-800"
+        >
+          Talk to Us
+        </Link>
 
       </div>
     </nav>
