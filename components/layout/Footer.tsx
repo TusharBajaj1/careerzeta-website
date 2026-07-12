@@ -1,5 +1,6 @@
 import Link from "next/link";
-import { Linkedin, Instagram, Mail } from "lucide-react";
+import { Mail } from "lucide-react";
+import { FaLinkedin, FaInstagram } from "react-icons/fa";
 
 const navigation = [
   { label: "Home", href: "/" },
@@ -16,12 +17,12 @@ const learning = [
 
 const connect = [
   {
-    icon: Linkedin,
+    icon: FaLinkedin,
     label: "LinkedIn",
     href: "https://www.linkedin.com/company/careerzeta",
   },
   {
-    icon: Instagram,
+    icon: FaInstagram,
     label: "Instagram",
     href: "https://www.instagram.com/careerzeta",
   },
