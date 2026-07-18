@@ -1,13 +1,14 @@
 import Hero from "@/components/home/Hero";
-import IndustryOverview from "@/components/home/IndustryOverview";
+import EvolutionOfWork from "@/components/home/EvolutionOfWork";
 import TargetAudience from "@/components/home/TargetAudience";
-
+import Footer from "@/components/layout/Footer";
 export default function Home() {
   return (
     <>
       <Hero />
-      <IndustryOverview />
+      <EvolutionOfWork />
       <TargetAudience />
+      <Footer />
     </>
   );
 }
