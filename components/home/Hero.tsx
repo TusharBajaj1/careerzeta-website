@@ -1,226 +1,150 @@
 "use client";
 
 import Link from "next/link";
-import { motion } from "framer-motion";
-import { ArrowRight, CheckCircle2 } from "lucide-react";
+import { useEffect, useState } from "react";
+import { Users } from "lucide-react";
 
-const fadeInUp = {
-  hidden: { opacity: 0, y: 28 },
-  visible: { opacity: 1, y: 0 },
-};
+import MediaPlaceholder from "@/components/ui/MediaPlaceholder";
+import { PROGRAMS } from "@/lib/content";
 
-const stagger = {
-  hidden: {},
-  visible: {
-    transition: {
-      staggerChildren: 0.12,
-      delayChildren: 0.12,
-    },
-  },
-};
-
-const journey = [
-  "Excel",
-  "SQL",
-  "Power BI",
-  "Analytics with Python",
-  "AI for Business",
-  "Business Storytelling",
-];
-
-const highlights = [
-  "Practical Learning",
-  "Real Business Projects",
-  "Industry-Focused Curriculum",
-  "Career Guidance",
+const stats = [
+  { value: "6", label: "programs" },
+  { value: "Live", label: "batches" },
+  { value: "Mentor", label: "led" },
+  { value: "Certified", label: "+ placement support" },
 ];
 
 export default function Hero() {
+  const [wordIndex, setWordIndex] = useState(0);
+  const [tilt, setTilt] = useState({ x: 0, y: 0 });
+
+  useEffect(() => {
+    const timer = setInterval(
+      () => setWordIndex((i) => (i + 1) % PROGRAMS.length),
+      2400,
+    );
+    return () => clearInterval(timer);
+  }, []);
+
   return (
-    <motion.section
-      className="relative flex min-h-[90vh] items-center overflow-hidden bg-white px-6 py-12 md:px-10 lg:px-16"
-      initial="hidden"
-      animate="visible"
-      variants={stagger}
+    <section
+      id="home"
+      className="relative mx-auto max-w-[1400px] overflow-hidden px-6 pt-16 md:px-10 lg:px-16 lg:pt-[90px]"
     >
-      {/* Background Pattern */}
-      <div
-        className="pointer-events-none absolute inset-0 opacity-40"
-        style={{
-          backgroundImage:
-            "radial-gradient(circle at 1.5px 1.5px,rgb(226 232 240) 1.5px,transparent 0)",
-          backgroundSize: "32px 32px",
-          maskImage:
-            "radial-gradient(ellipse 80% 60% at 50% 0%, black 40%, transparent 100%)",
-        }}
-      />
+      <div className="pointer-events-none absolute -top-[60px] -left-[60px] z-0 h-[220px] w-[220px] rounded-full bg-sky-400 opacity-12 blur-[30px] cz-float-blob-1" />
+      <div className="pointer-events-none absolute bottom-5 left-[38%] z-0 h-[180px] w-[180px] rounded-full bg-gray-900 opacity-8 blur-[30px] cz-float-blob-2" />
 
-      <div className="pointer-events-none absolute -top-40 left-1/2 h-[36rem] w-[36rem] -translate-x-1/2 rounded-full bg-gradient-to-br from-sky-200/40 via-indigo-200/30 to-transparent blur-3xl" />
+      <svg
+        aria-hidden
+        className="pointer-events-none absolute top-[60px] right-[6%] z-0 h-13 w-13 opacity-18 cz-float-slow"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="#111827"
+        strokeWidth={1.5}
+      >
+        <path d="M4 20V10M12 20V4M20 20v-7" />
+      </svg>
+      <svg
+        aria-hidden
+        className="pointer-events-none absolute top-[220px] right-[16%] z-0 h-10 w-10 opacity-16 cz-float-blob-2"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="#38bdf8"
+        strokeWidth={1.5}
+      >
+        <circle cx="9" cy="8" r="3.2" />
+        <path d="M3 20c0-3.3 2.7-5.5 6-5.5s6 2.2 6 5.5" />
+        <circle cx="17" cy="9" r="2.6" />
+        <path d="M15.5 14.5c2.6.3 4.5 2.2 4.5 5" />
+      </svg>
+      <svg
+        aria-hidden
+        className="pointer-events-none absolute bottom-[60px] left-[4%] z-0 h-11 w-11 opacity-14 cz-float-slow"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="#111827"
+        strokeWidth={1.5}
+      >
+        <path d="M9 6l-6 6 6 6M15 6l6 6-6 6" />
+      </svg>
 
-      <div className="relative mx-auto grid max-w-7xl gap-14 lg:grid-cols-[0.42fr_0.58fr]">
+      <div className="relative z-10 grid items-center gap-14 lg:grid-cols-[minmax(320px,1.3fr)_minmax(280px,1fr)]">
+        <div>
+          <span className="inline-block rounded-[20px] bg-sky-100 px-4 py-2 text-sm font-bold text-sky-700 cz-fade-in-up">
+            Online courses &amp; mentorship
+          </span>
 
-        {/* LEFT COLUMN */}
+          <h1 className="mt-6 font-display text-[clamp(34px,4.2vw,60px)] leading-[1.1] font-bold cz-fade-in-up [animation-delay:0.08s]">
+            Stop waiting. Start building your future.
+          </h1>
 
-        <motion.div
-          className="flex flex-col justify-center gap-8"
-          variants={fadeInUp}
-        >
+          <p className="mt-[22px] max-w-[46ch] text-[clamp(16px,1.6vw,19px)] leading-[1.55] opacity-75 cz-fade-in-up [animation-delay:0.16s]">
+            Technology has changed faster than anything since the personal
+            computer. CareerZeta pairs learners with qualified mentors so
+            professionals keep moving with it, not behind it.
+          </p>
 
-          <div className="inline-flex w-fit items-center gap-2 rounded-full bg-slate-100 px-4 py-2 text-sm font-semibold uppercase tracking-[0.3em] text-slate-700 shadow-sm ring-1 ring-slate-200">
-            <span className="h-1.5 w-1.5 rounded-full bg-sky-500" />
-            CareerZeta
+          <div className="mt-[18px] flex items-center gap-2.5 text-[15px] opacity-60">
+            <span>Now enrolling:</span>
+            <span
+              key={wordIndex}
+              className="font-display font-bold text-sky-700 cz-word-fade"
+            >
+              {PROGRAMS[wordIndex].name}
+            </span>
           </div>
 
-          <div className="space-y-6">
-
-            <motion.h1
-              className="text-4xl font-semibold tracking-tight text-slate-950 sm:text-5xl lg:text-6xl"
-              variants={fadeInUp}
+          <div className="mt-[34px] flex flex-wrap gap-4 cz-fade-in-up [animation-delay:0.24s]">
+            <Link
+              href="/contact"
+              className="rounded-lg bg-sky-400 px-7 py-4 text-base font-bold whitespace-nowrap text-slate-900 transition-transform duration-150 hover:scale-105 cz-pulse-glow"
             >
-              Build Your Career in{" "}
-              <span className="bg-gradient-to-r from-sky-500 via-indigo-600 to-indigo-600 bg-clip-text text-transparent">
-                Business Analytics
-              </span>
-            </motion.h1>
-
-            <motion.p
-              className="max-w-xl text-lg leading-8 text-slate-600 sm:text-xl"
-              variants={fadeInUp}
-            >
-              Industry-led learning designed for professionals looking to
-              transition into Business Analytics or accelerate their careers
-              through practical, application-oriented learning.
-            </motion.p>
-
-          </div>
-
-          <motion.div variants={fadeInUp}>
-
+              Contact us
+            </Link>
             <Link
               href="/programs"
-              className="group inline-flex items-center gap-2 rounded-2xl bg-slate-950 px-8 py-4 text-base font-semibold text-white shadow-lg transition hover:bg-slate-800"
+              className="rounded-lg border-2 border-gray-900 bg-white px-7 py-3.5 text-base font-bold whitespace-nowrap text-gray-900 transition-transform duration-150 hover:scale-105"
             >
-              Explore the Program
-
-              <ArrowRight
-                className="h-4 w-4 transition-transform group-hover:translate-x-1"
-                strokeWidth={2.2}
-              />
+              See programs
             </Link>
-
-          </motion.div>
-
-          <motion.div
-            className="grid gap-4 sm:grid-cols-2"
-            variants={fadeInUp}
-          >
-            {highlights.map((item) => (
-              <div
-                key={item}
-                className="flex items-center gap-3 rounded-3xl border border-slate-200 bg-slate-50 px-4 py-4 transition hover:border-slate-300 hover:bg-white"
-              >
-                <span className="flex h-10 w-10 items-center justify-center rounded-2xl bg-slate-950 text-white">
-                  <CheckCircle2 className="h-5 w-5" />
-                </span>
-
-                <span className="text-sm font-medium text-slate-900">
-                  {item}
-                </span>
-              </div>
-            ))}
-          </motion.div>
-
-        </motion.div>
-                {/* RIGHT COLUMN */}
-
-        <motion.div
-          className="relative flex items-center justify-center"
-          variants={fadeInUp}
-        >
-          <div className="relative w-full max-w-xl">
-
-            {/* Glow */}
-            <div className="absolute inset-0 rounded-[2rem] bg-gradient-to-br from-sky-100 via-white to-indigo-100 blur-3xl opacity-60" />
-
-            <div className="relative rounded-[2rem] border border-slate-200 bg-white p-8 shadow-[0_30px_80px_rgba(15,23,42,0.08)]">
-
-              <div className="mb-8">
-                <h3 className="text-2xl font-semibold text-slate-950">
-                  Your Learning Journey
-                </h3>
-
-                <p className="mt-2 text-sm text-slate-500">
-                  From business fundamentals to career growth.
-                </p>
-              </div>
-
-              <div className="relative">
-
-                {/* Timeline */}
-
-                <div className="absolute left-5 top-4 bottom-4 w-[2px] bg-gradient-to-b from-sky-500 via-indigo-500 to-sky-500" />
-
-                {journey.map((step, index) => {
-
-                  const finalStep = step === "Career Growth";
-
-                  return (
-
-                    <motion.div
-                      key={step}
-                      initial={{ opacity: 0, x: 30 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{
-                        delay: index * 0.08,
-                        duration: 0.4,
-                      }}
-                      className="relative mb-5 flex items-center gap-5"
-                    >
-
-                      <div
-                        className={`relative z-10 flex h-10 w-10 items-center justify-center rounded-full text-sm font-semibold shadow-lg ${
-                          finalStep
-                            ? "bg-gradient-to-r from-sky-500 to-indigo-600 text-white"
-                            : "bg-slate-950 text-white"
-                        }`}
-                      >
-                        {index + 1}
-                      </div>
-
-                      <div
-                        className={`flex-1 rounded-2xl px-5 py-4 transition duration-300 ${
-                          finalStep
-                            ? "bg-gradient-to-r from-sky-500 to-indigo-600 text-white shadow-xl"
-                            : "border border-slate-200 bg-slate-50 hover:border-sky-300 hover:bg-white hover:shadow-md"
-                        }`}
-                      >
-                        <p
-                          className={`font-medium ${
-                            finalStep
-                              ? "text-white"
-                              : "text-slate-900"
-                          }`}
-                        >
-                          {step}
-                        </p>
-                      </div>
-
-                    </motion.div>
-
-                  );
-                })}
-
-              </div>
-
-            </div>
-
           </div>
 
-        </motion.div>
+          <div className="mt-11 flex flex-wrap gap-7 cz-fade-in-up [animation-delay:0.32s]">
+            {stats.map((stat) => (
+              <div key={stat.label}>
+                <div className="font-display text-[22px] font-bold text-sky-700">
+                  {stat.value}
+                </div>
+                <div className="text-[13px] opacity-65">{stat.label}</div>
+              </div>
+            ))}
+          </div>
+        </div>
 
+        <div
+          onMouseMove={(e) => {
+            const r = e.currentTarget.getBoundingClientRect();
+            const px = (e.clientX - r.left) / r.width - 0.5;
+            const py = (e.clientY - r.top) / r.height - 0.5;
+            setTilt({ x: py * -10, y: px * 10 });
+          }}
+          onMouseLeave={() => setTilt({ x: 0, y: 0 })}
+          className="rounded-[20px] bg-gradient-to-br from-gray-900 via-sky-400 to-gray-900 p-1.5 [perspective:800px] cz-gradient-drift"
+        >
+          <div
+            className="transition-transform duration-150 ease-out"
+            style={{
+              transform: `rotateX(${tilt.x}deg) rotateY(${tilt.y}deg)`,
+            }}
+          >
+            <MediaPlaceholder
+              icon={Users}
+              label="Learners on laptops in a live session, mentor guiding them"
+              className="h-[420px] w-full rounded-2xl"
+            />
+          </div>
+        </div>
       </div>
-
-    </motion.section>
-
+    </section>
   );
 }

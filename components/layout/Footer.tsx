@@ -1,6 +1,9 @@
+import Image from "next/image";
 import Link from "next/link";
 import { Mail } from "lucide-react";
-import { FaLinkedin, FaInstagram } from "react-icons/fa";
+import { FaInstagram, FaLinkedin } from "react-icons/fa";
+
+import { CONTACT } from "@/lib/content";
 
 const navigation = [
   { label: "Home", href: "/" },
@@ -10,10 +13,7 @@ const navigation = [
   { label: "Contact", href: "/contact" },
 ];
 
-const learning = [
-  { label: "Business Analytics Program", href: "/programs" },
-  { label: "Industry Reports", href: "/resources" },
-];
+const programs = ["Data Analytics", "Applied AI", "Machine Learning"];
 
 const connect = [
   {
@@ -29,7 +29,7 @@ const connect = [
   {
     icon: Mail,
     label: "Email",
-    href: "mailto:hello@careerzeta.com",
+    href: `mailto:${CONTACT.email}`,
   },
 ];
 
@@ -40,117 +40,116 @@ const legal = [
 
 export default function Footer() {
   return (
-    <footer className="border-t border-slate-200 bg-white px-6 py-16 md:px-10 lg:px-16">
-      <div className="mx-auto max-w-7xl">
+    <footer className="bg-slate-900 px-6 pt-16 pb-10 md:px-10 lg:px-16">
+      <div className="mx-auto max-w-[1400px]">
+        <div className="grid gap-12 lg:grid-cols-[1.4fr_1fr_1fr_1fr]">
+          <div>
+            <div className="flex items-center gap-2.5">
+              <Image
+                src="/brand/careerzeta-mark-white.png"
+                alt=""
+                width={632}
+                height={544}
+                className="h-7 w-auto"
+              />
+              <span className="font-display text-lg font-bold text-white">
+                CareerZeta
+              </span>
+            </div>
 
-        {/* Top Section */}
-        <div className="grid gap-12 lg:grid-cols-[1.5fr_1fr_1fr_1fr]">
-
-          {/* Brand */}
-          <div className="max-w-sm">
-            <Link
-              href="/"
-              className="text-2xl font-bold tracking-tight text-slate-950"
-            >
-              Career<span className="text-sky-600">Zeta</span>
-            </Link>
-
-            <p className="mt-4 text-sm leading-7 text-slate-600">
-              Preparing professionals for the future of Business Analytics
-              through practical, industry-focused learning.
+            <p className="mt-4 max-w-[32ch] text-sm text-white opacity-60">
+              Keeping professionals on pace with technology, one mentor-led
+              skill at a time.
             </p>
+
+            <div className="mt-6 flex items-center gap-4">
+              {connect.map((item) => (
+                <a
+                  key={item.label}
+                  href={item.href}
+                  aria-label={item.label}
+                  target={item.href.startsWith("http") ? "_blank" : undefined}
+                  rel={
+                    item.href.startsWith("http")
+                      ? "noopener noreferrer"
+                      : undefined
+                  }
+                  className="text-white/60 transition hover:text-sky-400"
+                >
+                  <item.icon className="h-5 w-5" />
+                </a>
+              ))}
+            </div>
           </div>
 
-          {/* Navigation */}
           <div>
-            <h3 className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">
-              Navigation
-            </h3>
-
-            <ul className="mt-5 space-y-3">
+            <div className="text-[13px] tracking-[0.06em] text-white uppercase opacity-50">
+              Navigate
+            </div>
+            <div className="mt-4 flex flex-col gap-2.5">
               {navigation.map((item) => (
-                <li key={item.label}>
-                  <Link
-                    href={item.href}
-                    className="text-sm font-medium text-slate-600 transition hover:text-slate-950"
-                  >
-                    {item.label}
-                  </Link>
-                </li>
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  className="text-[15px] text-white opacity-85 transition hover:text-sky-400 hover:opacity-100"
+                >
+                  {item.label}
+                </Link>
               ))}
-            </ul>
+            </div>
           </div>
 
-          {/* Learning */}
           <div>
-            <h3 className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">
-              Learning
-            </h3>
-
-            <ul className="mt-5 space-y-3">
-              {learning.map((item) => (
-                <li key={item.label}>
-                  <Link
-                    href={item.href}
-                    className="text-sm font-medium text-slate-600 transition hover:text-slate-950"
-                  >
-                    {item.label}
-                  </Link>
-                </li>
+            <div className="text-[13px] tracking-[0.06em] text-white uppercase opacity-50">
+              Programs
+            </div>
+            <div className="mt-4 flex flex-col gap-2.5">
+              {programs.map((program) => (
+                <Link
+                  key={program}
+                  href="/programs"
+                  className="text-[15px] text-white opacity-75 transition hover:text-sky-400 hover:opacity-100"
+                >
+                  {program}
+                </Link>
               ))}
-            </ul>
+            </div>
           </div>
 
-          {/* Connect */}
           <div>
-            <h3 className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">
-              Connect
-            </h3>
-
-            <ul className="mt-5 space-y-3">
-              {connect.map((item) => {
-                const Icon = item.icon;
-
-                return (
-                  <li key={item.label}>
-                    <a
-                      href={item.href}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="group inline-flex items-center gap-3 text-sm font-medium text-slate-600 transition hover:text-slate-950"
-                    >
-                      <Icon
-                        className="h-4 w-4 text-slate-400 transition group-hover:text-sky-600"
-                        strokeWidth={1.8}
-                      />
-                      {item.label}
-                    </a>
-                  </li>
-                );
-              })}
-            </ul>
+            <div className="text-[13px] tracking-[0.06em] text-white uppercase opacity-50">
+              Contact
+            </div>
+            <div className="mt-4 flex flex-col gap-2.5">
+              <a
+                href={`mailto:${CONTACT.email}`}
+                className="text-[15px] text-white opacity-75 transition hover:text-sky-400 hover:opacity-100"
+              >
+                {CONTACT.email}
+              </a>
+              <span className="text-[15px] text-white opacity-75">
+                {CONTACT.web}
+              </span>
+            </div>
           </div>
         </div>
 
-        {/* Bottom Bar */}
-        <div className="mt-16 flex flex-col items-center justify-between gap-4 border-t border-slate-200 pt-8 sm:flex-row">
+        <div className="mt-12 flex flex-wrap items-center justify-between gap-4 border-t border-white/15 pt-6">
+          <span className="text-sm text-white opacity-50">
+            © {new Date().getFullYear()} CareerZeta
+          </span>
 
-          <p className="text-sm text-slate-500">
-            © {new Date().getFullYear()} CareerZeta. All rights reserved.
-          </p>
-
-          <div className="flex items-center gap-6">
+          <div className="flex gap-6">
             {legal.map((item) => (
               <Link
-                key={item.label}
+                key={item.href}
                 href={item.href}
-                className="text-sm text-slate-500 transition hover:text-slate-950"
+                className="text-sm text-white opacity-50 transition hover:text-sky-400 hover:opacity-100"
               >
                 {item.label}
               </Link>
             ))}
           </div>
-
         </div>
       </div>
     </footer>
