@@ -4,6 +4,7 @@ import Link from "next/link";
 import HowWeOperate from "@/components/programs/HowWeOperate";
 import ProgramSection from "@/components/programs/ProgramSection";
 import Reveal from "@/components/ui/Reveal";
+import ScrollCue from "@/components/ui/ScrollCue";
 import Footer from "@/components/layout/Footer";
 import { PROGRAMS } from "@/lib/content";
 import { PROGRAM_DETAILS } from "@/lib/programsDetail";
@@ -17,19 +18,15 @@ export const metadata: Metadata = {
 export default function ProgramsPage() {
   return (
     <>
-      <section className="mx-auto max-w-[1400px] px-6 pt-16 pb-8 text-center md:px-10 lg:px-16 lg:pt-24">
+      <ScrollCue />
+
+      <section className="mx-auto max-w-[1400px] px-6 pt-8 pb-2 md:px-10 lg:px-16 lg:pt-10">
         <h6 className="text-sm font-bold tracking-[0.06em] text-sky-700 uppercase">
           Our programs
         </h6>
-        <h1 className="mx-auto mt-3.5 max-w-[20ch] font-display text-4xl font-bold md:text-5xl">
+        <h1 className="mt-2 font-display text-3xl font-bold md:text-4xl">
           Six programs, one mentor-led model
         </h1>
-        <p className="mx-auto mt-5 max-w-[60ch] text-lg leading-relaxed opacity-75">
-          Every program follows the same model — live classes, mentor-led
-          practice, and a certificate that means the program was finished.
-          Scroll through to find the one that matches where you want to go
-          next.
-        </p>
       </section>
 
       {PROGRAMS.map((program, index) => {

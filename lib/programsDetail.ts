@@ -1,34 +1,63 @@
 import {
   BarChart3,
   Bot,
-  Code2,
   Database,
-  NotebookPen,
-  Package,
   Sheet,
   Sparkles,
   type LucideIcon,
 } from "lucide-react";
+import {
+  SiClaude,
+  SiGooglegemini,
+  SiJupyter,
+  SiNumpy,
+  SiPandas,
+  SiPython,
+  SiScikitlearn,
+} from "react-icons/si";
+import type { IconType } from "react-icons";
 
-/** Generic, non-brand icons standing in for each tool — no third-party logos used. */
-const TOOL_ICONS: Record<string, LucideIcon> = {
-  Excel: Sheet,
-  SQL: Database,
-  "Power BI": BarChart3,
-  Python: Code2,
-  ChatGPT: Bot,
-  Claude: Bot,
-  Gemini: Bot,
-  "Microsoft Copilot": Bot,
-  Pandas: Package,
-  NumPy: Package,
-  "Scikit-learn": Package,
-  Jupyter: NotebookPen,
+export type ToolMeta = { icon: LucideIcon | IconType; color: string };
+
+/**
+ * Real open-source project marks where one exists (Python, Jupyter, Pandas,
+ * NumPy, Scikit-learn, Claude, Gemini); a colored generic icon everywhere
+ * else, since no Excel/Power BI/ChatGPT/Copilot mark is available here and
+ * fabricating one isn't safe. Rendered identically either way so the mix
+ * doesn't show.
+ */
+const TOOL_META: Record<string, ToolMeta> = {
+  Excel: { icon: Sheet, color: "#217346" },
+  SQL: { icon: Database, color: "#0369a1" },
+  "Power BI": { icon: BarChart3, color: "#F2C811" },
+  Python: { icon: SiPython, color: "#3776AB" },
+  ChatGPT: { icon: Bot, color: "#10A37F" },
+  Claude: { icon: SiClaude, color: "#D97757" },
+  Gemini: { icon: SiGooglegemini, color: "#4285F4" },
+  "Microsoft Copilot": { icon: Bot, color: "#185ABD" },
+  Pandas: { icon: SiPandas, color: "#150458" },
+  NumPy: { icon: SiNumpy, color: "#4DABCF" },
+  "Scikit-learn": { icon: SiScikitlearn, color: "#F7931E" },
+  Jupyter: { icon: SiJupyter, color: "#F37626" },
 };
 
-export function toolIcon(tool: string): LucideIcon {
-  return TOOL_ICONS[tool] ?? Sparkles;
+export function toolMeta(tool: string): ToolMeta {
+  return TOOL_META[tool] ?? { icon: Sparkles, color: "#0369a1" };
 }
+
+/**
+ * "What You'll Do" steps are short, program-specific phrases rather than
+ * fixed concepts, so there's no single icon per label to map to. A rotating
+ * set gives each step a distinct, consistent visual without curating one
+ * icon per phrase across all six programs by hand.
+ */
+export const WHAT_YOULL_DO_ICONS: LucideIcon[] = [
+  Database,
+  Sparkles,
+  BarChart3,
+  Bot,
+  Sheet,
+];
 
 export type ProgramDetail = {
   slug: string;
