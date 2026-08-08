@@ -13,44 +13,52 @@ import {
 } from "lucide-react";
 
 export type Program = {
+  slug: string;
   name: string;
   icon: LucideIcon;
   desc: string;
   tags: string[];
 };
 
+/** slug is the anchor id each program links to on /programs (#slug). */
 export const PROGRAMS: Program[] = [
   {
+    slug: "data-analytics",
     name: "Data Analytics",
     icon: BarChart3,
     desc: "Learn to collect, clean and visualize data so it drives real decisions — from raw spreadsheets to dashboards stakeholders actually use.",
     tags: ["Programming", "Statistics", "Visualization", "Business context"],
   },
   {
+    slug: "business-analytics",
     name: "Business Analytics",
     icon: TrendingUp,
     desc: "Translate data into business strategy — spotting the trend behind the numbers and turning it into a decision leadership can act on.",
     tags: ["Statistics", "Visualization", "Business context"],
   },
   {
+    slug: "applied-ai",
     name: "Applied AI",
     icon: Sparkles,
     desc: "Apply existing AI models to real products — integrating, evaluating and shipping AI features rather than building models from scratch.",
     tags: ["Programming", "Statistics", "ML / AI"],
   },
   {
+    slug: "agentic-ai",
     name: "Agentic AI",
     icon: Bot,
     desc: "Build autonomous, tool-using agents that plan and act across multiple steps — the newest layer of applied AI work.",
     tags: ["Programming", "ML / AI"],
   },
   {
+    slug: "machine-learning",
     name: "Machine Learning",
     icon: Cpu,
     desc: "Model and predict from data at scale — the statistics and engineering behind systems that learn from examples.",
     tags: ["Programming", "Statistics", "ML / AI"],
   },
   {
+    slug: "data-science",
     name: "Data Science",
     icon: Database,
     desc: "Full-stack analysis, from data to insight — the broadest track, covering programming, statistics, visualization and ML together.",
@@ -124,5 +132,19 @@ export const FAQS: Faq[] = [
 /** Single source of truth for contact details shown across the site. */
 export const CONTACT = {
   email: "hello@careerzeta.com",
+  phone: "+91-8851441177",
   web: "www.careerzeta.com",
+  talentEmail: "talent@careerzeta.com",
+};
+
+/**
+ * External, independently-sourced statistic used in the Hero. Not a
+ * CareerZeta claim — kept separate and always rendered with attribution.
+ */
+export const EXTERNAL_STAT = {
+  headline: "Skills, not seniority, are what's moving pay.",
+  detail:
+    "Pay premiums for AI, ML, cybersecurity and cloud skills are rising 30–40%, even as overall salary increments cool.",
+  source: "EY Future of Pay 2026 report, via The Economic Times",
+  url: "https://economictimes.indiatimes.com/jobs/hr-policies-trends/pay-hikes-ease-to-9-1-in-2026-as-firms-focus-on-skill-based-rewards-ey-report/articleshow/128703168.cms",
 };

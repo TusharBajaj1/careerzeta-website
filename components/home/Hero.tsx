@@ -2,21 +2,16 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { Users } from "lucide-react";
+import { TrendingUp } from "lucide-react";
 
-import MediaPlaceholder from "@/components/ui/MediaPlaceholder";
-import { PROGRAMS } from "@/lib/content";
+import HeroIllustration from "@/components/home/HeroIllustration";
+import { EXTERNAL_STAT, PROGRAMS } from "@/lib/content";
 
-const stats = [
-  { value: "6", label: "programs" },
-  { value: "Live", label: "batches" },
-  { value: "Mentor", label: "led" },
-  { value: "Certified", label: "+ placement support" },
-];
+const strip =
+  "6 Programs · Live Batches · Mentor-led · Certified · Placement Support";
 
 export default function Hero() {
   const [wordIndex, setWordIndex] = useState(0);
-  const [tilt, setTilt] = useState({ x: 0, y: 0 });
 
   useEffect(() => {
     const timer = setInterval(
@@ -36,7 +31,7 @@ export default function Hero() {
 
       <svg
         aria-hidden
-        className="pointer-events-none absolute top-[60px] right-[6%] z-0 h-13 w-13 opacity-18 cz-float-slow"
+        className="pointer-events-none absolute top-[60px] right-[6%] z-0 hidden h-13 w-13 opacity-18 cz-float-slow lg:block"
         viewBox="0 0 24 24"
         fill="none"
         stroke="#111827"
@@ -46,7 +41,7 @@ export default function Hero() {
       </svg>
       <svg
         aria-hidden
-        className="pointer-events-none absolute top-[220px] right-[16%] z-0 h-10 w-10 opacity-16 cz-float-blob-2"
+        className="pointer-events-none absolute top-[220px] right-[16%] z-0 hidden h-10 w-10 opacity-16 cz-float-blob-2 lg:block"
         viewBox="0 0 24 24"
         fill="none"
         stroke="#38bdf8"
@@ -59,7 +54,7 @@ export default function Hero() {
       </svg>
       <svg
         aria-hidden
-        className="pointer-events-none absolute bottom-[60px] left-[4%] z-0 h-11 w-11 opacity-14 cz-float-slow"
+        className="pointer-events-none absolute bottom-[60px] left-[4%] z-0 hidden h-11 w-11 opacity-14 cz-float-slow lg:block"
         viewBox="0 0 24 24"
         fill="none"
         stroke="#111827"
@@ -96,53 +91,55 @@ export default function Hero() {
 
           <div className="mt-[34px] flex flex-wrap gap-4 cz-fade-in-up [animation-delay:0.24s]">
             <Link
-              href="/contact"
-              className="rounded-lg bg-sky-400 px-7 py-4 text-base font-bold whitespace-nowrap text-slate-900 transition-transform duration-150 hover:scale-105 cz-pulse-glow"
-            >
-              Contact us
-            </Link>
-            <Link
               href="/programs"
-              className="rounded-lg border-2 border-gray-900 bg-white px-7 py-3.5 text-base font-bold whitespace-nowrap text-gray-900 transition-transform duration-150 hover:scale-105"
+              className="rounded-lg bg-sky-400 px-7 py-4 text-base font-bold whitespace-nowrap text-slate-900 transition-transform duration-150 hover:scale-105 cz-pulse-glow"
             >
               See programs
             </Link>
+            <Link
+              href="/contact"
+              className="rounded-lg border-2 border-gray-900 bg-white px-7 py-3.5 text-base font-bold whitespace-nowrap text-gray-900 transition-transform duration-150 hover:scale-105"
+            >
+              Contact us
+            </Link>
           </div>
 
-          <div className="mt-11 flex flex-wrap gap-7 cz-fade-in-up [animation-delay:0.32s]">
-            {stats.map((stat) => (
-              <div key={stat.label}>
-                <div className="font-display text-[22px] font-bold text-sky-700">
-                  {stat.value}
-                </div>
-                <div className="text-[13px] opacity-65">{stat.label}</div>
-              </div>
-            ))}
-          </div>
+          <a
+            href={EXTERNAL_STAT.url}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="mt-9 flex max-w-[46ch] items-start gap-3 rounded-xl border border-sky-200 bg-sky-50/70 px-4 py-3.5 transition hover:border-sky-300 hover:bg-sky-50 cz-fade-in-up [animation-delay:0.32s]"
+          >
+            <TrendingUp
+              className="mt-0.5 h-5 w-5 shrink-0 text-sky-600"
+              strokeWidth={1.75}
+              aria-hidden
+            />
+            <span className="text-sm leading-relaxed text-slate-700">
+              <strong className="font-semibold">
+                {EXTERNAL_STAT.headline}
+              </strong>{" "}
+              {EXTERNAL_STAT.detail}
+              <span className="mt-1 block text-xs font-semibold text-sky-700 underline underline-offset-2">
+                External industry insight — {EXTERNAL_STAT.source} ↗
+              </span>
+            </span>
+          </a>
         </div>
 
-        <div
-          onMouseMove={(e) => {
-            const r = e.currentTarget.getBoundingClientRect();
-            const px = (e.clientX - r.left) / r.width - 0.5;
-            const py = (e.clientY - r.top) / r.height - 0.5;
-            setTilt({ x: py * -10, y: px * 10 });
-          }}
-          onMouseLeave={() => setTilt({ x: 0, y: 0 })}
-          className="rounded-[20px] bg-gradient-to-br from-gray-900 via-sky-400 to-gray-900 p-1.5 [perspective:800px] cz-gradient-drift"
-        >
-          <div
-            className="transition-transform duration-150 ease-out"
-            style={{
-              transform: `rotateX(${tilt.x}deg) rotateY(${tilt.y}deg)`,
-            }}
-          >
-            <MediaPlaceholder
-              icon={Users}
-              label="Learners on laptops in a live session, mentor guiding them"
-              className="h-[420px] w-full rounded-2xl"
-            />
-          </div>
+        <div className="rounded-[20px] bg-gradient-to-br from-gray-900 via-sky-400 to-gray-900 p-1.5 cz-gradient-drift">
+          <HeroIllustration />
+        </div>
+      </div>
+
+      <div className="relative z-10 mt-14 overflow-hidden rounded-full border border-slate-200 bg-white/50 py-3 backdrop-blur-sm">
+        <div className="flex whitespace-nowrap cz-marquee">
+          <span className="pr-16 text-sm font-semibold text-slate-500">
+            {strip}
+          </span>
+          <span className="pr-16 text-sm font-semibold text-slate-500">
+            {strip}
+          </span>
         </div>
       </div>
     </section>

@@ -11,7 +11,7 @@ const links = [
   { label: "Home", href: "/" },
   { label: "Programs", href: "/programs" },
   { label: "Resources", href: "/resources" },
-  { label: "About", href: "/about" },
+  { label: "About Us", href: "/about" },
 ];
 
 export default function Navbar() {
@@ -64,7 +64,7 @@ export default function Navbar() {
               href="/contact"
               className="shrink-0 rounded-lg bg-sky-400 px-5 py-3 text-[15px] font-bold whitespace-nowrap text-slate-900 transition-transform duration-150 hover:scale-105"
             >
-              Contact us
+              Contact Us
             </Link>
           </div>
 
@@ -98,7 +98,7 @@ export default function Navbar() {
                 onClick={() => setOpen(false)}
                 className="mt-2 rounded-lg bg-sky-400 px-5 py-3 text-center text-[15px] font-bold text-slate-900"
               >
-                Contact us
+                Contact Us
               </Link>
             </div>
           </div>
