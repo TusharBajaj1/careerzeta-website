@@ -140,11 +140,11 @@ export const CONTACT = {
 /**
  * External, independently-sourced statistic used in the Hero. Not a
  * CareerZeta claim — kept separate and always rendered with attribution.
+ * The `url` is background research only (not rendered on the site) in
+ * case the figure is ever questioned.
  */
 export const EXTERNAL_STAT = {
-  headline: "Skills, not seniority, are what's moving pay.",
-  detail:
-    "Pay premiums for AI, ML, cybersecurity and cloud skills are rising 30–40%, even as overall salary increments cool.",
-  source: "EY Future of Pay 2026 report, via The Economic Times",
+  headline: "Upskilling can improve remuneration by up to 40%.",
+  source: "EY Future of Pay 2026 report",
   url: "https://economictimes.indiatimes.com/jobs/hr-policies-trends/pay-hikes-ease-to-9-1-in-2026-as-firms-focus-on-skill-based-rewards-ey-report/articleshow/128703168.cms",
 };

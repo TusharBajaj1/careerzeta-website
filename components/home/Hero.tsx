@@ -2,9 +2,9 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { TrendingUp } from "lucide-react";
+import { ImageIcon, TrendingUp } from "lucide-react";
 
-import HeroIllustration from "@/components/home/HeroIllustration";
+import MediaPlaceholder from "@/components/ui/MediaPlaceholder";
 import { EXTERNAL_STAT, PROGRAMS } from "@/lib/content";
 
 const strip =
@@ -104,12 +104,7 @@ export default function Hero() {
             </Link>
           </div>
 
-          <a
-            href={EXTERNAL_STAT.url}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="mt-9 flex max-w-[46ch] items-start gap-3 rounded-xl border border-sky-200 bg-sky-50/70 px-4 py-3.5 transition hover:border-sky-300 hover:bg-sky-50 cz-fade-in-up [animation-delay:0.32s]"
-          >
+          <div className="mt-9 flex max-w-[46ch] items-start gap-3 rounded-xl border border-sky-200 bg-sky-50/70 px-4 py-3.5 cz-fade-in-up [animation-delay:0.32s]">
             <TrendingUp
               className="mt-0.5 h-5 w-5 shrink-0 text-sky-600"
               strokeWidth={1.75}
@@ -118,17 +113,21 @@ export default function Hero() {
             <span className="text-sm leading-relaxed text-slate-700">
               <strong className="font-semibold">
                 {EXTERNAL_STAT.headline}
-              </strong>{" "}
-              {EXTERNAL_STAT.detail}
-              <span className="mt-1 block text-xs font-semibold text-sky-700 underline underline-offset-2">
-                External industry insight — {EXTERNAL_STAT.source} ↗
+              </strong>
+              <span className="mt-1 block text-xs opacity-60">
+                External industry benchmark — {EXTERNAL_STAT.source}, not a
+                CareerZeta guarantee.
               </span>
             </span>
-          </a>
+          </div>
         </div>
 
         <div className="rounded-[20px] bg-gradient-to-br from-gray-900 via-sky-400 to-gray-900 p-1.5 cz-gradient-drift">
-          <HeroIllustration />
+          <MediaPlaceholder
+            icon={ImageIcon}
+            label="Hero visual — custom illustration to be supplied"
+            className="h-[420px] w-full rounded-2xl"
+          />
         </div>
       </div>
 
