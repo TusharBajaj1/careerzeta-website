@@ -5,7 +5,11 @@ import Reveal from "@/components/ui/Reveal";
 
 const mentorSlots = [1, 2, 3, 4];
 
-export default function Mentors() {
+type MentorsProps = {
+  heading?: string;
+};
+
+export default function Mentors({ heading = "Mentors" }: MentorsProps) {
   return (
     <Reveal
       id="mentors"
@@ -14,7 +18,7 @@ export default function Mentors() {
       <h6 className="text-sm font-bold tracking-[0.06em] text-sky-700 uppercase">
         Our strengths
       </h6>
-      <h2 className="mt-3.5 font-display text-4xl font-bold">Mentors</h2>
+      <h2 className="mt-3.5 font-display text-4xl font-bold">{heading}</h2>
       <p className="mt-3.5 max-w-[60ch] text-[17px] opacity-75">
         Our mentors work in the industry today, guiding learners through applied
         practice, batch by batch.
