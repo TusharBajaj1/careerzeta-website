@@ -2,6 +2,20 @@ import { PROGRAMS } from "@/lib/content";
 
 export type ProgramTag = (typeof PROGRAMS)[number]["name"];
 
+/** Accent color per program tag, used for the icon badge on story cards. */
+export const TAG_ACCENT: Record<ProgramTag, string> = {
+  "Data Analytics": "#0369a1",
+  "Business Analytics": "#0891b2",
+  "Applied AI": "#7c3aed",
+  "Agentic AI": "#059669",
+  "Machine Learning": "#ea580c",
+  "Data Science": "#4338ca",
+};
+
+export function tagIcon(tag: ProgramTag) {
+  return PROGRAMS.find((p) => p.name === tag)?.icon ?? PROGRAMS[0].icon;
+}
+
 export type Story = {
   tags: ProgramTag[];
   title: string;

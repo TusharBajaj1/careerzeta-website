@@ -20,7 +20,7 @@ export default function ContactPage() {
 
       <Reveal
         id="work-with-us-form"
-        className="mx-auto max-w-[800px] scroll-mt-24 px-6 py-20 md:px-10 lg:px-16 lg:py-28"
+        className="mx-auto max-w-[800px] scroll-mt-24 px-6 pt-8 pb-16 md:px-10 lg:px-16 lg:pt-10 lg:pb-20"
       >
         <h6 className="text-sm font-bold tracking-[0.06em] text-sky-700 uppercase">
           Mentors &amp; careers

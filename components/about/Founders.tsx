@@ -22,7 +22,7 @@ export default function Founders() {
   return (
     <Reveal
       id="founders"
-      className="mx-auto max-w-[1400px] scroll-mt-24 px-6 py-20 md:px-10 lg:px-16 lg:py-28"
+      className="mx-auto max-w-[1400px] scroll-mt-24 px-6 py-10 md:px-10 lg:px-16 lg:py-14"
     >
       <h6 className="text-sm font-bold tracking-[0.06em] text-sky-700 uppercase">
         Our strengths

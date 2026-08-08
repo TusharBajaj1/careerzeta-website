@@ -2,7 +2,7 @@ import Reveal from "@/components/ui/Reveal";
 
 export default function Vision() {
   return (
-    <Reveal className="relative overflow-hidden bg-gradient-to-br from-gray-900 to-slate-800 px-6 py-20 md:px-10 lg:px-16 lg:py-25">
+    <Reveal className="relative overflow-hidden bg-gradient-to-br from-gray-900 to-slate-800 px-6 py-16 md:px-10 lg:px-16 lg:py-20">
       <div
         aria-hidden
         className="pointer-events-none absolute -bottom-20 right-5 font-display text-[200px] leading-none font-bold text-white opacity-8 select-none lg:text-[380px] cz-float-slow"

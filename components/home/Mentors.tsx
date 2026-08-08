@@ -2,6 +2,7 @@ import { UserRound } from "lucide-react";
 
 import MediaPlaceholder from "@/components/ui/MediaPlaceholder";
 import Reveal from "@/components/ui/Reveal";
+import { StaggerGroup, StaggerItem } from "@/components/ui/Stagger";
 
 const mentorSlots = [1, 2, 3, 4];
 
@@ -13,7 +14,7 @@ export default function Mentors({ heading = "Mentors" }: MentorsProps) {
   return (
     <Reveal
       id="mentors"
-      className="mx-auto max-w-[1400px] scroll-mt-24 px-6 py-20 md:px-10 lg:px-16 lg:py-28"
+      className="mx-auto max-w-[1400px] scroll-mt-24 px-6 py-16 md:px-10 lg:px-16 lg:py-20"
     >
       <h6 className="text-sm font-bold tracking-[0.06em] text-sky-700 uppercase">
         Our strengths
@@ -24,9 +25,9 @@ export default function Mentors({ heading = "Mentors" }: MentorsProps) {
         practice, batch by batch.
       </p>
 
-      <div className="mt-11 grid gap-7 sm:grid-cols-2 lg:grid-cols-4">
+      <StaggerGroup className="mt-11 grid gap-7 sm:grid-cols-2 lg:grid-cols-4">
         {mentorSlots.map((slot) => (
-          <div
+          <StaggerItem
             key={slot}
             className="flex flex-col gap-3.5 transition-transform duration-200 hover:-translate-y-2"
           >
@@ -37,9 +38,9 @@ export default function Mentors({ heading = "Mentors" }: MentorsProps) {
             />
             <div className="font-display text-base font-bold">Mentor name</div>
             <div className="text-sm opacity-60">Title, company placeholder</div>
-          </div>
+          </StaggerItem>
         ))}
-      </div>
+      </StaggerGroup>
     </Reveal>
   );
 }

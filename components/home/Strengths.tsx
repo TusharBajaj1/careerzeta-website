@@ -2,6 +2,7 @@ import Link from "next/link";
 import { Award, Handshake, Users } from "lucide-react";
 
 import Reveal from "@/components/ui/Reveal";
+import { StaggerGroup, StaggerItem } from "@/components/ui/Stagger";
 
 const pillars = [
   {
@@ -29,7 +30,7 @@ const pillars = [
 
 export default function Strengths() {
   return (
-    <Reveal className="mx-auto max-w-[1400px] px-6 py-20 md:px-10 lg:px-16 lg:py-28">
+    <Reveal className="mx-auto max-w-[1400px] px-6 py-16 md:px-10 lg:px-16 lg:py-20">
       <h6 className="text-sm font-bold tracking-[0.06em] text-sky-700 uppercase">
         Why CareerZeta
       </h6>
@@ -37,31 +38,32 @@ export default function Strengths() {
         Built around mentors, not modules
       </h2>
 
-      <div className="mt-11 grid gap-6 sm:grid-cols-3">
+      <StaggerGroup className="mt-11 grid gap-6 sm:grid-cols-3">
         {pillars.map((pillar) => (
-          <Link
-            key={pillar.title}
-            href={pillar.href}
-            className={`flex flex-col gap-3.5 rounded-2xl p-8 transition duration-200 hover:-translate-y-2 hover:scale-[1.02] ${
-              pillar.tint
-                ? "bg-sky-100 hover:shadow-[0_16px_28px_rgba(3,105,161,0.18)]"
-                : "bg-slate-200 hover:shadow-[0_16px_28px_rgba(17,24,39,0.15)]"
-            }`}
-          >
-            <pillar.icon
-              className={`h-8.5 w-8.5 ${
-                pillar.tint ? "text-sky-700" : "text-gray-900"
+          <StaggerItem key={pillar.title}>
+            <Link
+              href={pillar.href}
+              className={`flex h-full flex-col gap-3.5 rounded-2xl p-8 transition duration-200 hover:-translate-y-2 hover:scale-[1.02] ${
+                pillar.tint
+                  ? "bg-sky-100 hover:shadow-[0_16px_28px_rgba(3,105,161,0.18)]"
+                  : "bg-slate-200 hover:shadow-[0_16px_28px_rgba(17,24,39,0.15)]"
               }`}
-              strokeWidth={1.5}
-              aria-hidden
-            />
-            <div className="font-display text-lg font-bold">
-              {pillar.title}
-            </div>
-            <div className="text-[15px] opacity-70">{pillar.text}</div>
-          </Link>
+            >
+              <pillar.icon
+                className={`h-8.5 w-8.5 ${
+                  pillar.tint ? "text-sky-700" : "text-gray-900"
+                }`}
+                strokeWidth={1.5}
+                aria-hidden
+              />
+              <div className="font-display text-lg font-bold">
+                {pillar.title}
+              </div>
+              <div className="text-[15px] opacity-70">{pillar.text}</div>
+            </Link>
+          </StaggerItem>
         ))}
-      </div>
+      </StaggerGroup>
     </Reveal>
   );
 }

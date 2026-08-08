@@ -1,14 +1,16 @@
 import Link from "next/link";
 import {
   ArrowUpRight,
-  BarChart3,
   Bookmark,
   CheckCircle2,
   ChevronRight,
   FileText,
+  Gauge,
 } from "lucide-react";
 
 import MediaPlaceholder from "@/components/ui/MediaPlaceholder";
+import Reveal from "@/components/ui/Reveal";
+import { StaggerGroup, StaggerItem } from "@/components/ui/Stagger";
 import type { Program } from "@/lib/content";
 import {
   toolMeta,
@@ -22,6 +24,12 @@ type ProgramSectionProps = {
   index: number;
 };
 
+const LEVEL_METER: Record<ProgramDetail["level"], number> = {
+  Beginner: 1,
+  Intermediate: 2,
+  Professional: 3,
+};
+
 export default function ProgramSection({
   program,
   detail,
@@ -29,15 +37,25 @@ export default function ProgramSection({
 }: ProgramSectionProps) {
   const imageOnRight = index % 2 === 0;
   const Icon = program.icon;
+  const levelFilled = LEVEL_METER[detail.level];
 
   return (
-    <section
+    <Reveal
       id={program.slug}
-      className={`scroll-mt-24 px-6 py-16 md:px-10 lg:px-16 lg:py-20 ${
+      className={`relative scroll-mt-24 overflow-hidden px-6 py-16 md:px-10 lg:px-16 lg:py-20 ${
         index % 2 === 0 ? "bg-white" : "bg-slate-50"
       }`}
     >
-      <div className="mx-auto max-w-[1400px]">
+      <div
+        aria-hidden
+        className={`pointer-events-none absolute top-0 font-display text-[280px] leading-none font-bold text-slate-900 opacity-[0.03] select-none lg:text-[420px] ${
+          imageOnRight ? "-right-10" : "-left-10"
+        }`}
+      >
+        {detail.number}
+      </div>
+
+      <div className="relative mx-auto max-w-[1400px]">
         <div
           className={`cz-program-grid gap-x-10 gap-y-8 ${
             imageOnRight ? "cz-image-right" : "cz-image-left"
@@ -74,9 +92,13 @@ export default function ProgramSection({
                 <span className="text-sky-600">{program.name} Course</span>{" "}
                 to:
               </p>
-              <ul className="mt-3 flex flex-col gap-2.5">
+              <StaggerGroup as="ul" className="mt-3 flex flex-col gap-2.5">
                 {detail.reasons.map((reason) => (
-                  <li key={reason} className="flex items-start gap-2.5">
+                  <StaggerItem
+                    key={reason}
+                    as="li"
+                    className="flex items-start gap-2.5"
+                  >
                     <CheckCircle2
                       className="mt-0.5 h-5 w-5 shrink-0 text-sky-500"
                       strokeWidth={1.75}
@@ -85,16 +107,16 @@ export default function ProgramSection({
                     <span className="text-[15px] leading-relaxed opacity-80">
                       {reason}
                     </span>
-                  </li>
+                  </StaggerItem>
                 ))}
-              </ul>
+              </StaggerGroup>
             </div>
           </div>
 
           <div className="cz-area-levelprereq flex flex-col gap-5 lg:pt-1">
             <div className="flex items-start gap-3.5">
               <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-sky-100">
-                <BarChart3
+                <Gauge
                   className="h-5 w-5 text-sky-600"
                   strokeWidth={1.75}
                   aria-hidden
@@ -104,8 +126,20 @@ export default function ProgramSection({
                 <div className="text-xs font-bold tracking-[0.06em] uppercase opacity-50">
                   Level
                 </div>
-                <div className="mt-1 font-display font-bold">
-                  {detail.level}
+                <div className="mt-1 flex items-center gap-2">
+                  <span className="font-display font-bold">
+                    {detail.level}
+                  </span>
+                  <span className="flex gap-1" aria-hidden>
+                    {[1, 2, 3].map((n) => (
+                      <span
+                        key={n}
+                        className={`h-1.5 w-4 rounded-full ${
+                          n <= levelFilled ? "bg-sky-400" : "bg-line"
+                        }`}
+                      />
+                    ))}
+                  </span>
                 </div>
               </div>
             </div>
@@ -145,15 +179,12 @@ export default function ProgramSection({
             <p className="text-xs font-bold tracking-[0.06em] uppercase opacity-50">
               What You&apos;ll Do
             </p>
-            <div className="mt-4 flex flex-wrap items-start gap-x-1 gap-y-4">
+            <StaggerGroup className="mt-4 flex flex-wrap items-start gap-x-1 gap-y-4">
               {detail.whatYoullDo.map((step, i) => {
                 const StepIcon =
                   WHAT_YOULL_DO_ICONS[i % WHAT_YOULL_DO_ICONS.length];
                 return (
-                  <div
-                    key={step}
-                    className="flex items-start gap-1 first:pl-0"
-                  >
+                  <StaggerItem key={step} className="flex items-start gap-1">
                     {i > 0 && (
                       <ChevronRight
                         className="mt-3.5 h-4 w-4 shrink-0 opacity-30"
@@ -161,7 +192,7 @@ export default function ProgramSection({
                       />
                     )}
                     <div className="flex w-20 flex-col items-center gap-2 text-center">
-                      <span className="flex h-11 w-11 items-center justify-center rounded-full bg-slate-100">
+                      <span className="flex h-11 w-11 items-center justify-center rounded-full bg-slate-100 transition-transform duration-200 hover:scale-110">
                         <StepIcon
                           className="h-4.5 w-4.5 text-gray-900"
                           strokeWidth={1.75}
@@ -172,10 +203,10 @@ export default function ProgramSection({
                         {step}
                       </span>
                     </div>
-                  </div>
+                  </StaggerItem>
                 );
               })}
-            </div>
+            </StaggerGroup>
           </div>
 
           <div className="border-t border-line pt-8 md:border-t-0 md:border-l md:px-6 md:pt-0">
@@ -184,16 +215,16 @@ export default function ProgramSection({
             </p>
             {detail.tools.length > 0 ? (
               <>
-                <div className="mt-4 flex flex-wrap gap-x-6 gap-y-4">
+                <StaggerGroup className="mt-4 flex flex-wrap gap-x-6 gap-y-4">
                   {detail.tools.map((tool) => {
                     const { icon: ToolIcon, color } = toolMeta(tool);
                     return (
-                      <div
+                      <StaggerItem
                         key={tool}
                         className="flex w-16 flex-col items-center gap-2 text-center"
                       >
                         <span
-                          className="flex h-11 w-11 items-center justify-center rounded-full"
+                          className="flex h-11 w-11 items-center justify-center rounded-full transition-transform duration-200 hover:scale-110"
                           style={{ backgroundColor: `${color}1a` }}
                         >
                           <ToolIcon
@@ -203,10 +234,10 @@ export default function ProgramSection({
                           />
                         </span>
                         <span className="text-xs font-semibold">{tool}</span>
-                      </div>
+                      </StaggerItem>
                     );
                   })}
-                </div>
+                </StaggerGroup>
                 {detail.toolsNote && (
                   <p className="mt-3 text-xs opacity-50 italic">
                     {detail.toolsNote}
@@ -224,16 +255,16 @@ export default function ProgramSection({
             <p className="text-xs font-bold tracking-[0.06em] uppercase opacity-50">
               Roles You Can Aim For
             </p>
-            <div className="mt-4 grid grid-cols-2 gap-2.5">
+            <StaggerGroup className="mt-4 grid grid-cols-2 gap-2.5">
               {detail.roles.map((role) => (
-                <span
+                <StaggerItem
                   key={role}
                   className="rounded-xl bg-sky-50 px-3 py-2 text-center text-[13px] font-semibold text-sky-700"
                 >
                   {role}
-                </span>
+                </StaggerItem>
               ))}
-            </div>
+            </StaggerGroup>
           </div>
         </div>
 
@@ -264,6 +295,6 @@ export default function ProgramSection({
           </Link>
         </div>
       </div>
-    </section>
+    </Reveal>
   );
 }

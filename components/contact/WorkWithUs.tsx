@@ -2,12 +2,13 @@ import Link from "next/link";
 import { Briefcase, Users } from "lucide-react";
 
 import Reveal from "@/components/ui/Reveal";
+import { StaggerGroup, StaggerItem } from "@/components/ui/Stagger";
 
 export default function WorkWithUs() {
   return (
     <Reveal
       id="work-with-us"
-      className="scroll-mt-24 bg-slate-50 px-6 py-20 md:px-10 lg:px-16 lg:py-28"
+      className="scroll-mt-24 bg-slate-50 px-6 pt-16 pb-10 md:px-10 lg:px-16 lg:pt-20 lg:pb-14"
     >
       <div className="mx-auto max-w-[1400px]">
         <h6 className="text-sm font-bold tracking-[0.06em] text-sky-700 uppercase">
@@ -17,8 +18,8 @@ export default function WorkWithUs() {
           Help professionals build the skills they need for what&apos;s next.
         </h2>
 
-        <div className="mt-11 grid gap-8 md:grid-cols-2">
-          <div className="rounded-2xl border-2 border-line bg-white p-8">
+        <StaggerGroup className="mt-11 grid gap-8 md:grid-cols-2">
+          <StaggerItem className="rounded-2xl border-2 border-line bg-white p-8 transition duration-200 hover:-translate-y-1 hover:shadow-[0_16px_28px_rgba(17,24,39,0.08)]">
             <span className="flex h-11 w-11 items-center justify-center rounded-full bg-sky-100">
               <Users
                 className="h-5 w-5 text-sky-600"
@@ -41,9 +42,9 @@ export default function WorkWithUs() {
             >
               Express interest
             </Link>
-          </div>
+          </StaggerItem>
 
-          <div className="rounded-2xl border-2 border-line bg-white p-8">
+          <StaggerItem className="rounded-2xl border-2 border-line bg-white p-8 transition duration-200 hover:-translate-y-1 hover:shadow-[0_16px_28px_rgba(17,24,39,0.08)]">
             <span className="flex h-11 w-11 items-center justify-center rounded-full bg-sky-100">
               <Briefcase
                 className="h-5 w-5 text-sky-600"
@@ -64,8 +65,8 @@ export default function WorkWithUs() {
             >
               Share your CV / Express interest
             </Link>
-          </div>
-        </div>
+          </StaggerItem>
+        </StaggerGroup>
       </div>
     </Reveal>
   );

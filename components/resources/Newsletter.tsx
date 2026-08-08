@@ -5,7 +5,7 @@ export default function Newsletter() {
   return (
     <Reveal
       id="newsletter"
-      className="scroll-mt-24 bg-gradient-to-br from-slate-900 to-gray-900 px-6 py-20 md:px-10 lg:px-16 lg:py-28"
+      className="scroll-mt-24 bg-gradient-to-br from-slate-900 to-gray-900 px-6 py-14 md:px-10 lg:px-16 lg:py-20"
     >
       <div className="mx-auto max-w-[800px] text-center">
         <h6 className="text-sm font-bold tracking-[0.06em] text-sky-300 uppercase">

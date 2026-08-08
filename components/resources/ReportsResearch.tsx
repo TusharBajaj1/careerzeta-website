@@ -1,6 +1,7 @@
-import { ArrowUpRight } from "lucide-react";
+import { ArrowUpRight, FileText } from "lucide-react";
 
 import Reveal from "@/components/ui/Reveal";
+import { StaggerGroup, StaggerItem } from "@/components/ui/Stagger";
 import { REPORTS } from "@/lib/resourcesContent";
 
 export default function ReportsResearch() {
@@ -10,7 +11,7 @@ export default function ReportsResearch() {
   return (
     <Reveal
       id="reports"
-      className="scroll-mt-24 bg-slate-50 px-6 py-20 md:px-10 lg:px-16 lg:py-28"
+      className="scroll-mt-24 bg-slate-50 px-6 py-16 md:px-10 lg:px-16 lg:py-20"
     >
       <div className="mx-auto max-w-[1400px]">
         <h6 className="text-sm font-bold tracking-[0.06em] text-sky-700 uppercase">
@@ -45,37 +46,42 @@ export default function ReportsResearch() {
           </a>
         )}
 
-        <div className="mt-8 border-t-2 border-line">
+        <StaggerGroup className="mt-8 grid gap-6 sm:grid-cols-2">
           {rest.map((report) => (
-            <a
-              key={report.title}
-              href={report.url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="group flex flex-col gap-3 border-b-2 border-line py-7 transition hover:bg-white md:flex-row md:items-start md:justify-between md:gap-8"
-            >
-              <div className="min-w-0 flex-1">
+            <StaggerItem key={report.title}>
+              <a
+                href={report.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="group flex h-full flex-col gap-4 rounded-2xl border-2 border-line bg-white p-7 transition duration-200 hover:-translate-y-1 hover:border-sky-300 hover:shadow-[0_16px_28px_rgba(17,24,39,0.08)]"
+              >
+                <div className="flex items-start justify-between gap-3">
+                  <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-sky-100">
+                    <FileText
+                      className="h-5 w-5 text-sky-600"
+                      strokeWidth={1.75}
+                      aria-hidden
+                    />
+                  </span>
+                  <ArrowUpRight
+                    className="h-5 w-5 shrink-0 text-slate-300 transition group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:text-sky-500"
+                    aria-hidden
+                  />
+                </div>
+
                 <span className="text-xs font-bold tracking-[0.06em] opacity-50 uppercase">
                   {report.organisation} · {report.year}
                 </span>
-                <h3 className="mt-2 font-display text-xl font-bold">
+                <h3 className="font-display text-lg font-bold">
                   {report.title}
                 </h3>
-                <p className="mt-2 max-w-[65ch] text-[15px] leading-relaxed opacity-75">
+                <p className="flex-1 text-[15px] leading-relaxed opacity-75">
                   {report.description}
                 </p>
-              </div>
-
-              <span className="flex shrink-0 items-center gap-1.5 text-sm font-bold text-sky-700 whitespace-nowrap">
-                Read
-                <ArrowUpRight
-                  className="h-4 w-4 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5"
-                  aria-hidden
-                />
-              </span>
-            </a>
+              </a>
+            </StaggerItem>
           ))}
-        </div>
+        </StaggerGroup>
       </div>
     </Reveal>
   );

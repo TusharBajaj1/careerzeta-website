@@ -38,6 +38,16 @@ export default function MediaPlaceholder({
         }}
       />
 
+      <div
+        aria-hidden
+        className="cz-shimmer pointer-events-none absolute inset-y-0 -left-1/2 w-1/2"
+        style={{
+          background: isDark
+            ? "linear-gradient(90deg, transparent, rgba(255,255,255,0.06), transparent)"
+            : "linear-gradient(90deg, transparent, rgba(255,255,255,0.5), transparent)",
+        }}
+      />
+
       <span
         className={`relative flex h-12 w-12 items-center justify-center rounded-full ${
           isDark ? "bg-white/10 text-sky-300" : "bg-white text-sky-600"

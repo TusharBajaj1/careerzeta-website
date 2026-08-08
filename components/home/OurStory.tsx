@@ -1,4 +1,5 @@
 import Reveal from "@/components/ui/Reveal";
+import { StaggerGroup, StaggerItem } from "@/components/ui/Stagger";
 
 const milestones = [
   { year: "1980s", text: "Personal computers reach the desk" },
@@ -11,7 +12,7 @@ export default function OurStory() {
   return (
     <Reveal
       id="story"
-      className="mx-auto max-w-[1400px] scroll-mt-24 px-6 py-20 md:px-10 lg:px-16 lg:py-28"
+      className="mx-auto max-w-[1400px] scroll-mt-24 px-6 py-16 md:px-10 lg:px-16 lg:py-20"
     >
       <h6 className="text-sm font-bold tracking-[0.06em] text-sky-700 uppercase">
         Why we started
@@ -24,11 +25,11 @@ export default function OurStory() {
         CareerZeta exists to help professionals keep up with it.
       </p>
 
-      <div className="relative mt-14 grid gap-y-10 sm:grid-cols-2 lg:grid-cols-4">
+      <StaggerGroup className="relative mt-14 grid gap-y-10 sm:grid-cols-2 lg:grid-cols-4">
         <div className="absolute top-3.5 right-[2%] left-[2%] z-0 hidden h-[3px] bg-line lg:block" />
 
         {milestones.map((milestone) => (
-          <div key={milestone.year} className="relative z-10 pr-6">
+          <StaggerItem key={milestone.year} className="relative z-10 pr-6">
             <div
               className={`h-7 w-7 rounded-full ${
                 milestone.live ? "bg-sky-400 cz-dot-pulse" : "bg-gray-900"
@@ -40,9 +41,9 @@ export default function OurStory() {
             <div className="mt-1.5 text-[15px] opacity-65">
               {milestone.text}
             </div>
-          </div>
+          </StaggerItem>
         ))}
-      </div>
+      </StaggerGroup>
     </Reveal>
   );
 }

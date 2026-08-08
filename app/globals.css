@@ -187,6 +187,19 @@ body {
   animation: cz-word-fade 0.4s ease-out both;
 }
 
+@keyframes cz-shimmer {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+.cz-shimmer {
+  animation: cz-shimmer 2.8s ease-in-out infinite;
+}
+
 /* The design leans on continuous ambient motion; honour a reduced-motion
    preference by stopping it rather than shipping a second visual language. */
 @media (prefers-reduced-motion: reduce) {
