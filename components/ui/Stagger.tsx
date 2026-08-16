@@ -1,7 +1,7 @@
 "use client";
 
 import { motion, type Variants } from "framer-motion";
-import type { ReactNode } from "react";
+import type { CSSProperties, ReactNode } from "react";
 
 const container: Variants = {
   hidden: {},
@@ -48,16 +48,18 @@ type StaggerItemProps = {
   children: ReactNode;
   className?: string;
   as?: "div" | "li";
+  style?: CSSProperties;
 };
 
 export function StaggerItem({
   children,
   className,
   as = "div",
+  style,
 }: StaggerItemProps) {
   const MotionTag = as === "li" ? motion.li : motion.div;
   return (
-    <MotionTag className={className} variants={item}>
+    <MotionTag className={className} style={style} variants={item}>
       {children}
     </MotionTag>
   );

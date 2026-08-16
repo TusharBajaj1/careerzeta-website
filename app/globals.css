@@ -118,42 +118,6 @@ body {
   animation: cz-fade-in-up 0.6s ease-out both;
 }
 
-/*
- * Program section upper block: on mobile the image sits between "level /
- * prerequisites" and "What You'll Do" (per spec), but on desktop it's a
- * third side column next to the text and the compact level/prerequisites
- * panel. A plain flex/grid reorder can't do both, since mobile needs the
- * image physically between two text blocks while desktop needs all three
- * side by side — so the pieces get named grid areas that get rearranged
- * per breakpoint instead of relying on DOM order.
- */
-.cz-program-grid {
-  display: grid;
-  grid-template-areas: "top" "levelprereq" "image";
-  align-items: start;
-}
-.cz-program-grid > .cz-area-top {
-  grid-area: top;
-}
-.cz-program-grid > .cz-area-levelprereq {
-  grid-area: levelprereq;
-}
-.cz-program-grid > .cz-area-image {
-  grid-area: image;
-}
-@media (min-width: 1024px) {
-  .cz-program-grid.cz-image-right {
-    grid-template-columns:
-      minmax(280px, 1.15fr) minmax(180px, 0.6fr) minmax(320px, 1.25fr);
-    grid-template-areas: "top levelprereq image";
-  }
-  .cz-program-grid.cz-image-left {
-    grid-template-columns:
-      minmax(320px, 1.25fr) minmax(180px, 0.6fr) minmax(280px, 1.15fr);
-    grid-template-areas: "image levelprereq top";
-  }
-}
-
 .cz-marquee {
   animation: cz-marquee 22s linear infinite;
 }
