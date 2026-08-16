@@ -1,13 +1,20 @@
+import ClosingCta from "@/components/home/ClosingCta";
 import Hero from "@/components/home/Hero";
-import EvolutionOfWork from "@/components/home/EvolutionOfWork";
-import TargetAudience from "@/components/home/TargetAudience";
+import OurStory from "@/components/home/OurStory";
+import ProgramExplorer from "@/components/home/ProgramExplorer";
+import Strengths from "@/components/home/Strengths";
+import Vision from "@/components/home/Vision";
 import Footer from "@/components/layout/Footer";
+
 export default function Home() {
   return (
     <>
       <Hero />
-      <EvolutionOfWork />
-      <TargetAudience />
+      <OurStory />
+      <Vision />
+      <ProgramExplorer />
+      <Strengths />
+      <ClosingCta />
       <Footer />
     </>
   );

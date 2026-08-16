@@ -1,16 +1,26 @@
 import type { Metadata } from "next";
-import { Geist } from "next/font/google";
+import { Manrope, Poppins } from "next/font/google";
 import "./globals.css";
 
 import Navbar from "@/components/layout/Navbar";
 
-const geist = Geist({
+const manrope = Manrope({
   subsets: ["latin"],
+  variable: "--font-manrope",
+  display: "swap",
+});
+
+const poppins = Poppins({
+  subsets: ["latin"],
+  weight: ["500", "600", "700"],
+  variable: "--font-poppins",
+  display: "swap",
 });
 
 export const metadata: Metadata = {
-  title: "CareerZeta",
-  description: "Industry-led learning for Business Analytics professionals.",
+  title: "CareerZeta — Mentor-led courses in data and AI",
+  description:
+    "CareerZeta pairs learners with qualified mentors across six live, mentor-led programs so professionals keep pace with technology, not behind it.",
 };
 
 export default function RootLayout({
@@ -19,12 +29,17 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
-      <body className={geist.className}>
+    // data-scroll-behavior is required in Next 16 for the framework to keep
+    // route transitions instant while `scroll-smooth` handles in-page anchors.
+    <html
+      lang="en"
+      className={`${manrope.variable} ${poppins.variable} scroll-smooth`}
+      data-scroll-behavior="smooth"
+    >
+      <body>
         <Navbar />
 
         <main>{children}</main>
-
       </body>
     </html>
   );
