@@ -1,10 +1,11 @@
 "use client";
 
 import { useState } from "react";
-import { ArrowUpRight } from "lucide-react";
+import { Link2 } from "lucide-react";
 
 import Reveal from "@/components/ui/Reveal";
 import { StaggerGroup, StaggerItem } from "@/components/ui/Stagger";
+import MediaPlaceholder from "@/components/ui/MediaPlaceholder";
 import { STORIES, TAG_ACCENT, tagIcon, type ProgramTag } from "@/lib/resourcesContent";
 
 const ALL = "All" as const;
@@ -68,42 +69,51 @@ export default function RealWorldStories() {
                 href={story.url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="group flex h-full flex-col gap-4 rounded-2xl border-2 border-line bg-white p-7 transition duration-200 hover:-translate-y-1 hover:border-sky-300 hover:shadow-[0_16px_28px_rgba(17,24,39,0.08)]"
+                className="group flex h-full flex-col overflow-hidden rounded-2xl border-2 border-line bg-white transition duration-200 hover:-translate-y-1 hover:border-sky-300 hover:shadow-[0_16px_28px_rgba(17,24,39,0.08)]"
               >
-                <div className="flex items-start justify-between gap-3">
+                <div className="relative h-44">
+                  <MediaPlaceholder
+                    icon={Icon}
+                    label="Story visual — added periodically"
+                    className="h-full w-full"
+                  />
                   <span
-                    className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full"
-                    style={{ backgroundColor: `${color}1a` }}
+                    className="absolute left-4 -bottom-5 flex h-11 w-11 items-center justify-center rounded-full bg-white shadow-sm"
+                    style={{ border: `2px solid ${color}22` }}
                   >
                     <Icon className="h-5 w-5" style={{ color }} aria-hidden />
                   </span>
-                  <ArrowUpRight
-                    className="h-5 w-5 shrink-0 text-slate-300 transition group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:text-sky-500"
-                    aria-hidden
-                  />
                 </div>
 
-                <h3 className="font-display text-lg font-bold">
-                  {story.title}
-                </h3>
-                <p className="flex-1 text-[15px] leading-relaxed opacity-75">
-                  {story.description}
-                </p>
-
-                <div className="flex flex-wrap items-center justify-between gap-2 border-t border-line pt-4">
-                  <div className="flex flex-wrap gap-1.5">
-                    {story.tags.map((tag) => (
-                      <span
-                        key={tag}
-                        className="rounded-full bg-slate-100 px-2.5 py-1 text-[11px] font-semibold text-slate-600"
-                      >
-                        {tag}
-                      </span>
-                    ))}
+                <div className="flex flex-1 flex-col gap-3 p-7 pt-8">
+                  <div className="flex items-start justify-between gap-3">
+                    <h3 className="font-display text-lg font-bold">
+                      {story.title}
+                    </h3>
+                    <Link2
+                      className="mt-1 h-4 w-4 shrink-0 text-slate-300"
+                      aria-hidden
+                    />
                   </div>
-                  <span className="text-xs font-semibold opacity-50">
-                    {story.source}
-                  </span>
+                  <p className="flex-1 text-[15px] leading-relaxed opacity-75">
+                    {story.description}
+                  </p>
+
+                  <div className="flex flex-wrap items-center justify-between gap-2 border-t border-line pt-4">
+                    <div className="flex flex-wrap gap-1.5">
+                      {story.tags.map((tag) => (
+                        <span
+                          key={tag}
+                          className="rounded-full bg-slate-100 px-2.5 py-1 text-[11px] font-semibold text-slate-600"
+                        >
+                          {tag}
+                        </span>
+                      ))}
+                    </div>
+                    <span className="text-xs font-semibold opacity-50">
+                      {story.source}
+                    </span>
+                  </div>
                 </div>
               </a>
             </StaggerItem>
