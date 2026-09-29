@@ -54,7 +54,7 @@ export const STORIES: Story[] = [
       "An example of AI applied to an existing business process rather than as a standalone technology experiment.",
     source: "McKinsey",
     url: "https://www.mckinsey.com/capabilities/tech-and-ai/how-we-help-clients/rewired-in-action/aviva-rewiring-the-insurance-claims-journey-with-ai",
-    image: null,
+    image: "/resources/aviva.jpg",
   },
   {
     tags: ["Agentic AI"],
