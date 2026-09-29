@@ -43,7 +43,7 @@ export default function Mentors({ heading = "Mentors" }: MentorsProps) {
           applied practice, batch by batch.
         </p>
 
-        <StaggerGroup className="mt-11 grid gap-7 sm:grid-cols-2 lg:grid-cols-4">
+        <StaggerGroup className="mt-11 grid gap-7 sm:grid-cols-3">
           {mentors.map((mentor) => (
             <StaggerItem
               key={mentor.name}
@@ -58,7 +58,7 @@ export default function Mentors({ heading = "Mentors" }: MentorsProps) {
                     src={mentor.photoUrl}
                     alt={mentor.name}
                     fill
-                    sizes="(min-width:1280px) 25vw, (min-width:640px) 50vw, 100vw"
+                    sizes="(min-width:640px) 33vw, 100vw"
                     className="object-cover"
                   />
                 </div>
