@@ -131,11 +131,15 @@ export const PROGRAM_DETAILS: ProgramDetail[] = [
     tools: ["Excel", "SQL", "Power BI", "Python"],
     roles: [
       "Business Analyst",
+      "Data Analyst",
       "Business Intelligence Analyst",
-      "Analytics Consultant",
-      "Strategy/Operations Analyst",
+      "Marketing Analyst",
+      "Financial Analyst",
+      "Product Analyst",
+      "Operations Analyst",
+      "Risk Analyst",
     ],
-    brochureUrl: null,
+    brochureUrl: "/brochures/careerzeta-business-analytics-brochure.pdf",
   },
   {
     slug: "applied-ai",
@@ -266,11 +270,11 @@ export const PROGRAM_DETAILS: ProgramDetail[] = [
     tools: ["Python", "SQL", "Pandas", "NumPy", "Scikit-learn", "Jupyter"],
     roles: [
       "Data Scientist",
+      "ML Engineer",
+      "AI Engineer",
       "Applied Data Scientist",
-      "Data Science Professional",
-      "ML/Data Professional",
     ],
-    brochureUrl: null,
+    brochureUrl: "/brochures/careerzeta-data-science-ai-brochure.pdf",
   },
 ];
 

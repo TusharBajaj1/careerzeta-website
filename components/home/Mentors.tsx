@@ -1,10 +1,27 @@
-import { UserRound } from "lucide-react";
+import Image from "next/image";
 
-import MediaPlaceholder from "@/components/ui/MediaPlaceholder";
 import Reveal from "@/components/ui/Reveal";
 import { StaggerGroup, StaggerItem } from "@/components/ui/Stagger";
 
-const mentorSlots = [1, 2, 3, 4];
+export type Mentor = {
+  name: string;
+  title: string;
+  company: string;
+  photoUrl: string;
+};
+
+/** Sourced from the client's own program brochures ("Top Faculty with CareerZeta"). */
+const mentors: Mentor[] = [
+  { name: "Arnab Das", title: "Data Engineer", company: "Ieng Group", photoUrl: "/faculty/arnab-das.jpg" },
+  { name: "Anas Qureshi", title: "Technical Lead", company: "NetSkope", photoUrl: "/faculty/anas-qureshi.jpg" },
+  { name: "Devesh Thapliyal", title: "Technology Lead", company: "Infosys", photoUrl: "/faculty/devesh-thapliyal.jpg" },
+  { name: "Ashish Dahiya", title: "Sr. Consultant", company: "Centric Consulting", photoUrl: "/faculty/ashish-dahiya.jpg" },
+  { name: "Rohit Bhatt", title: "Data Management Engineer", company: "Zurich Insurance", photoUrl: "/faculty/rohit-bhatt.jpg" },
+  { name: "Dileep KH", title: "ML Engineer", company: "University of the West of England", photoUrl: "/faculty/dileep-kh.jpg" },
+  { name: "Rajendra Dhami", title: "Technical Lead", company: "HCL Tech", photoUrl: "/faculty/rajendra-dhami.jpg" },
+  { name: "Divyesh Pandey", title: "Technical Lead", company: "Accenture", photoUrl: "/faculty/divyesh-pandey.jpg" },
+  { name: "Ayush Sharma", title: "Sr. Manager", company: "Angel One", photoUrl: "/faculty/ayush-sharma.jpg" },
+];
 
 type MentorsProps = {
   heading?: string;
@@ -26,18 +43,22 @@ export default function Mentors({ heading = "Mentors" }: MentorsProps) {
       </p>
 
       <StaggerGroup className="mt-11 grid gap-7 sm:grid-cols-2 lg:grid-cols-4">
-        {mentorSlots.map((slot) => (
+        {mentors.map((mentor) => (
           <StaggerItem
-            key={slot}
+            key={mentor.name}
             className="flex flex-col gap-3.5 transition-transform duration-200 hover:-translate-y-2"
           >
-            <MediaPlaceholder
-              icon={UserRound}
-              label="Mentor photo"
-              className="h-45 w-full rounded-[14px]"
+            <Image
+              src={mentor.photoUrl}
+              alt={mentor.name}
+              width={400}
+              height={400}
+              className="h-45 w-full rounded-[14px] object-cover"
             />
-            <div className="font-display text-base font-bold">Mentor name</div>
-            <div className="text-sm opacity-60">Title, company placeholder</div>
+            <div className="font-display text-base font-bold">{mentor.name}</div>
+            <div className="text-sm opacity-60">
+              {mentor.title}, {mentor.company}
+            </div>
           </StaggerItem>
         ))}
       </StaggerGroup>

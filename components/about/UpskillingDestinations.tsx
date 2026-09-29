@@ -1,5 +1,3 @@
-import { Building2 } from "lucide-react";
-
 import Reveal from "@/components/ui/Reveal";
 
 export type CompanyLogo = {
@@ -7,8 +5,36 @@ export type CompanyLogo = {
   logoUrl: string;
 };
 
-/** No logos have been supplied yet — populate and this renders the grid. */
-const companies: CompanyLogo[] = [];
+/** Sourced from the client's own program brochures ("Top Destinations"). */
+const companies: CompanyLogo[] = [
+  { name: "Amazon", logoUrl: "/companies/amazon.png" },
+  { name: "Target", logoUrl: "/companies/target.png" },
+  { name: "Meesho", logoUrl: "/companies/meesho.png" },
+  { name: "CRED", logoUrl: "/companies/cred.png" },
+  { name: "Ola", logoUrl: "/companies/ola.png" },
+  { name: "HDFC Bank", logoUrl: "/companies/hdfc-bank.png" },
+  { name: "Zomato", logoUrl: "/companies/zomato.png" },
+  { name: "Accenture", logoUrl: "/companies/accenture.png" },
+  { name: "Razorpay", logoUrl: "/companies/razorpay.png" },
+  { name: "Swiggy", logoUrl: "/companies/swiggy.png" },
+  { name: "Uber", logoUrl: "/companies/uber.png" },
+  { name: "Citi", logoUrl: "/companies/citi.png" },
+  { name: "KPMG", logoUrl: "/companies/kpmg.png" },
+  { name: "Cognizant", logoUrl: "/companies/cognizant.png" },
+  { name: "HSBC", logoUrl: "/companies/hsbc.png" },
+  { name: "Tata Steel", logoUrl: "/companies/tata-steel.png" },
+  { name: "Novartis", logoUrl: "/companies/novartis.png" },
+  { name: "JPMorgan Chase & Co.", logoUrl: "/companies/jpmorgan-chase.png" },
+  { name: "Genpact", logoUrl: "/companies/genpact.png" },
+  { name: "Groww", logoUrl: "/companies/groww.png" },
+  { name: "Capgemini", logoUrl: "/companies/capgemini.png" },
+  { name: "PwC", logoUrl: "/companies/pwc.png" },
+  { name: "Tech Mahindra", logoUrl: "/companies/tech-mahindra.png" },
+  { name: "Wipro", logoUrl: "/companies/wipro.png" },
+  { name: "Microsoft", logoUrl: "/companies/microsoft.png" },
+  { name: "Infosys", logoUrl: "/companies/infosys.png" },
+  { name: "Paytm", logoUrl: "/companies/paytm.png" },
+];
 
 export default function UpskillingDestinations() {
   return (
@@ -28,30 +54,17 @@ export default function UpskillingDestinations() {
         and not a placement guarantee.
       </p>
 
-      {companies.length > 0 ? (
-        <div className="mt-11 grid grid-cols-2 gap-8 sm:grid-cols-4 lg:grid-cols-6">
-          {companies.map((company) => (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img
-              key={company.name}
-              src={company.logoUrl}
-              alt={company.name}
-              className="h-10 w-full object-contain opacity-70 grayscale transition hover:opacity-100 hover:grayscale-0"
-            />
-          ))}
-        </div>
-      ) : (
-        <div className="mt-11 flex flex-col items-center gap-3 rounded-2xl border-2 border-dashed border-line px-6 py-14 text-center">
-          <Building2
-            className="h-8 w-8 text-slate-400"
-            strokeWidth={1.5}
-            aria-hidden
+      <div className="mt-11 grid grid-cols-2 gap-8 sm:grid-cols-4 lg:grid-cols-6">
+        {companies.map((company) => (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            key={company.name}
+            src={company.logoUrl}
+            alt={company.name}
+            className="h-10 w-full object-contain opacity-70 grayscale transition hover:opacity-100 hover:grayscale-0"
           />
-          <p className="text-sm text-slate-500">
-            Company logos coming soon.
-          </p>
-        </div>
-      )}
+        ))}
+      </div>
     </Reveal>
   );
 }
