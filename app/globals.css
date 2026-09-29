@@ -211,6 +211,12 @@ body {
   animation: cz-pulse 3s ease-in-out infinite;
 }
 
+@keyframes cz-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
 /* The design leans on continuous ambient motion; honour a reduced-motion
    preference by stopping it rather than shipping a second visual language. */
 @media (prefers-reduced-motion: reduce) {
