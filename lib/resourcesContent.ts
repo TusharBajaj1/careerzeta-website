@@ -35,8 +35,8 @@ export const STORIES: Story[] = [
     description:
       "A case study collection showing how analytics can be applied directly to customer and commercial decisions.",
     source: "Deloitte",
-    url: "https://www2.deloitte.com/us/en/pages/deloitte-analytics/articles/business-analytics-case-studies.html",
-    image: null,
+    url: "https://www.deloitte.com/us/en/what-we-do/capabilities/applied-artificial-intelligence/content/ai-use-cases.html",
+    image: "/resources/deloitte-retail.jpg",
   },
   {
     tags: ["Applied AI"],
@@ -95,7 +95,7 @@ export const REPORTS: Report[] = [
     description:
       "An independent, data-driven view of artificial intelligence from Stanford HAI, covering technical progress, economic influence and societal impact, including how demand for AI skills is changing.",
     url: "https://hai.stanford.edu/ai-index/2025-ai-index-report",
-    image: "/resources/ai-index-2025.jpg",
+    image: "/resources/ai-index-2025-cover.jpg",
     featured: true,
   },
   {
@@ -105,7 +105,7 @@ export const REPORTS: Report[] = [
     description:
       "The World Bank's first comprehensive assessment of what AI means for developing economies, and how firms and governments are already using it.",
     url: "https://www.worldbank.org/en/publication/wdr2026",
-    image: null,
+    image: "/resources/wdr-2026.png",
   },
   {
     title: "AI Index 2025: State of AI in 10 Charts",
@@ -114,6 +114,6 @@ export const REPORTS: Report[] = [
     description:
       "Ten charts from the AI Index on a maturing field, improvements in AI optimization and the growing use of the technology.",
     url: "https://hai.stanford.edu/news/ai-index-2025-state-of-ai-in-10-charts",
-    image: null,
+    image: "/resources/ai-index-10-charts.png",
   },
 ];
