@@ -12,7 +12,7 @@ import { PROGRAM_DETAILS } from "@/lib/programsDetail";
 export const metadata: Metadata = {
   title: "Programs — CareerZeta",
   description:
-    "Six mentor-led programs — Data Analytics, Business Analytics, Applied AI, Agentic AI, Machine Learning and Data Science.",
+    "Six mentor-led programs — Data Analytics, Business Analytics, Data Science & AI, Applied AI, Agentic AI and Machine Learning.",
 };
 
 export default function ProgramsPage() {

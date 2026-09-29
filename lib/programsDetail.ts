@@ -4,16 +4,21 @@ import {
   Database,
   Sheet,
   Sparkles,
+  Table2,
   type LucideIcon,
 } from "lucide-react";
 import {
   SiClaude,
   SiGooglegemini,
+  SiHuggingface,
   SiJupyter,
+  SiLangchain,
   SiNumpy,
   SiPandas,
   SiPython,
+  SiPytorch,
   SiScikitlearn,
+  SiTensorflow,
 } from "react-icons/si";
 import type { IconType } from "react-icons";
 
@@ -21,15 +26,16 @@ export type ToolMeta = { icon: LucideIcon | IconType; color: string };
 
 /**
  * Real open-source project marks where one exists (Python, Jupyter, Pandas,
- * NumPy, Scikit-learn, Claude, Gemini); a colored generic icon everywhere
- * else, since no Excel/Power BI/ChatGPT/Copilot mark is available here and
- * fabricating one isn't safe. Rendered identically either way so the mix
- * doesn't show.
+ * NumPy, Scikit-learn, Claude, Gemini, TensorFlow, PyTorch, Hugging Face,
+ * LangChain); a colored generic icon everywhere else, since no Excel/Power
+ * BI/Tableau/ChatGPT/Copilot mark is available here and fabricating one
+ * isn't safe. Rendered identically either way so the mix doesn't show.
  */
 const TOOL_META: Record<string, ToolMeta> = {
   Excel: { icon: Sheet, color: "#217346" },
   SQL: { icon: Database, color: "#0369a1" },
   "Power BI": { icon: BarChart3, color: "#F2C811" },
+  Tableau: { icon: Table2, color: "#E97627" },
   Python: { icon: SiPython, color: "#3776AB" },
   ChatGPT: { icon: Bot, color: "#10A37F" },
   Claude: { icon: SiClaude, color: "#D97757" },
@@ -39,6 +45,10 @@ const TOOL_META: Record<string, ToolMeta> = {
   NumPy: { icon: SiNumpy, color: "#4DABCF" },
   "Scikit-learn": { icon: SiScikitlearn, color: "#F7931E" },
   Jupyter: { icon: SiJupyter, color: "#F37626" },
+  TensorFlow: { icon: SiTensorflow, color: "#FF6F00" },
+  PyTorch: { icon: SiPytorch, color: "#EE4C2C" },
+  "Hugging Face": { icon: SiHuggingface, color: "#FFD21E" },
+  LangChain: { icon: SiLangchain, color: "#1C3C3C" },
 };
 
 export function toolMeta(tool: string): ToolMeta {
@@ -67,6 +77,8 @@ export type ProgramDetail = {
   reasons: string[];
   level: "Beginner" | "Intermediate" | "Professional";
   prerequisites: string;
+  /** From the brochure's "Program at a Glance" — null where no brochure exists yet. */
+  duration: string | null;
   whatYoullDo: string[];
   tools: string[];
   toolsNote?: string;
@@ -90,6 +102,7 @@ export const PROGRAM_DETAILS: ProgramDetail[] = [
     ],
     level: "Beginner",
     prerequisites: "No prior analytics experience required.",
+    duration: "6 months",
     whatYoullDo: [
       "Raw business data",
       "Analyse",
@@ -121,6 +134,7 @@ export const PROGRAM_DETAILS: ProgramDetail[] = [
     ],
     level: "Intermediate",
     prerequisites: "Basic familiarity with business processes and spreadsheets.",
+    duration: "6 months",
     whatYoullDo: [
       "A business problem",
       "Identify the right data",
@@ -128,7 +142,7 @@ export const PROGRAM_DETAILS: ProgramDetail[] = [
       "Generate insights",
       "Recommend action",
     ],
-    tools: ["Excel", "SQL", "Power BI", "Python"],
+    tools: ["Excel", "SQL", "Power BI", "Tableau", "Python"],
     roles: [
       "Business Analyst",
       "Data Analyst",
@@ -142,8 +156,41 @@ export const PROGRAM_DETAILS: ProgramDetail[] = [
     brochureUrl: "/brochures/careerzeta-business-analytics-brochure.pdf",
   },
   {
-    slug: "applied-ai",
+    slug: "data-science",
     number: "03",
+    question: "Do you want to build AI systems, from machine learning to agentic AI?",
+    context:
+      "CareerZeta's Data Science & AI Professional Program takes you from data analytics through machine learning and deep learning to generative and agentic AI — so you can build, deploy and govern AI systems end to end.",
+    reasons: [
+      "Develop end-to-end AI capabilities — from data analytics through machine learning and deep learning to generative and agentic AI.",
+      "Learn to deploy, monitor and improve models in production, not just prototype them.",
+      "Go beyond using AI tools to building LLM apps, RAG systems and AI agents that do real work.",
+      "Prepare for a career ladder from Data Scientist or ML Engineer toward Senior Data Scientist, AI Engineer and Head of AI.",
+      "Build a portfolio of real-world projects and an end-to-end AI capstone.",
+    ],
+    level: "Professional",
+    prerequisites: "Basic Python recommended. No prior machine-learning experience required.",
+    duration: "12 months",
+    whatYoullDo: [
+      "Data & analytics foundations",
+      "Statistics & machine learning",
+      "Deep learning",
+      "Generative AI",
+      "Agentic AI immersion",
+      "Deploy & present",
+    ],
+    tools: ["Python", "TensorFlow", "PyTorch", "Hugging Face", "LangChain"],
+    roles: [
+      "Data Scientist",
+      "ML Engineer",
+      "AI Engineer",
+      "Applied Data Scientist",
+    ],
+    brochureUrl: "/brochures/careerzeta-data-science-ai-brochure.pdf",
+  },
+  {
+    slug: "applied-ai",
+    number: "04",
     question: "Do you want to bring AI into your current job?",
     context:
       "Are you a working professional who sees AI changing your industry, but you're not sure how to apply it meaningfully to the work you already do?",
@@ -156,6 +203,7 @@ export const PROGRAM_DETAILS: ProgramDetail[] = [
     ],
     level: "Intermediate",
     prerequisites: "No prior AI experience required.",
+    duration: null,
     whatYoullDo: [
       "A professional task",
       "Identify where AI can help",
@@ -178,7 +226,7 @@ export const PROGRAM_DETAILS: ProgramDetail[] = [
   },
   {
     slug: "agentic-ai",
-    number: "04",
+    number: "05",
     question: "Do you want AI to do more than just answer your questions?",
     context:
       "Are you already experimenting with generative AI, but want to move beyond prompting and one-off interactions towards AI systems that can perform multi-step tasks and workflows?",
@@ -191,6 +239,7 @@ export const PROGRAM_DETAILS: ProgramDetail[] = [
     ],
     level: "Professional",
     prerequisites: "Basic familiarity with Generative AI is recommended.",
+    duration: null,
     whatYoullDo: [
       "A complex workflow",
       "Break it into tasks",
@@ -212,7 +261,7 @@ export const PROGRAM_DETAILS: ProgramDetail[] = [
   },
   {
     slug: "machine-learning",
-    number: "05",
+    number: "06",
     question: "Do you want to build the models behind intelligent systems?",
     context:
       "Do you have an analytical, technical or quantitative background and want to move beyond using AI tools to understand how machines learn from data and make predictions?",
@@ -226,6 +275,7 @@ export const PROGRAM_DETAILS: ProgramDetail[] = [
     level: "Professional",
     prerequisites:
       "Basic statistics and quantitative reasoning. Basic Python knowledge recommended.",
+    duration: null,
     whatYoullDo: [
       "Data",
       "Prepare it",
@@ -242,39 +292,6 @@ export const PROGRAM_DETAILS: ProgramDetail[] = [
       "Data Scientist",
     ],
     brochureUrl: null,
-  },
-  {
-    slug: "data-science",
-    number: "06",
-    question: "Do you want to solve complex problems using data end-to-end?",
-    context:
-      "Do you want to go beyond individual analytics or machine-learning techniques and build the ability to work across data, statistics, analysis and machine learning to solve complex problems?",
-    reasons: [
-      "Develop end-to-end data science capabilities.",
-      "Strengthen your ability to work with complex datasets.",
-      "Combine data analysis, statistics and machine learning.",
-      "Build practical experience solving open-ended data problems.",
-      "Prepare for a transition into data science-oriented roles.",
-    ],
-    level: "Professional",
-    prerequisites:
-      "Basic statistics and quantitative reasoning. Basic Python knowledge recommended.",
-    whatYoullDo: [
-      "A real-world problem",
-      "Work with the data",
-      "Analyse it",
-      "Build models",
-      "Interpret the results",
-      "Communicate a solution",
-    ],
-    tools: ["Python", "SQL", "Pandas", "NumPy", "Scikit-learn", "Jupyter"],
-    roles: [
-      "Data Scientist",
-      "ML Engineer",
-      "AI Engineer",
-      "Applied Data Scientist",
-    ],
-    brochureUrl: "/brochures/careerzeta-data-science-ai-brochure.pdf",
   },
 ];
 

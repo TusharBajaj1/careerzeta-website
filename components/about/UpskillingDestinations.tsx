@@ -61,7 +61,7 @@ export default function UpskillingDestinations() {
             key={company.name}
             src={company.logoUrl}
             alt={company.name}
-            className="h-10 w-full object-contain opacity-70 grayscale transition hover:opacity-100 hover:grayscale-0"
+            className="h-10 w-full object-contain opacity-85 transition hover:opacity-100"
           />
         ))}
       </div>

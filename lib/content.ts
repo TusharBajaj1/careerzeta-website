@@ -37,6 +37,13 @@ export const PROGRAMS: Program[] = [
     tags: ["Statistics", "Visualization", "Business context"],
   },
   {
+    slug: "data-science",
+    name: "Data Science & AI",
+    icon: Database,
+    desc: "Go from data analytics through machine learning and deep learning to generative and agentic AI — building, deploying and governing AI systems end to end.",
+    tags: ["Programming", "Statistics", "Visualization", "ML / AI"],
+  },
+  {
     slug: "applied-ai",
     name: "Applied AI",
     icon: Sparkles,
@@ -56,13 +63,6 @@ export const PROGRAMS: Program[] = [
     icon: Cpu,
     desc: "Model and predict from data at scale — the statistics and engineering behind systems that learn from examples.",
     tags: ["Programming", "Statistics", "ML / AI"],
-  },
-  {
-    slug: "data-science",
-    name: "Data Science",
-    icon: Database,
-    desc: "Full-stack analysis, from data to insight — the broadest track, covering programming, statistics, visualization and ML together.",
-    tags: ["Programming", "Statistics", "Visualization", "ML / AI"],
   },
 ];
 
@@ -109,7 +109,7 @@ export type Faq = { q: string; a: string };
 export const FAQS: Faq[] = [
   {
     q: "What does CareerZeta teach?",
-    a: "Six mentor-led programs — Data Analytics, Business Analytics, Applied AI, Agentic AI, Machine Learning and Data Science — built for early-career and working professionals.",
+    a: "Six mentor-led programs — Data Analytics, Business Analytics, Data Science & AI, Applied AI, Agentic AI and Machine Learning — built for early-career and working professionals.",
   },
   {
     q: "How are classes run?",

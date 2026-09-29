@@ -51,9 +51,9 @@ export default function Mentors({ heading = "Mentors" }: MentorsProps) {
             <Image
               src={mentor.photoUrl}
               alt={mentor.name}
-              width={400}
-              height={400}
-              className="h-45 w-full rounded-[14px] object-cover"
+              width={308}
+              height={423}
+              className="aspect-[308/423] w-full rounded-[14px] object-cover"
             />
             <div className="font-display text-base font-bold">{mentor.name}</div>
             <div className="text-sm opacity-60">

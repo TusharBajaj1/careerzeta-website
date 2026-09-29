@@ -9,7 +9,7 @@ export const TAG_ACCENT: Record<ProgramTag, string> = {
   "Applied AI": "#7c3aed",
   "Agentic AI": "#059669",
   "Machine Learning": "#ea580c",
-  "Data Science": "#4338ca",
+  "Data Science & AI": "#4338ca",
 };
 
 export function tagIcon(tag: ProgramTag) {
@@ -72,7 +72,7 @@ export const STORIES: Story[] = [
     url: "https://www.mckinsey.com/capabilities/mckinsey-technology/overview/when-ai-becomes-part-of-the-workflow-redesigning-how-software-gets-built",
   },
   {
-    tags: ["Machine Learning", "Data Science"],
+    tags: ["Machine Learning", "Data Science & AI"],
     title: "A world record for Formula E, propelled by McKinsey's AI",
     description:
       "AI applied to performance optimisation in a highly technical, real-time environment.",
@@ -80,7 +80,7 @@ export const STORIES: Story[] = [
     url: "https://www.mckinsey.com/about-us/new-at-mckinsey-blog/a-new-world-record-for-formula-e-propelled-by-mckinseys-ai",
   },
   {
-    tags: ["Machine Learning", "Data Science"],
+    tags: ["Machine Learning", "Data Science & AI"],
     title:
       "Global insurer embraces advanced analytics to improve predictability and service",
     description:

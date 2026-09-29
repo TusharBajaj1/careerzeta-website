@@ -4,6 +4,7 @@ import {
   ArrowUpRight,
   Bookmark,
   Briefcase,
+  CalendarDays,
   ChevronRight,
   Download,
   FileText,
@@ -267,6 +268,22 @@ export default function ProgramSection({
             ))}
           </span>
         </div>
+
+        {detail.duration && (
+          <div className="mt-3 border-t border-line pt-3">
+            <div className="flex items-center gap-2">
+              <CalendarDays
+                className="h-4 w-4 text-sky-600"
+                strokeWidth={1.75}
+                aria-hidden
+              />
+              <span className="text-xs font-bold tracking-[0.06em] uppercase opacity-50">
+                Duration
+              </span>
+            </div>
+            <div className="mt-1 text-sm font-semibold">{detail.duration}</div>
+          </div>
+        )}
 
         <div className="mt-3 border-t border-line pt-3">
           <div className="flex items-center gap-2">
