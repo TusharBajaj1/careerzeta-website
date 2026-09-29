@@ -206,6 +206,8 @@ export default function ProgramSection({
         {detail.brochureUrl ? (
           <a
             href={detail.brochureUrl}
+            target="_blank"
+            rel="noopener noreferrer"
             className="flex items-center gap-2 rounded-lg border-2 border-sky-300 px-6 py-3 text-sm font-bold text-sky-700 transition-transform duration-150 hover:scale-105"
           >
             Download Brochure

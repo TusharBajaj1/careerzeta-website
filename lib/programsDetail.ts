@@ -104,7 +104,7 @@ export const PROGRAM_DETAILS: ProgramDetail[] = [
       "MIS Analyst",
       "BI Analyst",
     ],
-    brochureUrl: null,
+    brochureUrl: "/brochures/careerzeta-data-analytics-brochure.pdf",
   },
   {
     slug: "business-analytics",
