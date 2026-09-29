@@ -46,6 +46,7 @@ export const STORIES: Story[] = [
     source: "McKinsey",
     url: "https://www.mckinsey.com/industries/financial-services/how-we-help-clients/banking-on-innovation-how-ing-uses-generative-ai-to-put-people-first",
     image: "/resources/ing.jpg",
+    imagePosition: "top",
   },
   {
     tags: ["Applied AI"],
