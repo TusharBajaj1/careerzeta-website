@@ -3,7 +3,7 @@ import Reveal from "@/components/ui/Reveal";
 export default function VisionHero() {
   return (
     <Reveal className="bg-gradient-to-br from-[#111827] to-[#1e293b]">
-      <div className="mx-auto grid max-w-[1400px] items-center gap-16 px-6 py-16 md:px-10 lg:grid-cols-2 lg:px-16 lg:py-20">
+      <div className="mx-auto grid max-w-[1400px] items-center gap-16 px-6 py-14 md:px-10 lg:grid-cols-2 lg:px-16 lg:py-16">
         <div>
           <h6 className="text-sm font-bold tracking-[0.06em] text-sky-300 uppercase">
             Purpose / Vision

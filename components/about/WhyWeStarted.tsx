@@ -60,7 +60,7 @@ export default function WhyWeStarted() {
   return (
     <Reveal
       id="why-we-started"
-      className="mx-auto max-w-[1400px] scroll-mt-24 px-6 py-16 md:px-10 lg:px-16 lg:py-20"
+      className="mx-auto max-w-[1400px] scroll-mt-24 px-6 py-14 md:px-10 lg:px-16 lg:py-16"
     >
       <h6 className="text-sm font-bold tracking-[0.06em] text-sky-700 uppercase">
         Why we started

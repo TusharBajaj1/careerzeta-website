@@ -6,7 +6,7 @@ import Reveal from "@/components/ui/Reveal";
 export default function AboutCta() {
   return (
     <Reveal className="bg-gradient-to-br from-[#111827] to-[#1e293b]">
-      <div className="mx-auto flex max-w-[1400px] flex-wrap items-center justify-between gap-10 px-6 py-14 md:px-10 lg:px-16 lg:py-20">
+      <div className="mx-auto flex max-w-[1400px] flex-wrap items-center justify-between gap-10 px-6 py-14 md:px-10 lg:px-16 lg:py-16">
         <div className="max-w-[640px]">
           <h2 className="font-display text-3xl leading-tight font-bold text-white lg:text-4xl">
             Live batches, taught by mentors working in the field today.

@@ -12,7 +12,7 @@ export type Mentor = {
 
 /** Sourced from the client's own program brochures ("Top Faculty with CareerZeta"). */
 const mentors: Mentor[] = [
-  { name: "Arnab Das", title: "Data Engineer", company: "Ieng Group", photoUrl: "/faculty/arnab-das.jpg" },
+  { name: "Arnab Das", title: "Data Engineer", company: "ieng Group", photoUrl: "/faculty/arnab-das.jpg" },
   { name: "Anas Qureshi", title: "Technical Lead", company: "NetSkope", photoUrl: "/faculty/anas-qureshi.jpg" },
   { name: "Devesh Thapliyal", title: "Technology Lead", company: "Infosys", photoUrl: "/faculty/devesh-thapliyal.jpg" },
   { name: "Ashish Dahiya", title: "Sr. Consultant", company: "Centric Consulting", photoUrl: "/faculty/ashish-dahiya.jpg" },
@@ -31,42 +31,48 @@ export default function Mentors({ heading = "Mentors" }: MentorsProps) {
   return (
     <Reveal
       id="mentors"
-      className="mx-auto max-w-[1400px] scroll-mt-24 px-6 py-16 md:px-10 lg:px-16 lg:py-20"
+      className="scroll-mt-24 bg-slate-200 px-6 py-14 md:px-10 lg:px-16 lg:py-16"
     >
-      <h6 className="text-sm font-bold tracking-[0.06em] text-sky-700 uppercase">
-        Our strengths
-      </h6>
-      <h2 className="mt-3.5 font-display text-4xl font-bold">{heading}</h2>
-      <p className="mt-3.5 max-w-[60ch] text-[17px] opacity-75">
-        Our mentors work in the industry today, guiding learners through applied
-        practice, batch by batch.
-      </p>
+      <div className="mx-auto max-w-[1400px]">
+        <h6 className="text-sm font-bold tracking-[0.06em] text-sky-700 uppercase">
+          Our strengths
+        </h6>
+        <h2 className="mt-3.5 font-display text-4xl font-bold">{heading}</h2>
+        <p className="mt-3.5 max-w-[60ch] text-[17px] opacity-75">
+          Our mentors work in the industry today, guiding learners through
+          applied practice, batch by batch.
+        </p>
 
-      <StaggerGroup className="mt-11 grid gap-7 sm:grid-cols-2 lg:grid-cols-4">
-        {mentors.map((mentor) => (
-          <StaggerItem
-            key={mentor.name}
-            className="flex flex-col gap-3.5 transition-transform duration-200 hover:-translate-y-2"
-          >
-            {/* Brand rule: photo frame = 6px aqua→deep-aqua gradient border, 20px radius */}
-            <div className="rounded-[20px] bg-gradient-to-br from-sky-400 to-sky-700 p-1.5">
-              <div className="relative aspect-square overflow-hidden rounded-[14px] bg-sky-100">
-                <Image
-                  src={mentor.photoUrl}
-                  alt={mentor.name}
-                  fill
-                  sizes="(min-width:1280px) 25vw, (min-width:640px) 50vw, 100vw"
-                  className="object-cover object-top"
-                />
+        <StaggerGroup className="mt-11 grid gap-7 sm:grid-cols-2 lg:grid-cols-4">
+          {mentors.map((mentor) => (
+            <StaggerItem
+              key={mentor.name}
+              className="flex flex-col gap-3.5 transition-transform duration-200 hover:-translate-y-2"
+            >
+              {/* Brand rule: photo frame = 6px aqua→deep-aqua gradient border, 20px radius.
+                  Portrait aspect matches the source crop (a square crop cuts inconsistently
+                  across these nine photos, since each was framed slightly differently). */}
+              <div className="rounded-[20px] bg-gradient-to-br from-sky-400 to-sky-700 p-1.5">
+                <div className="relative aspect-[3/4] overflow-hidden rounded-[14px] bg-sky-100">
+                  <Image
+                    src={mentor.photoUrl}
+                    alt={mentor.name}
+                    fill
+                    sizes="(min-width:1280px) 25vw, (min-width:640px) 50vw, 100vw"
+                    className="object-cover"
+                  />
+                </div>
               </div>
-            </div>
-            <div className="font-display text-base font-bold">{mentor.name}</div>
-            <div className="text-sm opacity-60">
-              {mentor.title}, {mentor.company}
-            </div>
-          </StaggerItem>
-        ))}
-      </StaggerGroup>
+              <div className="font-display text-base font-bold">
+                {mentor.name}
+              </div>
+              <div className="text-sm opacity-60">
+                {mentor.title}, {mentor.company}
+              </div>
+            </StaggerItem>
+          ))}
+        </StaggerGroup>
+      </div>
     </Reveal>
   );
 }
