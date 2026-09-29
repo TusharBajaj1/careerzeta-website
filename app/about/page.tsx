@@ -1,11 +1,12 @@
 import type { Metadata } from "next";
 
+import AboutCta from "@/components/about/AboutCta";
 import Founders from "@/components/about/Founders";
 import LearningPath from "@/components/about/LearningPath";
-import UpskillingDestinations from "@/components/about/UpskillingDestinations";
+import Organisations from "@/components/about/Organisations";
+import VisionHero from "@/components/about/VisionHero";
 import WhyWeStarted from "@/components/about/WhyWeStarted";
 import Mentors from "@/components/home/Mentors";
-import Vision from "@/components/home/Vision";
 import Footer from "@/components/layout/Footer";
 
 export const metadata: Metadata = {
@@ -17,12 +18,13 @@ export const metadata: Metadata = {
 export default function AboutPage() {
   return (
     <>
-      <Vision />
+      <VisionHero />
       <WhyWeStarted />
       <Mentors heading="Mentors Leading the Programs" />
       <LearningPath />
-      <UpskillingDestinations />
+      <Organisations />
       <Founders />
+      <AboutCta />
       <Footer />
     </>
   );

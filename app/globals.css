@@ -164,6 +164,30 @@ body {
   animation: cz-shimmer 2.8s ease-in-out infinite;
 }
 
+@keyframes cz-drift {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+.cz-drift {
+  animation: cz-drift 10s ease-in-out infinite;
+}
+
+@keyframes cz-dash {
+  to {
+    stroke-dashoffset: -40;
+  }
+}
+
+.cz-dash {
+  animation: cz-dash 3s linear infinite;
+}
+
 /* The design leans on continuous ambient motion; honour a reduced-motion
    preference by stopping it rather than shipping a second visual language. */
 @media (prefers-reduced-motion: reduce) {

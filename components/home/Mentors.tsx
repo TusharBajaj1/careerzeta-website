@@ -48,13 +48,18 @@ export default function Mentors({ heading = "Mentors" }: MentorsProps) {
             key={mentor.name}
             className="flex flex-col gap-3.5 transition-transform duration-200 hover:-translate-y-2"
           >
-            <Image
-              src={mentor.photoUrl}
-              alt={mentor.name}
-              width={308}
-              height={423}
-              className="aspect-[308/423] w-full rounded-[14px] object-cover"
-            />
+            {/* Brand rule: photo frame = 6px aqua→deep-aqua gradient border, 20px radius */}
+            <div className="rounded-[20px] bg-gradient-to-br from-sky-400 to-sky-700 p-1.5">
+              <div className="relative aspect-square overflow-hidden rounded-[14px] bg-sky-100">
+                <Image
+                  src={mentor.photoUrl}
+                  alt={mentor.name}
+                  fill
+                  sizes="(min-width:1280px) 25vw, (min-width:640px) 50vw, 100vw"
+                  className="object-cover object-top"
+                />
+              </div>
+            </div>
             <div className="font-display text-base font-bold">{mentor.name}</div>
             <div className="text-sm opacity-60">
               {mentor.title}, {mentor.company}
