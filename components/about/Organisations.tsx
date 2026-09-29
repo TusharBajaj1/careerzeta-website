@@ -59,11 +59,6 @@ export default function Organisations() {
         <h2 className="mt-3.5 max-w-[32ch] font-display text-4xl font-bold">
           Skills relevant across the organisations shaping data and AI
         </h2>
-        <p className="mt-4 max-w-[70ch] text-base opacity-60 italic">
-          These are examples of organisations where the skills built through
-          CareerZeta are relevant — not partners, recruiters or an
-          endorsement, and not a placement guarantee.
-        </p>
 
         <div className="mt-11 grid grid-cols-2 gap-4 sm:grid-cols-4 lg:grid-cols-5">
           {logos.map((company) => (
