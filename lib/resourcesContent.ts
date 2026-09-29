@@ -27,7 +27,7 @@ export const STORIES: Story[] = [
       "Tata Steel's Kalinganagar plant used data and analytics to improve performance, with employee upskilling as part of the transformation.",
     source: "McKinsey",
     url: "https://www.mckinsey.com/industries/metals-and-mining/how-we-help-clients/how-a-steel-plant-in-india-tapped-the-value-of-data-and-won-global-acclaim",
-    image: null,
+    image: "/resources/tata-steel.jpg",
   },
   {
     tags: ["Data Analytics", "Business Analytics"],
@@ -45,8 +45,7 @@ export const STORIES: Story[] = [
       "A practical example of a bank using generative AI to build a customer-facing application.",
     source: "McKinsey",
     url: "https://www.mckinsey.com/industries/financial-services/how-we-help-clients/banking-on-innovation-how-ing-uses-generative-ai-to-put-people-first",
-    image: null,
-    imagePosition: "top",
+    image: "/resources/ing.jpg",
   },
   {
     tags: ["Applied AI"],
@@ -64,7 +63,7 @@ export const STORIES: Story[] = [
       "AI moving from an individual productivity tool into an integrated workflow — a relevant example for agentic, multi-step AI work.",
     source: "McKinsey",
     url: "https://www.mckinsey.com/capabilities/mckinsey-technology/overview/when-ai-becomes-part-of-the-workflow-redesigning-how-software-gets-built",
-    image: null,
+    image: "/resources/ai-workflow.jpg",
   },
   {
     tags: ["Machine Learning", "Data Science & AI"],
@@ -73,7 +72,7 @@ export const STORIES: Story[] = [
       "AI applied to performance optimisation in a highly technical, real-time environment.",
     source: "McKinsey",
     url: "https://www.mckinsey.com/about-us/new-at-mckinsey-blog/a-new-world-record-for-formula-e-propelled-by-mckinseys-ai",
-    image: null,
+    image: "/resources/formula-e.jpg",
   },
 ];
 
@@ -96,7 +95,7 @@ export const REPORTS: Report[] = [
     description:
       "An independent, data-driven view of artificial intelligence from Stanford HAI, covering technical progress, economic influence and societal impact, including how demand for AI skills is changing.",
     url: "https://hai.stanford.edu/ai-index/2025-ai-index-report",
-    image: null,
+    image: "/resources/ai-index-2025.jpg",
     featured: true,
   },
   {
