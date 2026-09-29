@@ -1,24 +1,10 @@
 import Link from "next/link";
-import type { ReactNode } from "react";
-import {
-  ArrowUpRight,
-  Bookmark,
-  Briefcase,
-  CalendarDays,
-  ChevronRight,
-  Download,
-  FileText,
-  Gauge,
-} from "lucide-react";
+import type { CSSProperties, ReactNode } from "react";
 
 import Reveal from "@/components/ui/Reveal";
 import { StaggerGroup, StaggerItem } from "@/components/ui/Stagger";
 import type { Program } from "@/lib/content";
-import {
-  toolMeta,
-  WHAT_YOULL_DO_ICONS,
-  type ProgramDetail,
-} from "@/lib/programsDetail";
+import type { ProgramDetail } from "@/lib/programsDetail";
 
 type ProgramSectionProps = {
   program: Program;
@@ -27,90 +13,102 @@ type ProgramSectionProps = {
 };
 
 /**
- * Abstract, brand-colored stand-ins for photography that hasn't been shot
- * yet — geometric shapes only (bars, dots, lines), not illustration. Delete
- * this map and the <div className="motif">...</div> block once real photos
- * exist.
+ * Geometric stand-ins for photography that hasn't been shot yet, drawn on
+ * the charcoal visual panel. Delete this map and the motif div once real
+ * photos exist.
  */
+const grow = (delay: number): CSSProperties => ({
+  transformBox: "fill-box",
+  transformOrigin: "bottom",
+  animation: `cz-grow 1s ${delay}s ease-out both`,
+});
+
 const MOTIFS: Record<string, ReactNode> = {
   "data-analytics": (
-    <svg viewBox="0 0 300 180" className="h-full w-full">
-      <rect x="40" y="90" width="30" height="60" rx="6" fill="#7dd3fc" />
-      <rect x="90" y="60" width="30" height="90" rx="6" fill="#38bdf8" />
-      <rect x="140" y="100" width="30" height="50" rx="6" fill="#7dd3fc" />
-      <rect x="190" y="40" width="30" height="110" rx="6" fill="#0284c7" />
-      <rect x="240" y="75" width="30" height="75" rx="6" fill="#38bdf8" />
+    <svg viewBox="0 0 300 180" className="h-full w-full" aria-hidden="true">
+      <rect x="30" y="90" width="34" height="70" rx="7" fill="#7dd3fc" style={grow(0)} />
+      <rect x="82" y="55" width="34" height="105" rx="7" fill="#38bdf8" style={grow(0.1)} />
+      <rect x="134" y="100" width="34" height="60" rx="7" fill="#7dd3fc" style={grow(0.2)} />
+      <rect x="186" y="30" width="34" height="130" rx="7" fill="#e0f2fe" style={grow(0.3)} />
+      <rect x="238" y="70" width="34" height="90" rx="7" fill="#38bdf8" style={grow(0.4)} />
+      <line x1="15" y1="162" x2="285" y2="162" stroke="#e2e8f0" strokeOpacity=".4" strokeWidth="2" />
     </svg>
   ),
   "business-analytics": (
-    <svg viewBox="0 0 300 180" className="h-full w-full">
+    <svg viewBox="0 0 300 180" className="h-full w-full" aria-hidden="true">
       <polyline
-        points="30,140 90,110 150,120 210,60 270,40"
+        points="25,140 90,108 150,120 215,58 275,32"
         fill="none"
-        stroke="#0284c7"
+        stroke="#38bdf8"
         strokeWidth="5"
         strokeLinecap="round"
         strokeLinejoin="round"
+        strokeDasharray="8 8"
+        className="cz-dash"
       />
-      <circle cx="30" cy="140" r="7" fill="#38bdf8" />
-      <circle cx="90" cy="110" r="7" fill="#38bdf8" />
-      <circle cx="150" cy="120" r="7" fill="#38bdf8" />
-      <circle cx="210" cy="60" r="7" fill="#38bdf8" />
-      <circle cx="270" cy="40" r="9" fill="#0369a1" />
-    </svg>
-  ),
-  "applied-ai": (
-    <svg viewBox="0 0 300 180" className="h-full w-full">
-      <circle cx="150" cy="90" r="26" fill="#38bdf8" opacity="0.9" />
-      <circle cx="80" cy="50" r="10" fill="#7dd3fc" />
-      <circle cx="220" cy="130" r="10" fill="#7dd3fc" />
-      <circle cx="60" cy="130" r="7" fill="#0284c7" />
-      <circle cx="235" cy="55" r="7" fill="#0284c7" />
-      <circle cx="150" cy="30" r="6" fill="#0369a1" />
-      <circle cx="150" cy="150" r="6" fill="#0369a1" />
-    </svg>
-  ),
-  "agentic-ai": (
-    <svg viewBox="0 0 300 180" className="h-full w-full">
-      <line x1="60" y1="60" x2="150" y2="90" stroke="#7dd3fc" strokeWidth="4" />
-      <line x1="150" y1="90" x2="240" y2="50" stroke="#7dd3fc" strokeWidth="4" />
-      <line x1="150" y1="90" x2="150" y2="150" stroke="#7dd3fc" strokeWidth="4" />
-      <line x1="150" y1="150" x2="230" y2="140" stroke="#7dd3fc" strokeWidth="4" />
-      <circle cx="60" cy="60" r="12" fill="#0284c7" />
-      <circle cx="150" cy="90" r="16" fill="#0369a1" />
-      <circle cx="240" cy="50" r="12" fill="#38bdf8" />
-      <circle cx="150" cy="150" r="12" fill="#38bdf8" />
-      <circle cx="230" cy="140" r="10" fill="#7dd3fc" />
-    </svg>
-  ),
-  "machine-learning": (
-    <svg viewBox="0 0 300 180" className="h-full w-full">
-      <line
-        x1="30"
-        y1="150"
-        x2="270"
-        y2="40"
-        stroke="#0284c7"
-        strokeWidth="3"
-        strokeDasharray="2 8"
-        strokeLinecap="round"
-      />
-      <circle cx="50" cy="130" r="7" fill="#38bdf8" />
-      <circle cx="90" cy="140" r="7" fill="#7dd3fc" />
-      <circle cx="130" cy="95" r="7" fill="#38bdf8" />
-      <circle cx="170" cy="105" r="7" fill="#7dd3fc" />
-      <circle cx="210" cy="70" r="7" fill="#38bdf8" />
-      <circle cx="250" cy="55" r="7" fill="#0369a1" />
+      <circle cx="25" cy="140" r="8" fill="#7dd3fc" />
+      <circle cx="90" cy="108" r="8" fill="#7dd3fc" />
+      <circle cx="150" cy="120" r="8" fill="#7dd3fc" />
+      <circle cx="215" cy="58" r="8" fill="#7dd3fc" />
+      <circle cx="275" cy="32" r="12" fill="#e0f2fe" />
     </svg>
   ),
   "data-science": (
-    <svg viewBox="0 0 300 180" className="h-full w-full">
-      <circle cx="120" cy="90" r="55" fill="#38bdf8" opacity="0.55" />
-      <circle cx="180" cy="90" r="55" fill="#0284c7" opacity="0.55" />
-      <circle cx="150" cy="50" r="55" fill="#7dd3fc" opacity="0.5" />
+    <svg viewBox="0 0 300 180" className="h-full w-full" aria-hidden="true">
+      <circle cx="118" cy="98" r="58" fill="#38bdf8" fillOpacity=".55" />
+      <circle cx="184" cy="98" r="58" fill="#7dd3fc" fillOpacity=".45" />
+      <circle cx="151" cy="55" r="58" fill="#e0f2fe" fillOpacity=".4" />
+    </svg>
+  ),
+  "applied-ai": (
+    <svg viewBox="0 0 300 180" className="h-full w-full" aria-hidden="true">
+      <g stroke="#7dd3fc" strokeOpacity=".5" strokeWidth="2">
+        <line x1="150" y1="90" x2="70" y2="45" />
+        <line x1="150" y1="90" x2="235" y2="135" />
+        <line x1="150" y1="90" x2="60" y2="135" />
+        <line x1="150" y1="90" x2="240" y2="50" />
+        <line x1="150" y1="90" x2="150" y2="25" />
+        <line x1="150" y1="90" x2="150" y2="158" />
+      </g>
+      <circle cx="150" cy="90" r="30" fill="#38bdf8" />
+      <circle cx="150" cy="90" r="42" fill="none" stroke="#38bdf8" strokeOpacity=".4" className="cz-pulse" />
+      <circle cx="70" cy="45" r="10" fill="#7dd3fc" />
+      <circle cx="235" cy="135" r="10" fill="#7dd3fc" />
+      <circle cx="60" cy="135" r="7" fill="#e0f2fe" />
+      <circle cx="240" cy="50" r="7" fill="#e0f2fe" />
+      <circle cx="150" cy="25" r="6" fill="#e0f2fe" />
+      <circle cx="150" cy="158" r="6" fill="#e0f2fe" />
+    </svg>
+  ),
+  "agentic-ai": (
+    <svg viewBox="0 0 300 180" className="h-full w-full" aria-hidden="true">
+      <g stroke="#7dd3fc" strokeWidth="4" strokeDasharray="6 6" className="cz-dash">
+        <line x1="55" y1="55" x2="150" y2="90" />
+        <line x1="150" y1="90" x2="245" y2="45" />
+        <line x1="150" y1="90" x2="150" y2="150" />
+        <line x1="150" y1="150" x2="235" y2="140" />
+      </g>
+      <circle cx="55" cy="55" r="13" fill="#7dd3fc" />
+      <circle cx="150" cy="90" r="19" fill="#38bdf8" />
+      <circle cx="245" cy="45" r="13" fill="#e0f2fe" />
+      <circle cx="150" cy="150" r="13" fill="#e0f2fe" />
+      <circle cx="235" cy="140" r="10" fill="#7dd3fc" />
+    </svg>
+  ),
+  "machine-learning": (
+    <svg viewBox="0 0 300 180" className="h-full w-full" aria-hidden="true">
+      <line x1="25" y1="155" x2="280" y2="35" stroke="#38bdf8" strokeWidth="3" strokeDasharray="3 9" strokeLinecap="round" />
+      <circle cx="45" cy="128" r="8" fill="#7dd3fc" />
+      <circle cx="85" cy="148" r="8" fill="#e0f2fe" />
+      <circle cx="125" cy="98" r="8" fill="#7dd3fc" />
+      <circle cx="165" cy="115" r="8" fill="#e0f2fe" />
+      <circle cx="205" cy="72" r="8" fill="#7dd3fc" />
+      <circle cx="250" cy="52" r="11" fill="#38bdf8" className="cz-pulse" />
     </svg>
   ),
 };
+
+const eyebrow = "text-xs font-bold tracking-[0.06em] text-sky-700 uppercase";
 
 const LEVEL_METER: Record<ProgramDetail["level"], number> = {
   Beginner: 1,
@@ -123,25 +121,21 @@ export default function ProgramSection({
   detail,
   index,
 }: ProgramSectionProps) {
-  const imageOnRight = index % 2 === 0;
-  const Icon = program.icon;
+  const number = String(index + 1).padStart(2, "0");
+  const flip = index % 2 === 1;
   const levelFilled = LEVEL_METER[detail.level];
 
   const textCol = (
     <div>
-      <div className="flex items-center gap-3">
-        <span className="font-display text-lg font-bold text-sky-500">
-          {detail.number}
-        </span>
-        <span className="h-px w-8 bg-sky-300" aria-hidden />
-        <Icon className="h-6 w-6 text-sky-400" strokeWidth={1.5} aria-hidden />
+      <div className="font-display text-6xl leading-none font-bold text-sky-400 lg:text-[96px]">
+        {number}
       </div>
 
-      <h2 className="mt-3 font-display text-4xl font-bold md:text-5xl">
+      <h2 className="mt-2 font-display text-4xl leading-[1.15] font-bold lg:text-[44px]">
         {program.name}
       </h2>
 
-      <p className="mt-3 font-display text-xl font-bold text-sky-600">
+      <p className="mt-3.5 font-display text-xl leading-snug font-bold text-sky-700">
         {detail.question}
       </p>
 
@@ -149,77 +143,55 @@ export default function ProgramSection({
         {detail.context}
       </p>
 
-      <StaggerGroup className="mt-6 flex flex-wrap items-center gap-2.5">
+      <StaggerGroup className="mt-7 flex flex-wrap items-center gap-2.5">
         {detail.tools.length > 0 ? (
-          detail.tools.map((tool) => {
-            const { icon: ToolIcon, color } = toolMeta(tool);
-            return (
-              <StaggerItem
-                key={tool}
-                className="inline-flex items-center gap-2 whitespace-nowrap rounded-full border px-4 py-2 text-base font-bold"
-                style={{
-                  background: `${color}14`,
-                  borderColor: `${color}40`,
-                  color,
-                }}
-              >
-                <ToolIcon className="h-5 w-5" aria-hidden />
-                {tool}
-              </StaggerItem>
-            );
-          })
+          detail.tools.map((tool) => (
+            <StaggerItem
+              key={tool}
+              className="rounded-full bg-gray-900 px-[18px] py-2.5 text-[15px] font-bold text-white"
+            >
+              {tool}
+            </StaggerItem>
+          ))
         ) : (
           <span className="text-sm italic opacity-50">{detail.toolsNote}</span>
         )}
       </StaggerGroup>
 
-      <div className="mt-6">
-        <StaggerGroup as="ul" className="flex flex-col gap-2">
-          {detail.reasons.slice(0, 3).map((reason) => (
-            <StaggerItem
-              key={reason}
-              as="li"
-              className="flex items-start gap-2.5"
-            >
-              <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-slate-900 text-white">
-                <ArrowUpRight
-                  className="h-3 w-3 rotate-45"
-                  strokeWidth={3}
-                  aria-hidden
-                />
-              </span>
-              <span className="text-[15px] leading-relaxed opacity-80">
-                {reason}
-              </span>
-            </StaggerItem>
-          ))}
-        </StaggerGroup>
-      </div>
+      <StaggerGroup as="ul" className="mt-7 flex flex-col gap-3">
+        {detail.reasons.slice(0, 3).map((reason) => (
+          <StaggerItem
+            key={reason}
+            as="li"
+            className="flex items-start gap-3 text-[15px] leading-relaxed"
+          >
+            <span className="mt-[7px] h-2.5 w-2.5 shrink-0 rounded-full bg-sky-400" />
+            {reason}
+          </StaggerItem>
+        ))}
+      </StaggerGroup>
 
-      <div className="mt-7 flex flex-wrap items-center gap-3">
+      <div className="mt-9 flex flex-wrap items-center gap-3.5">
         <Link
           href="/contact"
-          className="flex items-center gap-2 rounded-lg bg-sky-400 px-6 py-3 text-sm font-bold text-slate-900 transition-transform duration-150 hover:scale-105"
+          className="rounded-lg bg-sky-400 px-[26px] py-[15px] text-[15px] font-bold text-gray-900 transition-transform duration-150 hover:scale-105"
         >
           Get Admission
-          <ArrowUpRight className="h-4 w-4" aria-hidden />
         </Link>
         {detail.brochureUrl ? (
           <a
             href={detail.brochureUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="flex items-center gap-2 rounded-lg border-2 border-sky-300 px-6 py-3 text-sm font-bold text-sky-700 transition-transform duration-150 hover:scale-105"
+            className="rounded-lg border-2 border-gray-900 px-6 py-[13px] text-[15px] font-bold text-gray-900 transition-transform duration-150 hover:scale-105"
           >
             Download Brochure
-            <Download className="h-4 w-4" aria-hidden />
           </a>
         ) : (
           <span
-            className="flex cursor-not-allowed items-center gap-2 rounded-lg border-2 border-line px-6 py-3 text-sm font-bold text-slate-400"
+            className="cursor-not-allowed text-sm font-bold opacity-50"
             title="Brochure not yet available"
           >
-            <FileText className="h-4 w-4" aria-hidden />
             Brochure — coming soon
           </span>
         )}
@@ -228,95 +200,62 @@ export default function ProgramSection({
   );
 
   const imageCol = (
-    <div className="relative flex h-[420px] flex-col overflow-hidden rounded-2xl bg-gradient-to-br from-sky-50 to-slate-100 lg:h-full lg:min-h-[440px]">
-      <div className="relative min-h-[160px] flex-1 overflow-hidden">
-        <div
-          className="pointer-events-none absolute inset-0 opacity-40"
-          style={{
-            backgroundImage:
-              "radial-gradient(circle at 1.5px 1.5px, rgb(203 213 225) 1.5px, transparent 0)",
-            backgroundSize: "22px 22px",
-          }}
-        />
-        <div className="absolute inset-6">{MOTIFS[program.slug]}</div>
-        <span className="absolute top-4 left-6 text-xs font-semibold text-slate-400">
-          Concept graphic — real photography to follow
-        </span>
+    <div className="relative overflow-hidden rounded-2xl bg-gray-900 px-7 pt-7">
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-0 opacity-[0.16]"
+        style={{
+          backgroundImage:
+            "radial-gradient(circle at 1.5px 1.5px, #e2e8f0 1.5px, transparent 0)",
+          backgroundSize: "24px 24px",
+        }}
+      />
+      <div className="cz-drift relative h-[220px] lg:h-[260px]">
+        {MOTIFS[program.slug]}
       </div>
 
-      <div className="relative border-t border-line bg-white/90 p-5 backdrop-blur">
-        <div className="flex items-center gap-2">
-          <Gauge
-            className="h-4 w-4 text-sky-600"
-            strokeWidth={1.75}
-            aria-hidden
-          />
-          <span className="text-xs font-bold tracking-[0.06em] uppercase opacity-50">
-            Level
-          </span>
-        </div>
-        <div className="mt-1 flex items-center gap-2">
-          <span className="font-display font-bold">{detail.level}</span>
-          <span className="flex gap-1" aria-hidden>
+      <div className="relative mt-2 flex flex-col gap-4 rounded-t-2xl bg-white p-6">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <div className={eyebrow}>Level</div>
+            <div className="mt-0.5 font-display text-xl font-bold">
+              {detail.level}
+            </div>
+          </div>
+          {detail.duration && (
+            <div>
+              <div className={eyebrow}>Duration</div>
+              <div className="mt-0.5 font-display text-xl font-bold">
+                {detail.duration}
+              </div>
+            </div>
+          )}
+          <div className="flex gap-1.5" aria-hidden>
             {[1, 2, 3].map((n) => (
               <span
                 key={n}
-                className={`h-1.5 w-4 rounded-full ${
-                  n <= levelFilled ? "bg-sky-400" : "bg-line"
+                className={`h-2 w-7 rounded ${
+                  n <= levelFilled ? "bg-sky-400" : "bg-slate-200"
                 }`}
               />
             ))}
-          </span>
+          </div>
         </div>
 
-        {detail.duration && (
-          <div className="mt-3 border-t border-line pt-3">
-            <div className="flex items-center gap-2">
-              <CalendarDays
-                className="h-4 w-4 text-sky-600"
-                strokeWidth={1.75}
-                aria-hidden
-              />
-              <span className="text-xs font-bold tracking-[0.06em] uppercase opacity-50">
-                Duration
-              </span>
-            </div>
-            <div className="mt-1 text-sm font-semibold">{detail.duration}</div>
-          </div>
-        )}
-
-        <div className="mt-3 border-t border-line pt-3">
-          <div className="flex items-center gap-2">
-            <Bookmark
-              className="h-4 w-4 text-sky-600"
-              strokeWidth={1.75}
-              aria-hidden
-            />
-            <span className="text-xs font-bold tracking-[0.06em] uppercase opacity-50">
-              Prerequisites
-            </span>
-          </div>
-          <div className="mt-1 text-sm font-semibold">
+        <div className="border-t border-line pt-4">
+          <div className={eyebrow}>Prerequisites</div>
+          <div className="mt-0.5 text-sm leading-relaxed">
             {detail.prerequisites}
           </div>
         </div>
 
-        <div className="mt-3 border-t border-line pt-3">
-          <div className="flex items-center gap-2">
-            <Briefcase
-              className="h-4 w-4 text-sky-600"
-              strokeWidth={1.75}
-              aria-hidden
-            />
-            <span className="text-xs font-bold tracking-[0.06em] uppercase opacity-50">
-              Roles you can aim for
-            </span>
-          </div>
+        <div className="border-t border-line pt-4">
+          <div className={eyebrow}>Roles you can aim for</div>
           <div className="mt-2 flex flex-wrap gap-2">
             {detail.roles.slice(0, 4).map((role) => (
               <span
                 key={role}
-                className="rounded-full bg-sky-50 px-3 py-1.5 text-sm font-semibold text-sky-700"
+                className="rounded-full bg-sky-100 px-3.5 py-[7px] text-sm font-bold text-sky-700"
               >
                 {role}
               </span>
@@ -330,47 +269,52 @@ export default function ProgramSection({
   return (
     <Reveal
       id={program.slug}
-      className={`relative scroll-mt-24 px-6 py-14 md:px-10 lg:px-16 lg:py-16 ${
-        index % 2 === 0 ? "bg-white" : "bg-slate-50"
+      className={`relative scroll-mt-[165px] px-6 py-14 md:px-10 lg:px-16 lg:py-16 ${
+        flip ? "bg-slate-100" : "bg-white"
       }`}
     >
-      <div className="mx-auto max-w-[1200px]">
+      <div className="mx-auto max-w-[1400px]">
         {/*
-         * Text always precedes image in source order (title -> question ->
-         * description -> tools -> reasons -> CTAs -> image+quick-facts),
+         * Text always precedes the visual panel in source order (title ->
+         * question -> description -> tools -> reasons -> CTAs -> panel),
          * which is also the required mobile reading order. Desktop-only
-         * `order` classes swap the visual position for odd-indexed
-         * programs without touching DOM/tab order or mobile stacking.
+         * `order` classes swap the visual position for odd-indexed programs
+         * without touching DOM/tab order or mobile stacking.
          */}
-        <div className="grid items-stretch gap-10 lg:grid-cols-[1.15fr_1fr]">
-          <div className={imageOnRight ? "" : "lg:order-2"}>{textCol}</div>
-          <div className={imageOnRight ? "" : "lg:order-1"}>{imageCol}</div>
+        <div className="grid items-center gap-10 md:grid-cols-2 md:gap-16">
+          <div className={flip ? "md:order-2" : ""}>{textCol}</div>
+          <div className={flip ? "md:order-1" : ""}>{imageCol}</div>
         </div>
 
-        <div className="mt-10 flex flex-wrap items-center gap-2 border-t border-line pt-6">
-          <span className="mr-1 text-xs font-bold tracking-[0.06em] uppercase opacity-40">
-            What you&apos;ll do
-          </span>
-          <StaggerGroup className="flex flex-wrap items-center gap-2">
+        {/* Journey: numbered nodes on a connecting line, last node accented. */}
+        <div className="mt-14">
+          <div className={`${eyebrow} mb-6`}>What you&apos;ll do</div>
+          <ol className="grid grid-cols-2 gap-5 sm:grid-cols-3 lg:grid-cols-[repeat(auto-fit,minmax(150px,1fr))]">
             {detail.whatYoullDo.map((step, i) => {
-              const StepIcon =
-                WHAT_YOULL_DO_ICONS[i % WHAT_YOULL_DO_ICONS.length];
+              const last = i === detail.whatYoullDo.length - 1;
               return (
-                <StaggerItem key={step} className="flex items-center gap-2">
-                  {i > 0 && (
-                    <ChevronRight
-                      className="h-3.5 w-3.5 opacity-30"
-                      aria-hidden
+                <li key={step} className="flex flex-col gap-3.5">
+                  <div className="flex items-center">
+                    <span
+                      className={`flex h-[34px] w-[34px] flex-none items-center justify-center rounded-full text-sm font-bold ${
+                        last ? "bg-sky-400 text-gray-900" : "bg-gray-900 text-white"
+                      }`}
+                    >
+                      {i + 1}
+                    </span>
+                    <span
+                      className={`h-[3px] flex-1 rounded-sm ${
+                        last ? "bg-transparent" : "bg-slate-300"
+                      }`}
                     />
-                  )}
-                  <StepIcon className="h-3.5 w-3.5 opacity-50" aria-hidden />
-                  <span className="text-xs font-semibold text-slate-700">
+                  </div>
+                  <div className="pr-2 text-[15px] leading-snug font-bold">
                     {step}
-                  </span>
-                </StaggerItem>
+                  </div>
+                </li>
               );
             })}
-          </StaggerGroup>
+          </ol>
         </div>
       </div>
     </Reveal>
