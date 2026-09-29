@@ -17,7 +17,7 @@ export default function Vision() {
           <h6 className="text-sm font-bold tracking-[0.06em] text-sky-400 uppercase">
             Purpose / Vision
           </h6>
-          <h2 className="mt-4 font-display text-3xl leading-tight font-bold text-balance lg:text-[38px]">
+          <h2 className="mt-4 font-display text-3xl leading-tight font-bold text-balance text-white lg:text-[38px]">
             CareerZeta is built with the vision to keep professionals on pace
             with technology development.
           </h2>

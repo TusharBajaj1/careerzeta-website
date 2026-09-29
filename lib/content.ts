@@ -34,7 +34,7 @@ export const PROGRAMS: Program[] = [
     name: "Business Analytics",
     icon: TrendingUp,
     desc: "Translate data into business strategy — spotting the trend behind the numbers and turning it into a decision leadership can act on.",
-    tags: ["Statistics", "Visualization", "Business context"],
+    tags: ["Programming", "Statistics", "Visualization", "Business context"],
   },
   {
     slug: "data-science",
@@ -47,8 +47,8 @@ export const PROGRAMS: Program[] = [
     slug: "applied-ai",
     name: "Applied AI",
     icon: Sparkles,
-    desc: "Apply existing AI models to real products — integrating, evaluating and shipping AI features rather than building models from scratch.",
-    tags: ["Programming", "Statistics", "ML / AI"],
+    desc: "Bring AI into the job you already do — using tools like ChatGPT, Claude and Copilot to work smarter across marketing, finance, HR and operations.",
+    tags: ["ML / AI", "Business context"],
   },
   {
     slug: "agentic-ai",
