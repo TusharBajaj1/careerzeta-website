@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
 
 import LetsTalk from "@/components/contact/LetsTalk";
 import WorkWithUs from "@/components/contact/WorkWithUs";
@@ -34,7 +35,9 @@ export default function ContactPage() {
         </p>
 
         <div className="mt-9 rounded-2xl border-2 border-line bg-slate-50 p-6 sm:p-8">
-          <WorkWithUsForm />
+          <Suspense fallback={null}>
+            <WorkWithUsForm />
+          </Suspense>
         </div>
       </Reveal>
 

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, type ChangeEvent, type FormEvent } from "react";
+import { useSearchParams } from "next/navigation";
 import { Mail, Upload } from "lucide-react";
 
 import {
@@ -17,11 +18,24 @@ const interestOptions = [
   "Joining CareerZeta",
   "Both",
 ] as const;
+type Interest = (typeof interestOptions)[number];
+
+/** Matches the `?interest=` hint set by the two CTAs in WorkWithUs.tsx. */
+const INTEREST_FROM_QUERY: Record<string, Interest> = {
+  mentor: "Becoming a Mentor",
+  join: "Joining CareerZeta",
+  both: "Both",
+};
 
 export default function WorkWithUsForm() {
+  const searchParams = useSearchParams();
+  const hint = searchParams.get("interest");
+  const initialInterest = (hint && INTEREST_FROM_QUERY[hint]) || "Becoming a Mentor";
+
   const [status, setStatus] = useState<Status>("idle");
   const [error, setError] = useState<string | null>(null);
   const [cvFile, setCvFile] = useState<File | null>(null);
+  const [interest, setInterest] = useState<Interest>(initialInterest);
 
   function handleCvChange(e: ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
@@ -101,7 +115,7 @@ export default function WorkWithUsForm() {
           I&apos;m interested in:
         </p>
         <div className="flex flex-wrap gap-3">
-          {interestOptions.map((option, i) => (
+          {interestOptions.map((option) => (
             <label
               key={option}
               className="flex cursor-pointer items-center gap-2 rounded-lg border-2 border-line px-4 py-2.5 text-sm font-semibold has-checked:border-sky-400 has-checked:bg-sky-50"
@@ -111,7 +125,8 @@ export default function WorkWithUsForm() {
                 name="interest"
                 value={option}
                 required
-                defaultChecked={i === 0}
+                checked={interest === option}
+                onChange={() => setInterest(option)}
                 className="accent-sky-500"
               />
               {option}

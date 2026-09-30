@@ -26,7 +26,7 @@ export default function Hero() {
 
         <div className="mt-6 inline-flex items-center gap-2.5 rounded-full bg-sky-100 px-[18px] py-[9px] text-sm">
           <span className="cz-dot-pulse h-2.5 w-2.5 rounded-full bg-sky-400" />
-          Now enrolling: <b>Data Analytics</b>
+          Now enrolling: <b>All 6 programs</b>
         </div>
 
         <div className="mt-7 flex flex-wrap gap-3.5">

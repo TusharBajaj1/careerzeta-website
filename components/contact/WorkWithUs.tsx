@@ -37,7 +37,7 @@ export default function WorkWithUs() {
               applied practice.
             </p>
             <Link
-              href="#work-with-us-form"
+              href="?interest=mentor#work-with-us-form"
               className="mt-5 inline-block text-sm font-bold text-sky-700 underline decoration-sky-400 decoration-2 underline-offset-4"
             >
               Express interest
@@ -60,7 +60,7 @@ export default function WorkWithUs() {
               role that fits? We&apos;d still like to hear from you.
             </p>
             <Link
-              href="#work-with-us-form"
+              href="?interest=join#work-with-us-form"
               className="mt-5 inline-block text-sm font-bold text-sky-700 underline decoration-sky-400 decoration-2 underline-offset-4"
             >
               Share your CV / Express interest
