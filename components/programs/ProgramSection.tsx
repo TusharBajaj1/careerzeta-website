@@ -251,6 +251,11 @@ export default function ProgramSection({
           <div className="mt-0.5 font-display text-xl font-bold">
             {detail.fee ?? "Fee on request"}
           </div>
+          {detail.fee && (
+            <div className="mt-0.5 text-xs opacity-50">
+              Inclusive of all taxes
+            </div>
+          )}
         </div>
 
         <div className="border-t border-line pt-4">
