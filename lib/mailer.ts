@@ -4,7 +4,10 @@ import nodemailer from "nodemailer";
 function getTransporter() {
   const user = process.env.GMAIL_USER;
   const pass = process.env.GMAIL_APP_PASSWORD;
-  if (!user || !pass) return null;
+  if (!user || !pass) {
+    console.error("sendMail: GMAIL_USER/GMAIL_APP_PASSWORD not set in this environment");
+    return null;
+  }
   return nodemailer.createTransport({
     service: "gmail",
     auth: { user, pass },
@@ -27,7 +30,8 @@ export async function sendMail(options: {
       ...options,
     });
     return true;
-  } catch {
+  } catch (err) {
+    console.error("sendMail failed:", err);
     return false;
   }
 }

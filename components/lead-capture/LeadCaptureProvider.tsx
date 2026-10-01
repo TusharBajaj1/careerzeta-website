@@ -9,12 +9,12 @@ import {
   useState,
   type ReactNode,
 } from "react";
+import { usePathname } from "next/navigation";
 
 import EnquiryForm from "@/components/contact/EnquiryForm";
 import Modal from "@/components/ui/Modal";
 
 const CAPTURED_KEY = "cz_lead_captured";
-const DISMISSED_KEY = "cz_popup_dismissed";
 const ENTRY_POPUP_DELAY_MS = 4000;
 
 const DEFAULT_TITLE = "Let's get you started";
@@ -41,15 +41,14 @@ export default function LeadCaptureProvider({
 }: {
   children: ReactNode;
 }) {
+  const pathname = usePathname();
   const [isOpen, setIsOpen] = useState(false);
   const [modalTitle, setModalTitle] = useState(DEFAULT_TITLE);
   const [modalIntro, setModalIntro] = useState(DEFAULT_INTRO);
   const [defaultInterest, setDefaultInterest] = useState<string | undefined>();
 
-  /** Lead has actually submitted the form — skips the gate and the pop-up forever. */
+  /** Lead has actually submitted the form — skips the brochure gate forever. */
   const hasCapturedRef = useRef(false);
-  /** Closed the pop-up without submitting — stops the unprompted timer pop-up, but never excuses the brochure gate. */
-  const dismissedRef = useRef(false);
   const isOpenRef = useRef(false);
   const pendingActionRef = useRef<(() => void) | null>(null);
 
@@ -75,36 +74,26 @@ export default function LeadCaptureProvider({
     setIsOpen(false);
   }, []);
 
-  const handleUserDismiss = useCallback(() => {
-    if (!hasCapturedRef.current) {
-      try {
-        localStorage.setItem(DISMISSED_KEY, "1");
-      } catch {
-        // Private browsing or blocked storage — the flag just won't persist.
-      }
-      dismissedRef.current = true;
-    }
-    closeModal();
-  }, [closeModal]);
-
   useEffect(() => {
     try {
       hasCapturedRef.current = localStorage.getItem(CAPTURED_KEY) === "1";
-      dismissedRef.current = localStorage.getItem(DISMISSED_KEY) === "1";
     } catch {
-      // Private browsing or blocked storage — treat as not yet seen.
+      // Private browsing or blocked storage — treat as not yet captured.
     }
+  }, []);
 
-    if (hasCapturedRef.current || dismissedRef.current) return;
+  /** The entry pop-up fires every time someone lands on the home page, not just once per browser. */
+  useEffect(() => {
+    if (pathname !== "/") return;
 
     const timer = setTimeout(() => {
-      if (!hasCapturedRef.current && !dismissedRef.current && !isOpenRef.current) {
+      if (!isOpenRef.current) {
         openModal();
       }
     }, ENTRY_POPUP_DELAY_MS);
 
     return () => clearTimeout(timer);
-  }, [openModal]);
+  }, [pathname, openModal]);
 
   const requestBrochure = useCallback(
     (url: string, programName: string) => {
@@ -141,7 +130,7 @@ export default function LeadCaptureProvider({
     <LeadCaptureContext.Provider value={{ requestBrochure }}>
       {children}
 
-      <Modal open={isOpen} onClose={handleUserDismiss} title={modalTitle}>
+      <Modal open={isOpen} onClose={closeModal} title={modalTitle}>
         <p className="mb-5 text-sm leading-relaxed opacity-75">{modalIntro}</p>
         <EnquiryForm
           defaultInterest={defaultInterest}
