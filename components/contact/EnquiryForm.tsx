@@ -14,7 +14,14 @@ type Status = "idle" | "submitting" | "success" | "error";
 
 const interestOptions = [...PROGRAMS.map((p) => p.name), "General Enquiry"];
 
-export default function EnquiryForm() {
+type EnquiryFormProps = {
+  /** Pre-selects a program when opened from a specific brochure/CTA. */
+  defaultInterest?: string;
+  /** Fires the moment submission succeeds, before the success message renders. */
+  onSuccess?: () => void;
+};
+
+export default function EnquiryForm({ defaultInterest, onSuccess }: EnquiryFormProps) {
   const [status, setStatus] = useState<Status>("idle");
   const [error, setError] = useState<string | null>(null);
 
@@ -51,6 +58,7 @@ export default function EnquiryForm() {
       });
       if (res.ok) {
         setStatus("success");
+        onSuccess?.();
       } else {
         setStatus("error");
         setError(FORM_NOT_CONFIGURED_MESSAGE);
@@ -102,7 +110,7 @@ export default function EnquiryForm() {
         <select
           name="interest"
           required
-          defaultValue=""
+          defaultValue={defaultInterest ?? ""}
           className="rounded-lg border-2 border-line bg-white px-4 py-3 text-sm outline-none focus:border-sky-400"
         >
           <option value="" disabled>

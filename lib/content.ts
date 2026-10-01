@@ -2,9 +2,9 @@ import {
   Award,
   BarChart3,
   Bot,
-  Cpu,
   Database,
-  Sparkles,
+  Landmark,
+  ShieldCheck,
   Target,
   TrendingUp,
   Users,
@@ -44,25 +44,25 @@ export const PROGRAMS: Program[] = [
     tags: ["Programming", "Statistics", "Visualization", "ML / AI"],
   },
   {
-    slug: "applied-ai",
-    name: "Applied AI",
-    icon: Sparkles,
-    desc: "Bring AI into the job you already do — using tools like ChatGPT, Claude and Copilot to work smarter across marketing, finance, HR and operations.",
-    tags: ["ML / AI", "Business context"],
-  },
-  {
-    slug: "agentic-ai",
-    name: "Agentic AI",
+    slug: "generative-agentic-ai",
+    name: "Generative and Agentic AI",
     icon: Bot,
-    desc: "Build autonomous, tool-using agents that plan and act across multiple steps — the newest layer of applied AI work.",
+    desc: "Move beyond prompting to building — retrieval-augmented systems and autonomous agents that plan, reason and act using today's leading AI frameworks.",
     tags: ["Programming", "ML / AI"],
   },
   {
-    slug: "machine-learning",
-    name: "Machine Learning",
-    icon: Cpu,
-    desc: "Model and predict from data at scale — the statistics and engineering behind systems that learn from examples.",
-    tags: ["Programming", "Statistics", "ML / AI"],
+    slug: "investment-banking",
+    name: "Investment Banking",
+    icon: Landmark,
+    desc: "Build the financial modeling, valuation and deal skills behind investment banking, equity research and private equity roles.",
+    tags: ["Business context", "Visualization"],
+  },
+  {
+    slug: "cyber-security",
+    name: "Cyber Security",
+    icon: ShieldCheck,
+    desc: "Learn to defend networks and systems — from Linux and networking foundations to ethical hacking and incident response.",
+    tags: ["Programming", "Business context"],
   },
 ];
 
@@ -109,7 +109,7 @@ export type Faq = { q: string; a: string };
 export const FAQS: Faq[] = [
   {
     q: "What does CareerZeta teach?",
-    a: "Six mentor-led programs — Data Analytics, Business Analytics, Data Science & AI, Applied AI, Agentic AI and Machine Learning — built for early-career and working professionals.",
+    a: "Six mentor-led programs — Data Analytics, Business Analytics, Data Science & AI, Generative and Agentic AI, Investment Banking and Cyber Security — built for early-career and working professionals.",
   },
   {
     q: "How are classes run?",

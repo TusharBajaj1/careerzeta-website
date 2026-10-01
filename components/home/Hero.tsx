@@ -105,9 +105,6 @@ export default function Hero() {
             strokeLinejoin="round"
           />
         </svg>
-        <div className="absolute bottom-5 left-6 text-xs font-bold tracking-[0.06em] text-sky-400 uppercase">
-          Mentor at the centre. Learners in orbit.
-        </div>
       </div>
     </Reveal>
   );

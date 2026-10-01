@@ -13,6 +13,8 @@ export type ProgramDetail = {
   roles: string[];
   /** No brochures have been supplied yet — null renders a clearly-marked pending state. */
   brochureUrl: string | null;
+  /** Null renders "Fee on request" until pricing for this program is confirmed. */
+  fee: string | null;
 };
 
 export const PROGRAM_DETAILS: ProgramDetail[] = [
@@ -45,6 +47,7 @@ export const PROGRAM_DETAILS: ProgramDetail[] = [
       "BI Analyst",
     ],
     brochureUrl: "/brochures/careerzeta-data-analytics-brochure.pdf",
+    fee: "₹75,000",
   },
   {
     slug: "business-analytics",
@@ -80,6 +83,7 @@ export const PROGRAM_DETAILS: ProgramDetail[] = [
       "Risk Analyst",
     ],
     brochureUrl: "/brochures/careerzeta-business-analytics-brochure.pdf",
+    fee: "₹90,000",
   },
   {
     slug: "data-science",
@@ -112,108 +116,108 @@ export const PROGRAM_DETAILS: ProgramDetail[] = [
       "Applied Data Scientist",
     ],
     brochureUrl: "/brochures/careerzeta-data-science-ai-brochure.pdf",
+    fee: "₹1,20,000",
   },
   {
-    slug: "applied-ai",
-    question: "Do you want to bring AI into your current job?",
+    slug: "generative-agentic-ai",
+    question: "Do you want to build with the AI that's reshaping software?",
     context:
-      "Are you a working professional who sees AI changing your industry, but you're not sure how to apply it meaningfully to the work you already do?",
+      "Are you already using generative AI tools, but want to move beyond prompting to building retrieval-augmented systems and autonomous agents that plan, reason and act?",
     reasons: [
-      "Develop practical AI skills for your current role.",
-      "Learn how to identify tasks and workflows where AI can add value.",
-      "Use AI to improve research, analysis, content, reporting and productivity.",
-      "Build confidence in working with modern AI tools.",
-      "Prepare yourself for an increasingly AI-enabled workplace.",
-    ],
-    level: "Intermediate",
-    prerequisites: "No prior AI experience required.",
-    duration: null,
-    whatYoullDo: [
-      "A professional task",
-      "Identify where AI can help",
-      "Use the right AI approach",
-      "Build a practical workflow",
-      "Improve the outcome",
-    ],
-    tools: ["ChatGPT", "Claude", "Gemini", "Microsoft Copilot"],
-    toolsNote: "Final tool list to be aligned with the actual curriculum.",
-    roles: [
-      "Consulting",
-      "Marketing",
-      "Finance",
-      "HR",
-      "Operations",
-      "Product",
-      "Business Functions",
-    ],
-    brochureUrl: null,
-  },
-  {
-    slug: "agentic-ai",
-    question: "Do you want AI to do more than just answer your questions?",
-    context:
-      "Are you already experimenting with generative AI, but want to move beyond prompting and one-off interactions towards AI systems that can perform multi-step tasks and workflows?",
-    reasons: [
-      "Understand how AI agents work and how they differ from conventional AI tools.",
-      "Learn to design AI-powered workflows for complex tasks.",
-      "Move from simply using AI tools to building AI-enabled solutions.",
-      "Understand how AI agents can interact with tools, information and workflows.",
-      "Develop skills relevant to the next generation of AI applications.",
-    ],
-    level: "Professional",
-    prerequisites: "Basic familiarity with Generative AI is recommended.",
-    duration: null,
-    whatYoullDo: [
-      "A complex workflow",
-      "Break it into tasks",
-      "Connect AI with tools and information",
-      "Build an agentic workflow",
-      "Evaluate the outcome",
-    ],
-    tools: [],
-    toolsNote:
-      "To be finalised based on the actual curriculum — specific agent frameworks aren't listed until confirmed.",
-    roles: [
-      "AI Automation",
-      "AI Solutions",
-      "AI Product",
-      "AI-enabled Operations",
-      "AI Engineering",
-    ],
-    brochureUrl: null,
-  },
-  {
-    slug: "machine-learning",
-    question: "Do you want to build the models behind intelligent systems?",
-    context:
-      "Do you have an analytical, technical or quantitative background and want to move beyond using AI tools to understand how machines learn from data and make predictions?",
-    reasons: [
-      "Develop practical machine-learning skills.",
-      "Learn how predictive models are built and evaluated.",
-      "Strengthen your Python and data-modelling capabilities.",
-      "Prepare for a transition towards machine-learning and technically oriented data roles.",
-      "Apply machine learning to real-world datasets and problems.",
+      "Learn prompt engineering and retrieval-augmented generation (RAG) to ground models in real data.",
+      "Understand the agentic patterns behind AI that plans, reasons and acts across multiple steps.",
+      "Connect agents to APIs, databases and external tools rather than just chat interfaces.",
+      "Learn evaluation and guardrails so AI systems are reliable, not just impressive in a demo.",
+      "Prepare for roles building and shipping production AI applications, not just using them.",
     ],
     level: "Professional",
     prerequisites:
-      "Basic statistics and quantitative reasoning. Basic Python knowledge recommended.",
+      "Basic Python recommended. Familiarity with generative AI tools is helpful but not required.",
     duration: null,
     whatYoullDo: [
-      "Data",
-      "Prepare it",
-      "Identify relevant features",
-      "Build models",
-      "Evaluate predictions",
-      "Apply to a real-world problem",
+      "Prompting foundations",
+      "Retrieval-augmented generation",
+      "Agent design & orchestration",
+      "Tool & API integration",
+      "Evaluation & guardrails",
+      "Deploy & present",
     ],
-    tools: ["Python", "Pandas", "NumPy", "Scikit-learn", "Jupyter"],
+    tools: ["Python", "LangChain", "LangGraph", "Vector databases", "OpenAI API"],
     roles: [
-      "Machine Learning Engineer",
-      "ML Analyst",
-      "Applied ML Professional",
-      "Data Scientist",
+      "Generative AI Engineer",
+      "AI Agent Developer",
+      "LLM Application Engineer",
+      "AI Product Engineer",
     ],
     brochureUrl: null,
+    fee: null,
+  },
+  {
+    slug: "investment-banking",
+    question: "Do you want to break into investment banking?",
+    context:
+      "Do you want to move into roles in investment banking, equity research or private equity, but need the financial modeling, valuation and deal skills a typical finance degree doesn't teach?",
+    reasons: [
+      "Develop financial modeling and valuation skills — DCF, comparable companies, precedent transactions and LBO analysis.",
+      "Learn the M&A and IPO process end to end, the way it's actually run on a deal team.",
+      "Build pitchbooks and investor-ready presentations, not just spreadsheets.",
+      "Work through case studies and live deal simulations for real job readiness.",
+      "Prepare for analyst roles at investment banks, PE firms and boutique advisories — foundation modules included for non-finance backgrounds.",
+    ],
+    level: "Intermediate",
+    prerequisites:
+      "Basic understanding of accounting and finance recommended. Foundation modules available for non-finance backgrounds.",
+    duration: null,
+    whatYoullDo: [
+      "Accounting & financial statement foundations",
+      "Financial modeling",
+      "Valuation: DCF, comps & precedents",
+      "M&A & LBO modeling",
+      "Pitchbook & presentation",
+      "Capstone deal simulation",
+    ],
+    tools: ["Excel", "VBA", "PowerPoint", "Bloomberg Terminal"],
+    roles: [
+      "Investment Banking Analyst",
+      "Equity Research Analyst",
+      "M&A Analyst",
+      "Private Equity Analyst",
+    ],
+    brochureUrl: null,
+    fee: null,
+  },
+  {
+    slug: "cyber-security",
+    question: "Do you want to defend systems against real-world threats?",
+    context:
+      "Are you curious about how systems actually get breached, and want to build the skills to defend them — from networks and Linux fundamentals to ethical hacking and incident response?",
+    reasons: [
+      "Develop practical cybersecurity skills from the ground up — no prior experience assumed.",
+      "Learn networking, Linux and system administration fundamentals.",
+      "Practice ethical hacking and incident response in hands-on labs.",
+      "Prepare for the CompTIA Security+ certification.",
+      "Build the skills to move into SOC analyst and security engineering roles.",
+    ],
+    level: "Beginner",
+    prerequisites: "No prior cybersecurity experience required.",
+    duration: null,
+    whatYoullDo: [
+      "Networking & Linux foundations",
+      "System & security administration",
+      "Ethical hacking",
+      "Incident response",
+      "SIEM & monitoring",
+      "Apply to a real-world scenario",
+    ],
+    tools: ["Linux", "Wireshark", "Nmap", "Metasploit", "Splunk"],
+    roles: [
+      "SOC Analyst",
+      "Cybersecurity Analyst",
+      "Penetration Tester",
+      "Security Engineer",
+    ],
+    brochureUrl: null,
+    fee: null,
   },
 ];
 

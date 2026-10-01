@@ -1,11 +1,8 @@
 import { NextResponse } from "next/server";
 
-/**
- * General enquiry integration point. No email/CRM provider is configured
- * yet, so this must keep returning an error rather than a fake success —
- * wire the real notification (e.g. email to hello@careerzeta.com) in here
- * and return 200 once it's live.
- */
+import { CONTACT } from "@/lib/content";
+import { sendMail } from "@/lib/mailer";
+
 export async function POST(request: Request) {
   const body = await request.json().catch(() => null);
 
@@ -20,5 +17,18 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "invalid_payload" }, { status: 400 });
   }
 
-  return NextResponse.json({ error: "not_configured" }, { status: 501 });
+  const { name, email, mobile, interest, message } = body;
+
+  const sent = await sendMail({
+    to: CONTACT.email,
+    subject: `New Enquiry — ${name} (${interest})`,
+    text: `Name: ${name}\nEmail: ${email}\nMobile: ${mobile}\nInterested in: ${interest}\n\nMessage:\n${message}`,
+    replyTo: email,
+  });
+
+  if (!sent) {
+    return NextResponse.json({ error: "not_configured" }, { status: 501 });
+  }
+
+  return NextResponse.json({ ok: true });
 }

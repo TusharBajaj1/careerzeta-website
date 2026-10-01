@@ -14,10 +14,8 @@ const filters: (ProgramTag | typeof ALL)[] = [
   ALL,
   "Data Analytics",
   "Business Analytics",
-  "Applied AI",
-  "Agentic AI",
-  "Machine Learning",
   "Data Science & AI",
+  "Generative and Agentic AI",
 ];
 
 export default function RealWorldStories() {

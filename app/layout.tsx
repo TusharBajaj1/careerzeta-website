@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Manrope, Poppins } from "next/font/google";
 import "./globals.css";
 
+import LeadCaptureProvider from "@/components/lead-capture/LeadCaptureProvider";
 import Navbar from "@/components/layout/Navbar";
 
 const manrope = Manrope({
@@ -37,9 +38,11 @@ export default function RootLayout({
       data-scroll-behavior="smooth"
     >
       <body>
-        <Navbar />
+        <LeadCaptureProvider>
+          <Navbar />
 
-        <main>{children}</main>
+          <main>{children}</main>
+        </LeadCaptureProvider>
       </body>
     </html>
   );

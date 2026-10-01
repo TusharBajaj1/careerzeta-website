@@ -13,7 +13,7 @@ const navigation = [
   { label: "Contact", href: "/contact" },
 ];
 
-const programs = ["Data Analytics", "Applied AI", "Machine Learning"];
+const programs = ["Data Analytics", "Generative and Agentic AI", "Cyber Security"];
 
 const connect = [
   {

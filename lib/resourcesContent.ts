@@ -39,7 +39,7 @@ export const STORIES: Story[] = [
     image: "/resources/deloitte-retail.jpg",
   },
   {
-    tags: ["Applied AI"],
+    tags: ["Generative and Agentic AI"],
     title: "Banking on innovation: How ING uses generative AI to put people first",
     description:
       "A practical example of a bank using generative AI to build a customer-facing application.",
@@ -49,7 +49,7 @@ export const STORIES: Story[] = [
     imagePosition: "top",
   },
   {
-    tags: ["Applied AI"],
+    tags: ["Generative and Agentic AI"],
     title: "Aviva: Rewiring the insurance claims journey with AI",
     description:
       "An example of AI applied to an existing business process rather than as a standalone technology experiment.",
@@ -58,7 +58,7 @@ export const STORIES: Story[] = [
     image: "/resources/aviva.jpg",
   },
   {
-    tags: ["Agentic AI"],
+    tags: ["Generative and Agentic AI"],
     title: "When AI becomes part of the workflow: Redesigning how software gets built",
     description:
       "AI moving from an individual productivity tool into an integrated workflow — a relevant example for agentic, multi-step AI work.",
@@ -67,7 +67,7 @@ export const STORIES: Story[] = [
     image: "/resources/ai-workflow.jpg",
   },
   {
-    tags: ["Machine Learning", "Data Science & AI"],
+    tags: ["Data Science & AI"],
     title: "A world record for Formula E, propelled by McKinsey's AI",
     description:
       "AI applied to performance optimisation in a highly technical, real-time environment.",

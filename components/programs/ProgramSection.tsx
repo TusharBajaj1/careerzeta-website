@@ -1,6 +1,7 @@
 import Link from "next/link";
 import type { CSSProperties, ReactNode } from "react";
 
+import BrochureButton from "@/components/programs/BrochureButton";
 import Reveal from "@/components/ui/Reveal";
 import { StaggerGroup, StaggerItem } from "@/components/ui/Stagger";
 import type { Program } from "@/lib/content";
@@ -60,27 +61,7 @@ const MOTIFS: Record<string, ReactNode> = {
       <circle cx="151" cy="55" r="58" fill="#e0f2fe" fillOpacity=".4" />
     </svg>
   ),
-  "applied-ai": (
-    <svg viewBox="0 0 300 180" className="h-full w-full" aria-hidden="true">
-      <g stroke="#7dd3fc" strokeOpacity=".5" strokeWidth="2">
-        <line x1="150" y1="90" x2="70" y2="45" />
-        <line x1="150" y1="90" x2="235" y2="135" />
-        <line x1="150" y1="90" x2="60" y2="135" />
-        <line x1="150" y1="90" x2="240" y2="50" />
-        <line x1="150" y1="90" x2="150" y2="25" />
-        <line x1="150" y1="90" x2="150" y2="158" />
-      </g>
-      <circle cx="150" cy="90" r="30" fill="#38bdf8" />
-      <circle cx="150" cy="90" r="42" fill="none" stroke="#38bdf8" strokeOpacity=".4" className="cz-pulse" />
-      <circle cx="70" cy="45" r="10" fill="#7dd3fc" />
-      <circle cx="235" cy="135" r="10" fill="#7dd3fc" />
-      <circle cx="60" cy="135" r="7" fill="#e0f2fe" />
-      <circle cx="240" cy="50" r="7" fill="#e0f2fe" />
-      <circle cx="150" cy="25" r="6" fill="#e0f2fe" />
-      <circle cx="150" cy="158" r="6" fill="#e0f2fe" />
-    </svg>
-  ),
-  "agentic-ai": (
+  "generative-agentic-ai": (
     <svg viewBox="0 0 300 180" className="h-full w-full" aria-hidden="true">
       <g stroke="#7dd3fc" strokeWidth="4" strokeDasharray="6 6" className="cz-dash">
         <line x1="55" y1="55" x2="150" y2="90" />
@@ -95,15 +76,45 @@ const MOTIFS: Record<string, ReactNode> = {
       <circle cx="235" cy="140" r="10" fill="#7dd3fc" />
     </svg>
   ),
-  "machine-learning": (
+  "investment-banking": (
     <svg viewBox="0 0 300 180" className="h-full w-full" aria-hidden="true">
-      <line x1="25" y1="155" x2="280" y2="35" stroke="#38bdf8" strokeWidth="3" strokeDasharray="3 9" strokeLinecap="round" />
-      <circle cx="45" cy="128" r="8" fill="#7dd3fc" />
-      <circle cx="85" cy="148" r="8" fill="#e0f2fe" />
-      <circle cx="125" cy="98" r="8" fill="#7dd3fc" />
-      <circle cx="165" cy="115" r="8" fill="#e0f2fe" />
-      <circle cx="205" cy="72" r="8" fill="#7dd3fc" />
-      <circle cx="250" cy="52" r="11" fill="#38bdf8" className="cz-pulse" />
+      <rect x="40" y="110" width="10" height="50" fill="#7dd3fc" style={grow(0)} />
+      <rect x="62" y="90" width="10" height="70" fill="#38bdf8" style={grow(0.08)} />
+      <rect x="84" y="120" width="10" height="40" fill="#7dd3fc" style={grow(0.16)} />
+      <rect x="130" y="70" width="10" height="90" fill="#38bdf8" style={grow(0.24)} />
+      <rect x="152" y="95" width="10" height="65" fill="#7dd3fc" style={grow(0.32)} />
+      <rect x="174" y="50" width="10" height="110" fill="#38bdf8" style={grow(0.4)} />
+      <rect x="220" y="35" width="10" height="125" fill="#e0f2fe" style={grow(0.48)} />
+      <rect x="242" y="60" width="10" height="100" fill="#38bdf8" style={grow(0.56)} />
+      <polyline
+        points="45,105 67,85 89,115 135,65 157,90 179,45 225,30 247,55"
+        fill="none"
+        stroke="#e0f2fe"
+        strokeWidth="2"
+        strokeOpacity=".6"
+      />
+      <line x1="15" y1="162" x2="285" y2="162" stroke="#e2e8f0" strokeOpacity=".4" strokeWidth="2" />
+    </svg>
+  ),
+  "cyber-security": (
+    <svg viewBox="0 0 300 180" className="h-full w-full" aria-hidden="true">
+      <path
+        d="M150 25 L205 45 V95 C205 130 180 155 150 165 C120 155 95 130 95 95 V45 Z"
+        fill="#38bdf8"
+        fillOpacity=".18"
+        stroke="#38bdf8"
+        strokeWidth="3"
+      />
+      <circle cx="150" cy="95" r="52" fill="none" stroke="#38bdf8" strokeOpacity=".3" className="cz-pulse" />
+      <rect x="132" y="88" width="36" height="28" rx="4" fill="#38bdf8" />
+      <path
+        d="M140 88 V76 a10 10 0 0 1 20 0 V88"
+        fill="none"
+        stroke="#38bdf8"
+        strokeWidth="5"
+        strokeLinecap="round"
+      />
+      <circle cx="150" cy="100" r="4" fill="#0f172a" />
     </svg>
   ),
 };
@@ -179,14 +190,7 @@ export default function ProgramSection({
           Get Admission
         </Link>
         {detail.brochureUrl ? (
-          <a
-            href={detail.brochureUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="rounded-lg border-2 border-gray-900 px-6 py-[13px] text-[15px] font-bold text-gray-900 transition-transform duration-150 hover:scale-105"
-          >
-            Download Brochure
-          </a>
+          <BrochureButton url={detail.brochureUrl} programName={program.name} />
         ) : (
           <span
             className="cursor-not-allowed text-sm font-bold opacity-50"
@@ -239,6 +243,13 @@ export default function ProgramSection({
                 }`}
               />
             ))}
+          </div>
+        </div>
+
+        <div className="border-t border-line pt-4">
+          <div className={eyebrow}>Program Fee</div>
+          <div className="mt-0.5 font-display text-xl font-bold">
+            {detail.fee ?? "Fee on request"}
           </div>
         </div>
 
