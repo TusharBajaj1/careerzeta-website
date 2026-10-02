@@ -16,10 +16,15 @@ export const metadata: Metadata = {
 };
 
 export default function ProgramsPage() {
+  // ProgramPills is a Client Component; strip PROGRAMS down to its
+  // serializable fields before crossing that boundary (Program.icon is a
+  // function and can't be passed as a prop).
+  const programSummaries = PROGRAMS.map(({ slug, name }) => ({ slug, name }));
+
   return (
     <>
       <ProgramsHero />
-      <ProgramPills programs={PROGRAMS} />
+      <ProgramPills programs={programSummaries} />
 
       {PROGRAMS.map((program, index) => {
         const detail = PROGRAM_DETAILS.find((d) => d.slug === program.slug);

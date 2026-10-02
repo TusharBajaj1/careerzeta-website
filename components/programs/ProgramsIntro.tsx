@@ -1,8 +1,34 @@
+"use client";
+
+import { useEffect, useRef, useState } from "react";
+
 import Reveal from "@/components/ui/Reveal";
 import type { Program } from "@/lib/content";
 import type { ProgramDetail } from "@/lib/programsDetail";
 
 const eyebrow = "text-xs font-bold tracking-[0.06em] uppercase";
+
+/** Hidden while actively scrolling down (past the hero), shown again on scroll up or near the top. */
+function useHideOnScrollDown() {
+  const [hidden, setHidden] = useState(false);
+  const lastY = useRef(0);
+
+  useEffect(() => {
+    lastY.current = window.scrollY;
+    const onScroll = () => {
+      const y = window.scrollY;
+      const delta = y - lastY.current;
+      if (Math.abs(delta) > 4) {
+        setHidden(delta > 0 && y > 140);
+        lastY.current = y;
+      }
+    };
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
+  return hidden;
+}
 
 /** Hero + "Find your starting point" card — a fixed level ladder, not tied to named programs. */
 export function ProgramsHero() {
@@ -51,9 +77,19 @@ export function ProgramsHero() {
   );
 }
 
-export function ProgramPills({ programs }: { programs: Program[] }) {
+export function ProgramPills({
+  programs,
+}: {
+  programs: Pick<Program, "slug" | "name">[];
+}) {
+  const hidden = useHideOnScrollDown();
+
   return (
-    <div className="sticky top-20 z-20 border-y border-line bg-[#fafafa]/95 backdrop-blur">
+    <div
+      className={`sticky top-20 z-20 border-y border-line bg-[#fafafa]/95 backdrop-blur transition-transform duration-300 ${
+        hidden ? "-translate-y-full" : "translate-y-0"
+      }`}
+    >
       {/* Mobile: a single horizontally-scrolling row — flex-wrap here would
           stack all six pills and, being sticky, bury the section below it
           under a near-full-screen bar. Desktop has room to wrap instead. */}
