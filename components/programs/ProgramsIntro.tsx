@@ -93,12 +93,15 @@ export function ProgramsHero() {
 export function ProgramPills({ programs }: { programs: ProgramSummary[] }) {
   return (
     <div className="sticky top-20 z-20 border-b border-slate-200 bg-white/95 backdrop-blur">
-      <div className="mx-auto flex max-w-[1400px] flex-wrap gap-2.5 px-6 py-3 md:px-10 lg:px-16">
+      {/* Mobile: a single horizontally-scrolling row — flex-wrap here would
+          stack all six pills and, being sticky, bury the section below it
+          under a near-full-screen bar. Desktop has room to wrap instead. */}
+      <div className="mx-auto flex max-w-[1400px] gap-2.5 overflow-x-auto px-6 py-3 [scrollbar-width:none] md:flex-wrap md:overflow-visible md:px-10 [&::-webkit-scrollbar]:hidden lg:px-16">
         {programs.map((p, i) => (
           <a
             key={p.slug}
             href={`#${p.slug}`}
-            className="flex items-center gap-2 rounded-full bg-sky-100 px-[18px] py-[9px] text-sm font-bold text-[#111827] transition-transform duration-150 hover:scale-105"
+            className="flex shrink-0 items-center gap-2 rounded-full bg-sky-100 px-[18px] py-[9px] text-sm font-bold whitespace-nowrap text-[#111827] transition-transform duration-150 hover:scale-105"
           >
             <span className="text-sky-700">
               {String(i + 1).padStart(2, "0")}
