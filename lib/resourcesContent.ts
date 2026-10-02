@@ -20,7 +20,7 @@ export type Story = {
  */
 export const STORIES: Story[] = [
   {
-    tags: ["Data Analytics", "Business Analytics"],
+    tags: ["Data Analytics & Agentic AI", "Business Analytics & Agentic AI"],
     title:
       "How a steel plant in India tapped the value of data—and won global acclaim",
     description:
@@ -30,7 +30,7 @@ export const STORIES: Story[] = [
     image: "/resources/tata-steel.jpg",
   },
   {
-    tags: ["Data Analytics", "Business Analytics"],
+    tags: ["Data Analytics & Agentic AI", "Business Analytics & Agentic AI"],
     title: "Major retailer uses analytics to improve digital shopping experience",
     description:
       "A case study collection showing how analytics can be applied directly to customer and commercial decisions.",
@@ -39,7 +39,7 @@ export const STORIES: Story[] = [
     image: "/resources/deloitte-retail.jpg",
   },
   {
-    tags: ["Generative and Agentic AI"],
+    tags: ["Generative & Agentic AI"],
     title: "Banking on innovation: How ING uses generative AI to put people first",
     description:
       "A practical example of a bank using generative AI to build a customer-facing application.",
@@ -49,7 +49,7 @@ export const STORIES: Story[] = [
     imagePosition: "top",
   },
   {
-    tags: ["Generative and Agentic AI"],
+    tags: ["Generative & Agentic AI"],
     title: "Aviva: Rewiring the insurance claims journey with AI",
     description:
       "An example of AI applied to an existing business process rather than as a standalone technology experiment.",
@@ -58,7 +58,7 @@ export const STORIES: Story[] = [
     image: "/resources/aviva.jpg",
   },
   {
-    tags: ["Generative and Agentic AI"],
+    tags: ["Generative & Agentic AI"],
     title: "When AI becomes part of the workflow: Redesigning how software gets built",
     description:
       "AI moving from an individual productivity tool into an integrated workflow — a relevant example for agentic, multi-step AI work.",
@@ -67,7 +67,7 @@ export const STORIES: Story[] = [
     image: "/resources/ai-workflow.jpg",
   },
   {
-    tags: ["Data Science & AI"],
+    tags: ["PG Program in Data Science & AI"],
     title: "A world record for Formula E, propelled by McKinsey's AI",
     description:
       "AI applied to performance optimisation in a highly technical, real-time environment.",

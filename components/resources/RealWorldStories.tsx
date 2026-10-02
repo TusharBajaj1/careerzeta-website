@@ -12,10 +12,10 @@ import { STORIES, type ProgramTag } from "@/lib/resourcesContent";
 const ALL = "All" as const;
 const filters: (ProgramTag | typeof ALL)[] = [
   ALL,
-  "Data Analytics",
-  "Business Analytics",
-  "Data Science & AI",
-  "Generative and Agentic AI",
+  "Data Analytics & Agentic AI",
+  "Business Analytics & Agentic AI",
+  "PG Program in Data Science & AI",
+  "Generative & Agentic AI",
 ];
 
 export default function RealWorldStories() {
