@@ -26,18 +26,10 @@ function useScrollY() {
   return y;
 }
 
-type HeroProps = { programs: ProgramSummary[]; details: ProgramDetail[] };
-
-/** Hero + "Find your starting point" card. Nav floats transparently over this, same treatment as Home. */
-export function ProgramsHero({ programs, details }: HeroProps) {
+/** Hero + "Find your starting point" card — a fixed level ladder, not tied to named programs. */
+export function ProgramsHero() {
   const y = useScrollY();
   const reducedMotion = useReducedMotion();
-
-  const byLevel = (level: ProgramDetail["level"]) =>
-    programs
-      .filter((p) => details.find((d) => d.slug === p.slug)?.level === level)
-      .map((p) => p.name)
-      .join(" · ");
 
   return (
     <section className="relative min-h-[640px] overflow-hidden bg-[#0b1220] text-white">
@@ -87,13 +79,8 @@ export function ProgramsHero({ programs, details }: HeroProps) {
                   />
                 ))}
               </div>
-              <div>
-                <div className="font-display text-lg font-semibold">
-                  {l.name}
-                </div>
-                <div className="mt-0.5 text-sm text-slate-200">
-                  {byLevel(l.name)}
-                </div>
+              <div className="font-display text-lg font-semibold">
+                {l.name}
               </div>
             </div>
           ))}

@@ -22,7 +22,7 @@ export default function ProgramsPage() {
 
   return (
     <>
-      <ProgramsHero programs={programSummaries} details={PROGRAM_DETAILS} />
+      <ProgramsHero />
       <ProgramPills programs={programSummaries} />
 
       {programSummaries.map((program, index) => {
