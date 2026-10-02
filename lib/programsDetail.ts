@@ -47,7 +47,7 @@ export const PROGRAM_DETAILS: ProgramDetail[] = [
       "BI Analyst",
     ],
     brochureUrl: "/brochures/careerzeta-data-analytics-brochure.pdf",
-    fee: "₹1,25,000",
+    fee: "₹1,05,000",
   },
   {
     slug: "business-analytics",
@@ -83,7 +83,7 @@ export const PROGRAM_DETAILS: ProgramDetail[] = [
       "Risk Analyst",
     ],
     brochureUrl: "/brochures/careerzeta-business-analytics-brochure.pdf",
-    fee: "₹1,25,000",
+    fee: "₹1,05,000",
   },
   {
     slug: "data-science",
@@ -184,7 +184,7 @@ export const PROGRAM_DETAILS: ProgramDetail[] = [
       "Private Equity Analyst",
     ],
     brochureUrl: null,
-    fee: null,
+    fee: "₹1,05,000",
   },
   {
     slug: "cyber-security",
@@ -217,7 +217,7 @@ export const PROGRAM_DETAILS: ProgramDetail[] = [
       "Security Engineer",
     ],
     brochureUrl: null,
-    fee: null,
+    fee: "₹1,05,000",
   },
 ];
 
