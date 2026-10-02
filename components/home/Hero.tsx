@@ -41,11 +41,10 @@ export default function Hero() {
     >
       <div
         aria-hidden
-        className="absolute inset-y-0 right-0 w-[58%] bg-no-repeat"
+        className="absolute inset-y-0 right-0 w-[58%] bg-cover bg-no-repeat"
         style={{
           backgroundImage: "url(/home/pexels-cottonbro-5473956.png)",
-          backgroundPosition: "18% 20%",
-          backgroundSize: "auto 118%",
+          backgroundPosition: "45% 22%",
           transform: `translateY(${Math.round(y * -0.08)}px) scale(1.08)`,
         }}
       />
