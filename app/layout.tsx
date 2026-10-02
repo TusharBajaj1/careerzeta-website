@@ -4,6 +4,7 @@ import "./globals.css";
 
 import LeadCaptureProvider from "@/components/lead-capture/LeadCaptureProvider";
 import Navbar from "@/components/layout/Navbar";
+import WhatsAppButton from "@/components/layout/WhatsAppButton";
 
 const manrope = Manrope({
   subsets: ["latin"],
@@ -42,6 +43,8 @@ export default function RootLayout({
           <Navbar />
 
           <main>{children}</main>
+
+          <WhatsAppButton />
         </LeadCaptureProvider>
       </body>
     </html>
