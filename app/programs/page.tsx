@@ -18,7 +18,7 @@ export const metadata: Metadata = {
 export default function ProgramsPage() {
   return (
     <>
-      <ProgramsHero programs={PROGRAMS} details={PROGRAM_DETAILS} />
+      <ProgramsHero />
       <ProgramPills programs={PROGRAMS} />
 
       {PROGRAMS.map((program, index) => {

@@ -47,7 +47,7 @@ export const PROGRAM_DETAILS: ProgramDetail[] = [
       "BI Analyst",
     ],
     brochureUrl: "/brochures/careerzeta-data-analytics-brochure.pdf",
-    fee: "₹75,000",
+    fee: "₹1,25,000",
   },
   {
     slug: "business-analytics",
@@ -83,7 +83,7 @@ export const PROGRAM_DETAILS: ProgramDetail[] = [
       "Risk Analyst",
     ],
     brochureUrl: "/brochures/careerzeta-business-analytics-brochure.pdf",
-    fee: "₹90,000",
+    fee: "₹1,25,000",
   },
   {
     slug: "data-science",
@@ -116,7 +116,7 @@ export const PROGRAM_DETAILS: ProgramDetail[] = [
       "Applied Data Scientist",
     ],
     brochureUrl: "/brochures/careerzeta-data-science-ai-brochure.pdf",
-    fee: "₹1,20,000",
+    fee: "₹1,65,000",
   },
   {
     slug: "generative-agentic-ai",

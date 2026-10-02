@@ -4,20 +4,8 @@ import type { ProgramDetail } from "@/lib/programsDetail";
 
 const eyebrow = "text-xs font-bold tracking-[0.06em] uppercase";
 
-type HeroProps = { programs: Program[]; details: ProgramDetail[] };
-
-/**
- * Hero + "Find your starting point" card. `details` must be index-aligned
- * with `programs` (same order, same length) — the level groupings below
- * are computed positionally, not by slug lookup.
- */
-export function ProgramsHero({ programs, details }: HeroProps) {
-  const byLevel = (level: ProgramDetail["level"]) =>
-    programs
-      .filter((_, i) => details[i]?.level === level)
-      .map((p) => p.name)
-      .join(" · ");
-
+/** Hero + "Find your starting point" card — a fixed level ladder, not tied to named programs. */
+export function ProgramsHero() {
   const rows: { level: ProgramDetail["level"]; n: number }[] = [
     { level: "Beginner", n: 1 },
     { level: "Intermediate", n: 2 },
@@ -55,12 +43,7 @@ export function ProgramsHero({ programs, details }: HeroProps) {
                 />
               ))}
             </div>
-            <div>
-              <div className="font-display text-lg font-bold">{r.level}</div>
-              <div className="mt-0.5 text-sm leading-relaxed text-slate-200">
-                {byLevel(r.level)}
-              </div>
-            </div>
+            <div className="font-display text-lg font-bold">{r.level}</div>
           </div>
         ))}
       </div>
