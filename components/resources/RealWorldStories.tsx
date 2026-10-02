@@ -2,12 +2,10 @@
 
 import Image from "next/image";
 import { useState } from "react";
-import { ImageIcon } from "lucide-react";
 
 import Reveal from "@/components/ui/Reveal";
 import { StaggerGroup, StaggerItem } from "@/components/ui/Stagger";
-import MediaPlaceholder from "@/components/ui/MediaPlaceholder";
-import { STORIES, type ProgramTag } from "@/lib/resourcesContent";
+import { STORIES, type ProgramTag, type Story } from "@/lib/resourcesContent";
 
 const ALL = "All" as const;
 const filters: (ProgramTag | typeof ALL)[] = [
@@ -18,37 +16,57 @@ const filters: (ProgramTag | typeof ALL)[] = [
   "Generative and Agentic AI",
 ];
 
+const pos = (s: Story) => (s.imagePosition === "top" ? "object-top" : "object-center");
+
+function Tags({ tags }: { tags: string[] }) {
+  return (
+    <div className="flex flex-wrap gap-1.5">
+      {tags.map((tag) => (
+        <span
+          key={tag}
+          className="rounded-full bg-sky-100 px-3 py-[5px] text-xs font-bold text-sky-700"
+        >
+          {tag}
+        </span>
+      ))}
+    </div>
+  );
+}
+
 export default function RealWorldStories() {
   const [active, setActive] = useState<ProgramTag | typeof ALL>(ALL);
-  const stories =
+  const list =
     active === ALL ? STORIES : STORIES.filter((s) => s.tags.includes(active));
+  const [lead, ...rest] = list;
 
   return (
     <section id="stories" className="scroll-mt-24 bg-slate-100">
-      <Reveal className="mx-auto max-w-[1400px] px-6 py-16 md:px-10 lg:px-16 lg:py-20">
-        <h6 className="text-sm font-bold tracking-[0.06em] text-sky-700 uppercase">
-          Real-world stories
-        </h6>
-        <h2 className="mt-4 max-w-[28ch] font-display text-4xl leading-tight font-bold text-balance">
-          How companies are actually using these skills
-        </h2>
-        <p className="mt-4 max-w-[64ch] text-lg leading-relaxed opacity-75">
-          What was the problem, how was technology used, and what changed as
-          a result. Every story links to the original publisher — we
-          don&apos;t reproduce their reporting here.
-        </p>
+      <div className="mx-auto max-w-[1400px] px-6 py-24 md:px-10 lg:px-16">
+        <Reveal>
+          <h6 className="text-sm font-bold tracking-[0.06em] text-sky-700 uppercase">
+            Real-world stories
+          </h6>
+          <h2 className="mt-4 max-w-[22ch] font-display text-[clamp(32px,4vw,52px)] leading-[1.1] font-semibold tracking-[-0.03em] text-pretty">
+            How companies are actually using these skills
+          </h2>
+          <p className="mt-4 max-w-[62ch] text-lg text-slate-800">
+            What was the problem, how was technology used, and what changed as
+            a result. Every story links to the original publisher — we
+            don&apos;t reproduce their reporting here.
+          </p>
+        </Reveal>
 
         <div className="mt-8 flex flex-wrap gap-2.5">
           {filters.map((tag) => (
             <button
               key={tag}
               type="button"
-              onClick={() => setActive(tag)}
               aria-pressed={active === tag}
-              className={`cursor-pointer rounded-full px-5 py-2.5 text-sm font-bold transition-transform duration-150 hover:scale-105 ${
+              onClick={() => setActive(tag)}
+              className={`cursor-pointer rounded-full px-[22px] py-[11px] text-sm font-bold transition-transform duration-150 hover:scale-105 ${
                 active === tag
-                  ? "bg-gray-900 text-white"
-                  : "bg-white text-gray-900"
+                  ? "bg-[#111827] text-white"
+                  : "bg-white text-[#111827]"
               }`}
             >
               {tag}
@@ -56,62 +74,79 @@ export default function RealWorldStories() {
           ))}
         </div>
 
+        {lead && (
+          <a
+            key={lead.url}
+            href={lead.url}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="mt-10 grid overflow-hidden rounded-[32px] bg-white text-[#111827] shadow-[0_30px_70px_-30px_rgba(17,24,39,.4)] transition-transform duration-200 hover:-translate-y-2 md:grid-cols-2"
+          >
+            <div className="relative min-h-[340px] bg-slate-200">
+              <Image
+                src={lead.image}
+                alt=""
+                fill
+                sizes="(min-width:768px) 50vw, 100vw"
+                className={`object-cover ${pos(lead)}`}
+              />
+              <span className="absolute top-5 left-5 rounded-full bg-[#111827] px-4 py-2 text-xs font-bold tracking-[0.06em] text-white uppercase">
+                {lead.source}
+              </span>
+            </div>
+            <div className="flex flex-col items-start justify-center gap-4 p-8 lg:p-11">
+              <span className="text-xs font-bold tracking-[0.06em] text-sky-700 uppercase">
+                Featured story
+              </span>
+              <h3 className="font-display text-[32px] leading-tight font-semibold tracking-tight text-pretty">
+                {lead.title}
+              </h3>
+              <p className="max-w-[50ch] text-[17px] leading-relaxed text-slate-800">
+                {lead.description}
+              </p>
+              <Tags tags={lead.tags} />
+              <span className="mt-1.5 rounded-full bg-[#111827] px-[26px] py-3.5 text-[15px] font-bold text-white">
+                Read story →
+              </span>
+            </div>
+          </a>
+        )}
+
         <StaggerGroup
           key={active}
-          className="mt-10 grid gap-6 md:grid-cols-2 xl:grid-cols-3"
+          className="mt-6 grid gap-6 md:grid-cols-2 xl:grid-cols-3"
         >
-          {stories.map((story) => (
-            <StaggerItem key={story.title}>
+          {rest.map((story) => (
+            <StaggerItem key={story.url}>
               <a
                 href={story.url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex h-full flex-col overflow-hidden rounded-2xl bg-white text-gray-900 transition-transform duration-150 hover:-translate-y-2"
+                className="flex h-full flex-col overflow-hidden rounded-3xl bg-white text-[#111827] transition-shadow duration-200 hover:shadow-[0_24px_50px_-20px_rgba(17,24,39,.4)]"
               >
-                <div className="relative h-[200px] bg-slate-200">
-                  {story.image ? (
-                    <Image
-                      src={story.image}
-                      alt=""
-                      fill
-                      sizes="(min-width:1280px) 33vw, (min-width:768px) 50vw, 100vw"
-                      className={`object-cover ${
-                        story.imagePosition === "top"
-                          ? "object-top"
-                          : "object-center"
-                      }`}
-                    />
-                  ) : (
-                    <MediaPlaceholder
-                      icon={ImageIcon}
-                      label="Story visual — added periodically"
-                      className="h-full w-full"
-                    />
-                  )}
-                  <span className="absolute top-4 left-4 rounded-full bg-gray-900 px-3.5 py-[7px] text-xs font-bold tracking-[0.06em] text-white uppercase">
+                <div className="relative h-[210px] bg-slate-200">
+                  <Image
+                    src={story.image}
+                    alt=""
+                    fill
+                    sizes="(min-width:1280px) 33vw, (min-width:768px) 50vw, 100vw"
+                    className={`object-cover ${pos(story)}`}
+                  />
+                  <span className="absolute top-4 left-4 rounded-full bg-[#111827] px-3.5 py-[7px] text-xs font-bold tracking-[0.06em] text-white uppercase">
                     {story.source}
                   </span>
                 </div>
-                <div className="flex flex-1 flex-col gap-3 p-7">
-                  <h3 className="font-display text-xl leading-snug font-bold text-pretty">
+                <div className="flex flex-1 flex-col gap-3 p-[26px]">
+                  <h3 className="font-display text-xl leading-snug font-semibold tracking-tight text-pretty">
                     {story.title}
                   </h3>
-                  <p className="flex-1 text-[15px] leading-relaxed opacity-75">
+                  <p className="flex-1 text-[15px] leading-relaxed text-slate-800">
                     {story.description}
                   </p>
-                  <div className="flex flex-wrap items-center justify-between gap-3 border-t border-line pt-4">
-                    <div className="flex flex-wrap gap-1.5">
-                      {story.tags.map((tag) => (
-                        <span
-                          key={tag}
-                          className="rounded-full bg-sky-100 px-3 py-[5px] text-xs font-bold text-sky-700"
-                        >
-                          {tag}
-                        </span>
-                      ))}
-                    </div>
+                  <div className="flex flex-wrap items-center justify-between gap-3 border-t border-slate-200 pt-4">
+                    <Tags tags={story.tags} />
                     <span className="text-sm font-bold text-sky-700">
-                      Read story →
+                      Read →
                     </span>
                   </div>
                 </div>
@@ -119,7 +154,7 @@ export default function RealWorldStories() {
             </StaggerItem>
           ))}
         </StaggerGroup>
-      </Reveal>
+      </div>
     </section>
   );
 }

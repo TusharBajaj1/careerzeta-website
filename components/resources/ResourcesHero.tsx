@@ -1,64 +1,70 @@
-import Reveal from "@/components/ui/Reveal";
+"use client";
+
+import { useEffect, useState } from "react";
+
+import { useReducedMotion } from "@/lib/useReducedMotion";
+
+/** Pexels photo from the v3 handoff — no attribution required. */
+const HERO_PHOTO = "/resources/pexels-leeloothefirst-5562086.png";
+
+function useScrollY() {
+  const [y, setY] = useState(0);
+  useEffect(() => {
+    const onScroll = () => setY(window.scrollY);
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+  return y;
+}
 
 export default function ResourcesHero() {
+  const y = useScrollY();
+  const reducedMotion = useReducedMotion();
+
   return (
-    <Reveal className="mx-auto grid max-w-[1400px] items-center gap-12 px-6 pt-16 pb-16 md:grid-cols-2 md:px-10 lg:px-16">
-      <div>
-        <h6 className="text-sm font-bold tracking-[0.06em] text-sky-700 uppercase">
-          Resources
-        </h6>
-        <h1 className="mt-4 max-w-[18ch] font-display text-4xl leading-[1.1] font-bold text-balance lg:text-[52px]">
-          Understand how data, AI and technology are changing work
-        </h1>
-        <div className="mt-8 flex flex-wrap gap-3">
-          <a
-            href="#stories"
-            className="rounded-lg bg-sky-400 px-[26px] py-[15px] text-[15px] font-bold text-gray-900 transition-transform duration-150 hover:scale-105"
-          >
-            Real-world stories
-          </a>
-          <a
-            href="#reports"
-            className="rounded-lg border-2 border-gray-900 px-6 py-[13px] text-[15px] font-bold text-gray-900 transition-transform duration-150 hover:scale-105"
-          >
-            Reports &amp; research
-          </a>
+    <section className="relative min-h-[600px] overflow-hidden bg-[#0b1220] text-white">
+      <div
+        aria-hidden
+        className="absolute inset-y-0 right-0 w-[55%] bg-cover"
+        style={{
+          backgroundImage: `url(${HERO_PHOTO})`,
+          backgroundPosition: "center 35%",
+          transform: reducedMotion
+            ? undefined
+            : `translateY(${Math.round(y * -0.06)}px) scale(1.08)`,
+        }}
+      />
+      <div
+        aria-hidden
+        className="absolute inset-0 bg-gradient-to-r from-[#0b1220] from-45% via-[#0b1220]/80 via-[62%] to-[#0b1220]/45"
+      />
+      <div className="relative mx-auto max-w-[1400px] px-6 pt-[170px] pb-[100px] md:px-10 lg:px-16">
+        <div className="max-w-[760px]">
+          <div className="mb-6 inline-flex rounded-full border border-sky-300/50 px-[18px] py-2 text-[13px] font-bold tracking-[0.06em] text-sky-300 uppercase">
+            Resources
+          </div>
+          <h1 className="font-display text-[clamp(36px,5vw,72px)] leading-[1.04] font-semibold tracking-[-0.03em] text-pretty">
+            Understand how{" "}
+            <span className="text-sky-400">data, AI and technology</span> are
+            changing work
+          </h1>
+          <div className="mt-8 flex flex-wrap gap-3.5">
+            <a
+              href="#stories"
+              className={`${reducedMotion ? "" : "cz-pulse-glow"} rounded-full bg-sky-400 px-[30px] py-[17px] text-base font-bold text-[#111827] transition-transform duration-150 hover:scale-105`}
+            >
+              Real-world stories
+            </a>
+            <a
+              href="#reports"
+              className="rounded-full border-2 border-white px-7 py-[15px] text-base font-bold text-white transition-transform duration-150 hover:scale-105"
+            >
+              Reports &amp; research
+            </a>
+          </div>
         </div>
       </div>
-
-      {/* Stacked-documents motif, ambient float. */}
-      <svg
-        viewBox="0 0 440 340"
-        className="cz-drift mx-auto w-full max-w-[480px]"
-        aria-hidden="true"
-      >
-        <rect x="120" y="20" width="250" height="170" rx="16" fill="#e2e8f0" />
-        <rect x="80" y="60" width="250" height="170" rx="16" fill="#e0f2fe" />
-        <rect x="40" y="100" width="250" height="190" rx="16" fill="#111827" />
-        <rect x="64" y="124" width="90" height="70" rx="10" fill="#38bdf8" />
-        <polyline
-          points="76,182 100,160 120,170 142,140"
-          fill="none"
-          stroke="#111827"
-          strokeWidth="4"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        />
-        <rect x="170" y="128" width="96" height="8" rx="4" fill="#e2e8f0" />
-        <rect x="170" y="148" width="70" height="8" rx="4" fill="#e2e8f0" fillOpacity=".5" />
-        <rect x="170" y="168" width="82" height="8" rx="4" fill="#e2e8f0" fillOpacity=".5" />
-        <rect x="64" y="216" width="200" height="8" rx="4" fill="#e2e8f0" fillOpacity=".35" />
-        <rect x="64" y="236" width="150" height="8" rx="4" fill="#e2e8f0" fillOpacity=".35" />
-        <circle cx="370" cy="250" r="34" fill="#38bdf8" />
-        <path
-          d="M356 250 h28 m-10 -10 l10 10 l-10 10"
-          fill="none"
-          stroke="#111827"
-          strokeWidth="5"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        />
-      </svg>
-    </Reveal>
+    </section>
   );
 }
