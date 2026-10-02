@@ -16,7 +16,7 @@ const links = [
 ];
 
 /** Pages with a dark full-bleed hero the nav floats transparently over. */
-const HERO_PAGES = ["/", "/programs", "/resources"];
+const HERO_PAGES = ["/", "/programs", "/resources", "/about"];
 
 export default function Navbar() {
   const pathname = usePathname();
