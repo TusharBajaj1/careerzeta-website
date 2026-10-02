@@ -1,13 +1,8 @@
 import { NextResponse } from "next/server";
 
-/**
- * Newsletter signup integration point. No email/CRM provider is configured
- * yet, so this deliberately does not store or forward submissions — wire
- * the real provider in here (e.g. validate `body`, then call it) and
- * return 200 once it's live. Until then this must keep returning an error
- * rather than a fake success, per the content brief's rule against
- * claiming a submission was received when nothing is actually connected.
- */
+import { CONTACT } from "@/lib/content";
+import { sendMail } from "@/lib/mailer";
+
 export async function POST(request: Request) {
   const body = await request.json().catch(() => null);
 
@@ -20,5 +15,18 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "invalid_payload" }, { status: 400 });
   }
 
-  return NextResponse.json({ error: "not_configured" }, { status: 501 });
+  const { name, email, mobile } = body;
+
+  const sent = await sendMail({
+    to: CONTACT.email,
+    subject: `New Newsletter Subscriber — ${name}`,
+    text: `Name: ${name}\nEmail: ${email}\nMobile: ${mobile}`,
+    replyTo: email,
+  });
+
+  if (!sent) {
+    return NextResponse.json({ error: "not_configured" }, { status: 501 });
+  }
+
+  return NextResponse.json({ ok: true });
 }
