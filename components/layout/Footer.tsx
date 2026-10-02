@@ -3,7 +3,7 @@ import Link from "next/link";
 import { Mail } from "lucide-react";
 import { FaInstagram, FaLinkedin } from "react-icons/fa";
 
-import { CONTACT } from "@/lib/content";
+import { CONTACT, PROGRAMS } from "@/lib/content";
 
 const navigation = [
   { label: "Home", href: "/" },
@@ -12,8 +12,6 @@ const navigation = [
   { label: "About", href: "/about" },
   { label: "Contact", href: "/contact" },
 ];
-
-const programs = ["Data Analytics", "Generative and Agentic AI", "Cyber Security"];
 
 const connect = [
   {
@@ -104,13 +102,13 @@ export default function Footer() {
               Programs
             </div>
             <div className="mt-4 flex flex-col gap-2.5">
-              {programs.map((program) => (
+              {PROGRAMS.map((program) => (
                 <Link
-                  key={program}
-                  href="/programs"
+                  key={program.slug}
+                  href={`/programs#${program.slug}`}
                   className="text-[15px] text-white opacity-75 transition hover:text-sky-400 hover:opacity-100"
                 >
-                  {program}
+                  {program.name}
                 </Link>
               ))}
             </div>
@@ -130,6 +128,14 @@ export default function Footer() {
               <span className="text-[15px] text-white opacity-75">
                 {CONTACT.web}
               </span>
+              <a
+                href={CONTACT.mapUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="max-w-[26ch] text-[15px] text-white opacity-75 transition hover:text-sky-400 hover:opacity-100"
+              >
+                {CONTACT.address}
+              </a>
             </div>
           </div>
         </div>

@@ -139,6 +139,9 @@ export const CONTACT = {
   phone: "+91-8851441177",
   web: "www.careerzeta.com",
   talentEmail: "talent@careerzeta.com",
+  address:
+    "Innov8, Upper Ground Floor, Tower-2, Graphix, A-13, Sector 62, Noida, Uttar Pradesh 201301",
+  mapUrl: "https://share.google/yga5HK2BSWGuFIjGY",
 };
 
 /**

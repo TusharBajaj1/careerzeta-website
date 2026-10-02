@@ -88,7 +88,12 @@ export default function Hero() {
             professionals keep moving with it, not behind it.
           </p>
 
-          <div className="mt-8 flex flex-wrap gap-3.5">
+          <div className="mt-6 inline-flex items-center gap-2.5 rounded-full border border-sky-300/30 bg-white/5 px-[18px] py-2 text-sm text-slate-200">
+            <span className="h-2.5 w-2.5 rounded-full bg-sky-400 animate-pulse" />
+            Now enrolling: <b className="text-white">All programs</b>
+          </div>
+
+          <div className="mt-7 flex flex-wrap gap-3.5">
             <Link
               href="/programs"
               className="cz-pulse-glow rounded-full bg-sky-400 px-8 py-[18px] text-[17px] font-bold text-[#111827] transition-transform duration-150 hover:scale-105"
