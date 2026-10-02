@@ -4,7 +4,6 @@ import OurStory from "@/components/home/OurStory";
 import ProgramExplorer from "@/components/home/ProgramExplorer";
 import Strengths from "@/components/home/Strengths";
 import Ticker from "@/components/home/Ticker";
-import Vision from "@/components/home/Vision";
 import Footer from "@/components/layout/Footer";
 
 export default function Home() {
@@ -13,7 +12,6 @@ export default function Home() {
       <Hero />
       <Ticker />
       <OurStory />
-      <Vision />
       <ProgramExplorer />
       <Strengths />
       <ClosingCta />

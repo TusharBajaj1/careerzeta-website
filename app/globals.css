@@ -217,6 +217,31 @@ body {
   }
 }
 
+@keyframes cz-word {
+  from {
+    opacity: 0;
+    transform: translateY(60px) rotate(3deg);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes cz-blob {
+  0%,
+  100% {
+    border-radius: 42% 58% 62% 38% / 45% 40% 60% 55%;
+  }
+  50% {
+    border-radius: 58% 42% 38% 62% / 55% 60% 40% 45%;
+  }
+}
+
+.cz-blob {
+  animation: cz-blob 14s ease-in-out infinite;
+}
+
 /* The design leans on continuous ambient motion; honour a reduced-motion
    preference by stopping it rather than shipping a second visual language. */
 @media (prefers-reduced-motion: reduce) {
