@@ -10,10 +10,10 @@ import { STORIES, type ProgramTag, type Story } from "@/lib/resourcesContent";
 const ALL = "All" as const;
 const filters: (ProgramTag | typeof ALL)[] = [
   ALL,
-  "Data Analytics",
-  "Business Analytics",
-  "Data Science & AI",
-  "Generative and Agentic AI",
+  "Data Analytics & Agentic AI",
+  "Business Analytics & Agentic AI",
+  "PG Program in Data Science & AI",
+  "Generative & Agentic AI",
 ];
 
 const pos = (s: Story) => (s.imagePosition === "top" ? "object-top" : "object-center");
