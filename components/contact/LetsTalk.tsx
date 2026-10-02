@@ -1,4 +1,4 @@
-import { Mail, Phone } from "lucide-react";
+import { Mail, MapPin, Phone } from "lucide-react";
 
 import EnquiryForm from "@/components/contact/EnquiryForm";
 import { CONTACT } from "@/lib/content";
@@ -59,6 +59,29 @@ export default function LetsTalk() {
                   Phone
                 </div>
                 <div className="mt-0.5 font-semibold">{CONTACT.phone}</div>
+              </div>
+            </a>
+
+            <a
+              href={CONTACT.mapUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-3.5 transition hover:text-sky-700"
+            >
+              <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-sky-100">
+                <MapPin
+                  className="h-5 w-5 text-sky-600"
+                  strokeWidth={1.75}
+                  aria-hidden
+                />
+              </span>
+              <div>
+                <div className="text-xs font-bold tracking-[0.06em] uppercase opacity-50">
+                  Address
+                </div>
+                <div className="mt-0.5 max-w-[42ch] font-semibold">
+                  {CONTACT.address}
+                </div>
               </div>
             </a>
           </div>
