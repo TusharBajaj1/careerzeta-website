@@ -1,15 +1,8 @@
 "use client";
 
-import { useEffect, useRef, useState, useSyncExternalStore } from "react";
+import { useEffect, useRef, useState } from "react";
 
-function subscribeReducedMotion(callback: () => void) {
-  const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
-  mq.addEventListener("change", callback);
-  return () => mq.removeEventListener("change", callback);
-}
-const getReducedMotionSnapshot = () =>
-  window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-const getReducedMotionServerSnapshot = () => false;
+import { useReducedMotion } from "@/lib/useReducedMotion";
 
 const ERAS = [
   { d: "1980s", t: "Personal computers reach the desk", s: 150 },
@@ -40,11 +33,7 @@ function StoryIntro() {
 export default function OurStory() {
   const ref = useRef<HTMLElement>(null);
   const [era, setEra] = useState(0);
-  const reducedMotion = useSyncExternalStore(
-    subscribeReducedMotion,
-    getReducedMotionSnapshot,
-    getReducedMotionServerSnapshot,
-  );
+  const reducedMotion = useReducedMotion();
 
   useEffect(() => {
     if (reducedMotion) return;

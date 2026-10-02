@@ -20,6 +20,10 @@ export type Program = {
   tags: string[];
 };
 
+/** Serializable subset for Client Components — Program's `icon` is a
+ * function and can't cross the server/client boundary as a prop. */
+export type ProgramSummary = Pick<Program, "slug" | "name">;
+
 /** slug is the anchor id each program links to on /programs (#slug). */
 export const PROGRAMS: Program[] = [
   {

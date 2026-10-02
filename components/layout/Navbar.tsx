@@ -15,6 +15,9 @@ const links = [
   { label: "About Us", href: "/about" },
 ];
 
+/** Pages with a dark full-bleed hero the nav floats transparently over. */
+const HERO_PAGES = ["/", "/programs"];
+
 export default function Navbar() {
   const pathname = usePathname();
   const [scrolled, setScrolled] = useState(false);
@@ -31,14 +34,15 @@ export default function Navbar() {
   // Transparent-over-hero only holds for the very top of the page — Hero's
   // own text scrolls up into the nav's band almost immediately, so this must
   // solidify on the first sign of scrolling, not partway down the hero.
-  const isHeroOverlay = pathname === "/" && !scrolled && !open;
+  const isHeroPage = HERO_PAGES.includes(pathname);
+  const isHeroOverlay = isHeroPage && !scrolled && !open;
 
   return (
     <>
       <ScrollProgress />
 
       <nav
-        className={`${pathname === "/" ? "fixed inset-x-0" : "sticky"} top-0 z-40 w-full border-b-2 transition-colors duration-300 ${
+        className={`${isHeroPage ? "fixed inset-x-0" : "sticky"} top-0 z-40 w-full border-b-2 transition-colors duration-300 ${
           isHeroOverlay
             ? "border-transparent bg-transparent"
             : `border-line bg-[#fafafa] ${scrolled ? "shadow-[0_8px_24px_rgba(17,24,39,0.08)]" : ""}`

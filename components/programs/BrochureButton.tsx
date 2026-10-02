@@ -14,7 +14,7 @@ export default function BrochureButton({ url, programName }: BrochureButtonProps
     <button
       type="button"
       onClick={() => requestBrochure(url, programName)}
-      className="rounded-lg border-2 border-gray-900 px-6 py-[13px] text-[15px] font-bold text-gray-900 transition-transform duration-150 hover:scale-105"
+      className="rounded-full border-2 border-[#111827] px-7 py-3.5 text-base font-bold text-[#111827] transition-transform duration-150 hover:scale-105"
     >
       Download Brochure
     </button>
