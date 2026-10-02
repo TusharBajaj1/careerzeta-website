@@ -51,6 +51,16 @@ body {
   }
 }
 
+@keyframes cz-pulse-glow-green {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgba(37, 211, 102, 0.5);
+  }
+  50% {
+    box-shadow: 0 0 0 10px rgba(37, 211, 102, 0);
+  }
+}
+
 @keyframes cz-gradient-drift {
   0% {
     background-position: 0% 50%;
@@ -124,6 +134,10 @@ body {
 
 .cz-pulse-glow {
   animation: cz-pulse-glow 2.4s ease-out infinite;
+}
+
+.cz-pulse-glow-green {
+  animation: cz-pulse-glow-green 2.4s ease-out infinite;
 }
 
 .cz-gradient-drift {

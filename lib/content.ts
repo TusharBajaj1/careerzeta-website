@@ -142,6 +142,7 @@ export const CONTACT = {
   address:
     "Innov8, Upper Ground Floor, Tower-2, Graphix, A-13, Sector 62, Noida, Uttar Pradesh 201301",
   mapUrl: "https://share.google/yga5HK2BSWGuFIjGY",
+  whatsapp: "https://wa.me/message/TV5NDL2D6UI3B1",
 };
 
 /**
