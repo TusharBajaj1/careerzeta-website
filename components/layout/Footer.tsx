@@ -17,12 +17,12 @@ const connect = [
   {
     icon: FaLinkedin,
     label: "LinkedIn",
-    href: "https://www.linkedin.com/company/careerzeta-learning-pvt-ltd/",
+    href: CONTACT.linkedin,
   },
   {
     icon: FaInstagram,
     label: "Instagram",
-    href: "https://www.instagram.com/careerzeta_learning/",
+    href: CONTACT.instagram,
   },
   {
     icon: Mail,
