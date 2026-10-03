@@ -26,7 +26,7 @@ export default function PrivacyPolicyPage() {
         <h1 className="mt-2 font-display text-4xl font-bold md:text-5xl">
           Privacy Policy
         </h1>
-        <p className="mt-4 text-sm opacity-50">Last updated: September 2026</p>
+        <p className="mt-4 text-sm opacity-70">Last updated: September 2026</p>
 
         <div className="mt-10 flex flex-col gap-8 text-base leading-relaxed opacity-90">
           <p>
