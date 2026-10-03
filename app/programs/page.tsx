@@ -5,14 +5,17 @@ import ProgramSection from "@/components/programs/ProgramSection";
 import ProgramsCta from "@/components/programs/ProgramsCta";
 import { ProgramPills, ProgramsHero } from "@/components/programs/ProgramsIntro";
 import Footer from "@/components/layout/Footer";
+import { buildCourseJsonLd } from "@/lib/courseJsonLd";
 import { PROGRAMS } from "@/lib/content";
 import { PROGRAM_DETAILS } from "@/lib/programsDetail";
+import { buildMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = buildMetadata({
   title: "Programs — CareerZeta",
   description:
     "Six mentor-led programs — Data Analytics & Agentic AI, Business Analytics & Agentic AI, PG Program in Data Science & AI, Generative & Agentic AI, Investment Banking with AI immersion and Cybersecurity with AI immersion.",
-};
+  path: "/programs",
+});
 
 export default function ProgramsPage() {
   // ProgramsHero/ProgramPills/ProgramSection are Client Components; strip
@@ -22,6 +25,20 @@ export default function ProgramsPage() {
 
   return (
     <>
+      {PROGRAMS.map((program) => {
+        const detail = PROGRAM_DETAILS.find((d) => d.slug === program.slug);
+        if (!detail) return null;
+        return (
+          <script
+            key={program.slug}
+            type="application/ld+json"
+            dangerouslySetInnerHTML={{
+              __html: JSON.stringify(buildCourseJsonLd(program, detail)),
+            }}
+          />
+        );
+      })}
+
       <ProgramsHero />
       <ProgramPills programs={programSummaries} />
 

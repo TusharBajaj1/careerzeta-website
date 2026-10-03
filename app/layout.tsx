@@ -6,6 +6,7 @@ import LeadCaptureProvider from "@/components/lead-capture/LeadCaptureProvider";
 import Navbar from "@/components/layout/Navbar";
 import WhatsAppButton from "@/components/layout/WhatsAppButton";
 import { CONTACT } from "@/lib/content";
+import { buildMetadata } from "@/lib/seo";
 
 const manrope = Manrope({
   subsets: ["latin"],
@@ -22,12 +23,15 @@ const poppins = Poppins({
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://www.careerzeta.com"),
-  title: "CareerZeta — Mentor-led courses in data and AI",
-  description:
-    "CareerZeta pairs learners with qualified mentors across six live, mentor-led programs so professionals keep pace with technology, not behind it.",
   verification: {
     google: "Ef_wDJhzrXumrNJw0PL82wEsCofNlTZagPNYCx1y-S0",
   },
+  ...buildMetadata({
+    title: "CareerZeta — Mentor-led courses in data and AI",
+    description:
+      "CareerZeta pairs learners with qualified mentors across six live, mentor-led programs so professionals keep pace with technology, not behind it.",
+    path: "/",
+  }),
 };
 
 /**

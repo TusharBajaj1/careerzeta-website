@@ -31,7 +31,7 @@ export default function ReportsResearch() {
               <div className="relative min-h-[320px] bg-slate-800">
                 <Image
                   src={featured.image}
-                  alt=""
+                  alt={featured.title}
                   fill
                   sizes="(min-width:768px) 50vw, 100vw"
                   className="object-cover"
@@ -67,7 +67,7 @@ export default function ReportsResearch() {
                 <div className="relative min-h-[170px] bg-slate-800">
                   <Image
                     src={r.image}
-                    alt=""
+                    alt={r.title}
                     fill
                     sizes="160px"
                     className="object-cover"

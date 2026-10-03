@@ -85,7 +85,7 @@ export default function RealWorldStories() {
             <div className="relative min-h-[340px] bg-slate-200">
               <Image
                 src={lead.image}
-                alt=""
+                alt={lead.title}
                 fill
                 sizes="(min-width:768px) 50vw, 100vw"
                 className={`object-cover ${pos(lead)}`}
@@ -127,7 +127,7 @@ export default function RealWorldStories() {
                 <div className="relative h-[210px] bg-slate-200">
                   <Image
                     src={story.image}
-                    alt=""
+                    alt={story.title}
                     fill
                     sizes="(min-width:1280px) 33vw, (min-width:768px) 50vw, 100vw"
                     className={`object-cover ${pos(story)}`}

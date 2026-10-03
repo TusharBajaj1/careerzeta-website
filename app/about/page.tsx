@@ -8,12 +8,14 @@ import VisionHero from "@/components/about/VisionHero";
 import WhyWeStarted from "@/components/about/WhyWeStarted";
 import Mentors from "@/components/home/Mentors";
 import Footer from "@/components/layout/Footer";
+import { buildMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = buildMetadata({
   title: "About Us — CareerZeta",
   description:
     "Why CareerZeta exists, the mentors leading our programs, and the learning path every learner follows from first class to certification.",
-};
+  path: "/about",
+});
 
 export default function AboutPage() {
   return (
