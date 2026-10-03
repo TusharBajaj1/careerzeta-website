@@ -26,7 +26,7 @@ export const metadata: Metadata = {
   description:
     "CareerZeta pairs learners with qualified mentors across six live, mentor-led programs so professionals keep pace with technology, not behind it.",
   verification: {
-    google: "A_rE5Z-kVL2OQbqMyFPYP7FYSQNE6BuA5O4eTabihcE",
+    google: "Ef_wDJhzrXumrNJw0PL82wEsCofNlTZagPNYCx1y-S0",
   },
 };
 
