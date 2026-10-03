@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { GoogleAnalytics } from "@next/third-parties/google";
+import { GoogleTagManager } from "@next/third-parties/google";
 import { Manrope, Poppins } from "next/font/google";
 import "./globals.css";
 
@@ -68,6 +68,7 @@ export default function RootLayout({
       className={`${manrope.variable} ${poppins.variable} scroll-smooth`}
       data-scroll-behavior="smooth"
     >
+      <GoogleTagManager gtmId="GTM-KQ2XFKPS" />
       <body>
         <script
           type="application/ld+json"
@@ -81,7 +82,6 @@ export default function RootLayout({
           <WhatsAppButton />
         </LeadCaptureProvider>
       </body>
-      <GoogleAnalytics gaId="G-K83N5Y0C6P" />
     </html>
   );
 }
