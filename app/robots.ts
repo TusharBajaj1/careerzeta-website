@@ -6,6 +6,6 @@ export default function robots(): MetadataRoute.Robots {
       userAgent: "*",
       allow: "/",
     },
-    sitemap: "https://careerzeta.com/sitemap.xml",
+    sitemap: "https://www.careerzeta.com/sitemap.xml",
   };
 }

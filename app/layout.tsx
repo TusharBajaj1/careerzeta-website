@@ -21,7 +21,7 @@ const poppins = Poppins({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://careerzeta.com"),
+  metadataBase: new URL("https://www.careerzeta.com"),
   title: "CareerZeta — Mentor-led courses in data and AI",
   description:
     "CareerZeta pairs learners with qualified mentors across six live, mentor-led programs so professionals keep pace with technology, not behind it.",
@@ -39,8 +39,8 @@ const organizationJsonLd = {
   "@context": "https://schema.org",
   "@type": "EducationalOrganization",
   name: "CareerZeta",
-  url: "https://careerzeta.com",
-  logo: "https://careerzeta.com/brand/careerzeta-mark.png",
+  url: "https://www.careerzeta.com",
+  logo: "https://www.careerzeta.com/brand/careerzeta-mark.png",
   email: CONTACT.email,
   telephone: CONTACT.phone,
   address: {
