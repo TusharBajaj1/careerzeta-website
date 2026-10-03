@@ -36,7 +36,7 @@ export default function LetsTalk() {
                 />
               </span>
               <div>
-                <div className="text-xs font-bold tracking-[0.06em] uppercase opacity-50">
+                <div className="text-xs font-bold tracking-[0.06em] uppercase opacity-70">
                   Email
                 </div>
                 <div className="mt-0.5 font-semibold">{CONTACT.email}</div>
@@ -55,7 +55,7 @@ export default function LetsTalk() {
                 />
               </span>
               <div>
-                <div className="text-xs font-bold tracking-[0.06em] uppercase opacity-50">
+                <div className="text-xs font-bold tracking-[0.06em] uppercase opacity-70">
                   Phone
                 </div>
                 <div className="mt-0.5 font-semibold">{CONTACT.phone}</div>
@@ -76,7 +76,7 @@ export default function LetsTalk() {
                 />
               </span>
               <div>
-                <div className="text-xs font-bold tracking-[0.06em] uppercase opacity-50">
+                <div className="text-xs font-bold tracking-[0.06em] uppercase opacity-70">
                   Address
                 </div>
                 <div className="mt-0.5 max-w-[42ch] font-semibold">

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Image from "next/image";
 import Link from "next/link";
 
 import BrochureButton from "@/components/programs/BrochureButton";
@@ -57,16 +58,22 @@ export default function ProgramSection({
       <div className="mx-auto max-w-[1400px] px-6 pt-[72px] pb-[88px] md:px-10 lg:px-16">
         <Reveal>
           <div className="relative h-[340px] overflow-hidden rounded-[32px] bg-[#111827]">
-            <div
-              aria-hidden
-              className="absolute -inset-y-[6%] inset-x-0 bg-cover bg-center"
-              style={{
-                backgroundImage: `url(${PHOTO[program.slug] ?? FALLBACK_PHOTO})`,
-                transform: reducedMotion
-                  ? undefined
-                  : `translateY(${Math.round((y - 900 - index * 1100) * -0.06)}px)`,
-              }}
-            />
+            <div aria-hidden className="absolute -inset-y-[6%] inset-x-0 overflow-hidden">
+              <Image
+                src={PHOTO[program.slug] ?? FALLBACK_PHOTO}
+                alt=""
+                fill
+                sizes="(min-width:1400px) 1336px, 100vw"
+                className="object-cover"
+                style={
+                  reducedMotion
+                    ? undefined
+                    : {
+                        transform: `translateY(${Math.round((y - 900 - index * 1100) * -0.06)}px)`,
+                      }
+                }
+              />
+            </div>
             <div
               aria-hidden
               className="absolute inset-0 bg-gradient-to-t from-[#0b1220]/90 via-[#0b1220]/25 to-[#0b1220]/10"

@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 
@@ -39,15 +40,20 @@ export default function Hero() {
       id="home"
       className="relative min-h-[680px] overflow-hidden bg-[#0b1220] text-white"
     >
-      <div
-        aria-hidden
-        className="absolute inset-y-0 right-0 w-[58%] bg-cover bg-no-repeat"
-        style={{
-          backgroundImage: "url(/home/pexels-cottonbro-5473956.png)",
-          backgroundPosition: "45% 22%",
-          transform: `translateY(${Math.round(y * -0.08)}px) scale(1.08)`,
-        }}
-      />
+      <div aria-hidden className="absolute inset-y-0 right-0 w-[58%] overflow-hidden">
+        <Image
+          src="/home/pexels-cottonbro-5473956.png"
+          alt=""
+          fill
+          priority
+          sizes="58vw"
+          className="object-cover"
+          style={{
+            objectPosition: "45% 22%",
+            transform: `translateY(${Math.round(y * -0.08)}px) scale(1.08)`,
+          }}
+        />
+      </div>
       <div
         aria-hidden
         className="absolute inset-0 bg-gradient-to-r from-[#0b1220] from-45% via-[#0b1220]/80 via-60% to-transparent to-85%"
@@ -111,6 +117,7 @@ export default function Hero() {
 
       <div
         className="absolute inset-x-0 bottom-0 overflow-hidden border-t border-sky-300/25 bg-[#0b1220]/70 py-[18px]"
+        role="img"
         aria-label={TOOLS.join(", ")}
       >
         <div

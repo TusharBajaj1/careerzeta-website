@@ -111,7 +111,7 @@ export default function WorkWithUsForm() {
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-5">
       <div>
-        <p className="mb-2.5 text-xs font-bold tracking-[0.06em] uppercase opacity-50">
+        <p className="mb-2.5 text-xs font-bold tracking-[0.06em] uppercase opacity-70">
           I&apos;m interested in:
         </p>
         <div className="flex flex-wrap gap-3">
@@ -189,7 +189,7 @@ export default function WorkWithUsForm() {
 
       {error && <p className="text-sm text-red-600">{error}</p>}
 
-      <p className="text-xs opacity-50">
+      <p className="text-xs opacity-70">
         By submitting, you agree to CareerZeta contacting you about this
         enquiry.
       </p>

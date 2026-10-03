@@ -5,6 +5,7 @@ export default function Ticker() {
   return (
     <div
       className="overflow-hidden bg-[#111827] py-[22px] text-white"
+      role="img"
       aria-label="6 Programs, Live Batches, Mentor-led, Certified, Placement Support"
     >
       <div

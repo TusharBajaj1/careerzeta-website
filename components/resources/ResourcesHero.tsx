@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useEffect, useState } from "react";
 
 import { useReducedMotion } from "@/lib/useReducedMotion";
@@ -24,17 +25,22 @@ export default function ResourcesHero() {
 
   return (
     <section className="relative min-h-[600px] overflow-hidden bg-[#0b1220] text-white">
-      <div
-        aria-hidden
-        className="absolute inset-y-0 right-0 w-[55%] bg-cover"
-        style={{
-          backgroundImage: `url(${HERO_PHOTO})`,
-          backgroundPosition: "center 35%",
-          transform: reducedMotion
-            ? undefined
-            : `translateY(${Math.round(y * -0.06)}px) scale(1.08)`,
-        }}
-      />
+      <div aria-hidden className="absolute inset-y-0 right-0 w-[55%] overflow-hidden">
+        <Image
+          src={HERO_PHOTO}
+          alt=""
+          fill
+          priority
+          sizes="55vw"
+          className="object-cover"
+          style={{
+            objectPosition: "center 35%",
+            ...(reducedMotion
+              ? {}
+              : { transform: `translateY(${Math.round(y * -0.06)}px) scale(1.08)` }),
+          }}
+        />
+      </div>
       <div
         aria-hidden
         className="absolute inset-0 bg-gradient-to-r from-[#0b1220] from-45% via-[#0b1220]/80 via-[62%] to-[#0b1220]/45"

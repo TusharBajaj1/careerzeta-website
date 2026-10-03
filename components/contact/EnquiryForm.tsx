@@ -111,6 +111,7 @@ export default function EnquiryForm({ defaultInterest, onSuccess }: EnquiryFormP
           name="interest"
           required
           defaultValue={defaultInterest ?? ""}
+          aria-label="What are you interested in?"
           className="rounded-lg border-2 border-line bg-white px-4 py-3 text-sm outline-none focus:border-sky-400"
         >
           <option value="" disabled>
