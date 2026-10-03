@@ -25,6 +25,9 @@ export const metadata: Metadata = {
   title: "CareerZeta — Mentor-led courses in data and AI",
   description:
     "CareerZeta pairs learners with qualified mentors across six live, mentor-led programs so professionals keep pace with technology, not behind it.",
+  verification: {
+    google: "A_rE5Z-kVL2OQbqMyFPYP7FYSQNE6BuA5O4eTabihcE",
+  },
 };
 
 /**
