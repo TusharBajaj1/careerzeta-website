@@ -2,11 +2,29 @@
 
 import { useEffect, useRef, useState } from "react";
 
-import Reveal from "@/components/ui/Reveal";
-import type { Program } from "@/lib/content";
+import { useReducedMotion } from "@/lib/useReducedMotion";
+import type { ProgramSummary } from "@/lib/content";
 import type { ProgramDetail } from "@/lib/programsDetail";
 
-const eyebrow = "text-xs font-bold tracking-[0.06em] uppercase";
+/** Reused from the Home v2 handoff — byte-identical file already in /public/home/. */
+const HERO_PHOTO = "/home/pexels-googledeepmind-17485738.png";
+
+const LEVELS: { name: ProgramDetail["level"]; n: number }[] = [
+  { name: "Beginner", n: 1 },
+  { name: "Intermediate", n: 2 },
+  { name: "Professional", n: 3 },
+];
+
+function useScrollY() {
+  const [y, setY] = useState(0);
+  useEffect(() => {
+    const onScroll = () => setY(window.scrollY);
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+  return y;
+}
 
 /** Hidden while actively scrolling down (past the hero), shown again on scroll up or near the top. */
 function useHideOnScrollDown() {
@@ -32,61 +50,74 @@ function useHideOnScrollDown() {
 
 /** Hero + "Find your starting point" card — a fixed level ladder, not tied to named programs. */
 export function ProgramsHero() {
-  const rows: { level: ProgramDetail["level"]; n: number }[] = [
-    { level: "Beginner", n: 1 },
-    { level: "Intermediate", n: 2 },
-    { level: "Professional", n: 3 },
-  ];
+  const y = useScrollY();
+  const reducedMotion = useReducedMotion();
 
   return (
-    <Reveal className="mx-auto grid max-w-[1400px] items-end gap-12 px-6 pt-10 pb-10 md:grid-cols-2 md:px-10 lg:px-16">
-      <div>
-        <h6 className={`${eyebrow} text-sky-700`}>Our programs</h6>
-        <h1 className="mt-4 font-display text-4xl leading-[1.1] font-bold text-balance lg:text-[52px]">
-          Six programs, one mentor-led model
-        </h1>
-        <p className="mt-5 max-w-[52ch] text-lg opacity-75">
-          Live batches, taught by mentors working in the field today. Pick
-          the program that matches where you are and where you want to go.
-        </p>
-      </div>
-      <div className="rounded-2xl bg-gray-900 px-8 pt-7 pb-3.5 text-white">
-        <div className={`${eyebrow} mb-4 text-sky-400`}>
-          Find your starting point
-        </div>
-        {rows.map((r) => (
-          <div
-            key={r.level}
-            className="flex items-center gap-[18px] border-t border-white/10 py-[18px]"
-          >
-            <div className="flex flex-none gap-[5px]" aria-hidden>
-              {[1, 2, 3].map((n) => (
-                <span
-                  key={n}
-                  className={`h-7 w-2.5 rounded-[5px] ${
-                    n <= r.n ? "bg-sky-400" : "bg-white/15"
-                  }`}
-                />
-              ))}
-            </div>
-            <div className="font-display text-lg font-bold">{r.level}</div>
+    <section className="relative min-h-[640px] overflow-hidden bg-[#0b1220] text-white">
+      <div
+        aria-hidden
+        className="absolute inset-y-0 right-0 w-[60%] bg-cover bg-center"
+        style={{
+          backgroundImage: `url(${HERO_PHOTO})`,
+          transform: reducedMotion
+            ? undefined
+            : `translateY(${Math.round(y * -0.06)}px) scale(1.08)`,
+        }}
+      />
+      <div
+        aria-hidden
+        className="absolute inset-0 bg-gradient-to-r from-[#0b1220] from-[42%] via-[#0b1220]/80 via-[58%] to-[#0b1220]/25"
+      />
+      <div className="relative mx-auto grid max-w-[1400px] items-end gap-12 px-6 pt-40 pb-28 md:px-10 lg:grid-cols-2 lg:px-16">
+        <div>
+          <div className="mb-6 inline-flex rounded-full border border-sky-300/50 px-[18px] py-2 text-[13px] font-bold tracking-[0.06em] text-sky-300 uppercase">
+            Our programs
           </div>
-        ))}
+          <h1 className="font-display text-[clamp(38px,5.2vw,76px)] leading-[1.02] font-semibold tracking-[-0.03em] text-pretty">
+            Six programs, one{" "}
+            <span className="whitespace-nowrap text-sky-400">mentor-led</span>{" "}
+            model
+          </h1>
+          <p className="mt-6 max-w-[46ch] text-lg text-slate-300">
+            Live batches, taught by mentors working in the field today. Pick
+            the program that matches where you are and where you want to go.
+          </p>
+        </div>
+        <div className="rounded-3xl border border-sky-300/30 bg-[#0b1220]/70 px-[30px] pt-[26px] pb-2.5 backdrop-blur">
+          <div className="mb-2 text-xs font-bold tracking-[0.06em] text-sky-400 uppercase">
+            Find your starting point
+          </div>
+          {LEVELS.map((l) => (
+            <div
+              key={l.name}
+              className="flex items-center gap-[18px] border-t border-slate-200/20 py-4"
+            >
+              <div className="flex flex-none gap-[5px]" aria-hidden>
+                {[1, 2, 3].map((k) => (
+                  <span
+                    key={k}
+                    className={`h-7 w-2.5 rounded-[5px] ${k <= l.n ? "bg-sky-400" : "bg-slate-200/25"}`}
+                  />
+                ))}
+              </div>
+              <div className="font-display text-lg font-semibold">
+                {l.name}
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
-    </Reveal>
+    </section>
   );
 }
 
-export function ProgramPills({
-  programs,
-}: {
-  programs: Pick<Program, "slug" | "name">[];
-}) {
+export function ProgramPills({ programs }: { programs: ProgramSummary[] }) {
   const hidden = useHideOnScrollDown();
 
   return (
     <div
-      className={`sticky top-20 z-20 border-y border-line bg-[#fafafa]/95 backdrop-blur transition-transform duration-300 ${
+      className={`sticky top-20 z-20 border-b border-slate-200 bg-white/95 backdrop-blur transition-transform duration-300 ${
         hidden ? "-translate-y-full" : "translate-y-0"
       }`}
     >
@@ -98,7 +129,7 @@ export function ProgramPills({
           <a
             key={p.slug}
             href={`#${p.slug}`}
-            className="flex shrink-0 items-center gap-2 rounded-full bg-sky-100 px-[18px] py-[9px] text-sm font-bold whitespace-nowrap text-gray-900 transition-transform duration-150 hover:scale-105"
+            className="flex shrink-0 items-center gap-2 rounded-full bg-sky-100 px-[18px] py-[9px] text-sm font-bold whitespace-nowrap text-[#111827] transition-transform duration-150 hover:scale-105"
           >
             <span className="text-sky-700">
               {String(i + 1).padStart(2, "0")}

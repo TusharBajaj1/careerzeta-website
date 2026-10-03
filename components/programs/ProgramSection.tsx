@@ -1,130 +1,42 @@
+"use client";
+
+import { useEffect, useState } from "react";
 import Link from "next/link";
-import type { CSSProperties, ReactNode } from "react";
 
 import BrochureButton from "@/components/programs/BrochureButton";
 import Reveal from "@/components/ui/Reveal";
-import { StaggerGroup, StaggerItem } from "@/components/ui/Stagger";
-import type { Program } from "@/lib/content";
+import { useReducedMotion } from "@/lib/useReducedMotion";
+import type { ProgramSummary } from "@/lib/content";
 import type { ProgramDetail } from "@/lib/programsDetail";
 
+/** Reused from the Home v2 handoff — byte-identical files already in /public/home/, same mapping as Home's program tabs. */
+const PHOTO: Record<string, string> = {
+  "data-analytics": "/home/pexels-rdne-7580704.png",
+  "business-analytics": "/home/pexels-karola-g-7876668.png",
+  "data-science": "/home/pexels-cottonbro-5473956.png",
+  "generative-agentic-ai": "/home/pexels-googledeepmind-18069697.png",
+  "investment-banking": "/home/pexels-tima-miroshnichenko-7567482.png",
+  "cyber-security": "/home/pexels-shkrabaanthony-5475760.png",
+};
+const FALLBACK_PHOTO = "/home/pexels-googledeepmind-17485738.png";
+
+const eyebrow = "text-xs font-bold tracking-[0.06em] uppercase text-sky-700";
+
+function useScrollY() {
+  const [y, setY] = useState(0);
+  useEffect(() => {
+    const onScroll = () => setY(window.scrollY);
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+  return y;
+}
+
 type ProgramSectionProps = {
-  program: Program;
+  program: ProgramSummary;
   detail: ProgramDetail;
   index: number;
-};
-
-/**
- * Geometric stand-ins for photography that hasn't been shot yet, drawn on
- * the charcoal visual panel. Delete this map and the motif div once real
- * photos exist.
- */
-const grow = (delay: number): CSSProperties => ({
-  transformBox: "fill-box",
-  transformOrigin: "bottom",
-  animation: `cz-grow 1s ${delay}s ease-out both`,
-});
-
-const MOTIFS: Record<string, ReactNode> = {
-  "data-analytics": (
-    <svg viewBox="0 0 300 180" className="h-full w-full" aria-hidden="true">
-      <rect x="30" y="90" width="34" height="70" rx="7" fill="#7dd3fc" style={grow(0)} />
-      <rect x="82" y="55" width="34" height="105" rx="7" fill="#38bdf8" style={grow(0.1)} />
-      <rect x="134" y="100" width="34" height="60" rx="7" fill="#7dd3fc" style={grow(0.2)} />
-      <rect x="186" y="30" width="34" height="130" rx="7" fill="#e0f2fe" style={grow(0.3)} />
-      <rect x="238" y="70" width="34" height="90" rx="7" fill="#38bdf8" style={grow(0.4)} />
-      <line x1="15" y1="162" x2="285" y2="162" stroke="#e2e8f0" strokeOpacity=".4" strokeWidth="2" />
-    </svg>
-  ),
-  "business-analytics": (
-    <svg viewBox="0 0 300 180" className="h-full w-full" aria-hidden="true">
-      <polyline
-        points="25,140 90,108 150,120 215,58 275,32"
-        fill="none"
-        stroke="#38bdf8"
-        strokeWidth="5"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        strokeDasharray="8 8"
-        className="cz-dash"
-      />
-      <circle cx="25" cy="140" r="8" fill="#7dd3fc" />
-      <circle cx="90" cy="108" r="8" fill="#7dd3fc" />
-      <circle cx="150" cy="120" r="8" fill="#7dd3fc" />
-      <circle cx="215" cy="58" r="8" fill="#7dd3fc" />
-      <circle cx="275" cy="32" r="12" fill="#e0f2fe" />
-    </svg>
-  ),
-  "data-science": (
-    <svg viewBox="0 0 300 180" className="h-full w-full" aria-hidden="true">
-      <circle cx="118" cy="98" r="58" fill="#38bdf8" fillOpacity=".55" />
-      <circle cx="184" cy="98" r="58" fill="#7dd3fc" fillOpacity=".45" />
-      <circle cx="151" cy="55" r="58" fill="#e0f2fe" fillOpacity=".4" />
-    </svg>
-  ),
-  "generative-agentic-ai": (
-    <svg viewBox="0 0 300 180" className="h-full w-full" aria-hidden="true">
-      <g stroke="#7dd3fc" strokeWidth="4" strokeDasharray="6 6" className="cz-dash">
-        <line x1="55" y1="55" x2="150" y2="90" />
-        <line x1="150" y1="90" x2="245" y2="45" />
-        <line x1="150" y1="90" x2="150" y2="150" />
-        <line x1="150" y1="150" x2="235" y2="140" />
-      </g>
-      <circle cx="55" cy="55" r="13" fill="#7dd3fc" />
-      <circle cx="150" cy="90" r="19" fill="#38bdf8" />
-      <circle cx="245" cy="45" r="13" fill="#e0f2fe" />
-      <circle cx="150" cy="150" r="13" fill="#e0f2fe" />
-      <circle cx="235" cy="140" r="10" fill="#7dd3fc" />
-    </svg>
-  ),
-  "investment-banking": (
-    <svg viewBox="0 0 300 180" className="h-full w-full" aria-hidden="true">
-      <rect x="40" y="110" width="10" height="50" fill="#7dd3fc" style={grow(0)} />
-      <rect x="62" y="90" width="10" height="70" fill="#38bdf8" style={grow(0.08)} />
-      <rect x="84" y="120" width="10" height="40" fill="#7dd3fc" style={grow(0.16)} />
-      <rect x="130" y="70" width="10" height="90" fill="#38bdf8" style={grow(0.24)} />
-      <rect x="152" y="95" width="10" height="65" fill="#7dd3fc" style={grow(0.32)} />
-      <rect x="174" y="50" width="10" height="110" fill="#38bdf8" style={grow(0.4)} />
-      <rect x="220" y="35" width="10" height="125" fill="#e0f2fe" style={grow(0.48)} />
-      <rect x="242" y="60" width="10" height="100" fill="#38bdf8" style={grow(0.56)} />
-      <polyline
-        points="45,105 67,85 89,115 135,65 157,90 179,45 225,30 247,55"
-        fill="none"
-        stroke="#e0f2fe"
-        strokeWidth="2"
-        strokeOpacity=".6"
-      />
-      <line x1="15" y1="162" x2="285" y2="162" stroke="#e2e8f0" strokeOpacity=".4" strokeWidth="2" />
-    </svg>
-  ),
-  "cyber-security": (
-    <svg viewBox="0 0 300 180" className="h-full w-full" aria-hidden="true">
-      <path
-        d="M150 25 L205 45 V95 C205 130 180 155 150 165 C120 155 95 130 95 95 V45 Z"
-        fill="#38bdf8"
-        fillOpacity=".18"
-        stroke="#38bdf8"
-        strokeWidth="3"
-      />
-      <circle cx="150" cy="95" r="52" fill="none" stroke="#38bdf8" strokeOpacity=".3" className="cz-pulse" />
-      <rect x="132" y="88" width="36" height="28" rx="4" fill="#38bdf8" />
-      <path
-        d="M140 88 V76 a10 10 0 0 1 20 0 V88"
-        fill="none"
-        stroke="#38bdf8"
-        strokeWidth="5"
-        strokeLinecap="round"
-      />
-      <circle cx="150" cy="100" r="4" fill="#0f172a" />
-    </svg>
-  ),
-};
-
-const eyebrow = "text-xs font-bold tracking-[0.06em] text-sky-700 uppercase";
-
-const LEVEL_METER: Record<ProgramDetail["level"], number> = {
-  Beginner: 1,
-  Intermediate: 2,
-  Professional: 3,
 };
 
 export default function ProgramSection({
@@ -132,207 +44,171 @@ export default function ProgramSection({
   detail,
   index,
 }: ProgramSectionProps) {
-  const number = String(index + 1).padStart(2, "0");
-  const flip = index % 2 === 1;
-  const levelFilled = LEVEL_METER[detail.level];
-
-  const textCol = (
-    <div>
-      <div className="font-display text-6xl leading-none font-bold text-sky-400 lg:text-[96px]">
-        {number}
-      </div>
-
-      <h2 className="mt-2 font-display text-4xl leading-[1.15] font-bold lg:text-[44px]">
-        {program.name}
-      </h2>
-
-      <p className="mt-3.5 font-display text-xl leading-snug font-bold text-sky-700">
-        {detail.question}
-      </p>
-
-      <p className="mt-4 max-w-[56ch] text-base leading-relaxed opacity-75">
-        {detail.context}
-      </p>
-
-      <StaggerGroup className="mt-7 flex flex-wrap items-center gap-2.5">
-        {detail.tools.length > 0 ? (
-          detail.tools.map((tool) => (
-            <StaggerItem
-              key={tool}
-              className="rounded-full bg-gray-900 px-[18px] py-2.5 text-[15px] font-bold text-white"
-            >
-              {tool}
-            </StaggerItem>
-          ))
-        ) : (
-          <span className="text-sm italic opacity-50">{detail.toolsNote}</span>
-        )}
-      </StaggerGroup>
-
-      <StaggerGroup as="ul" className="mt-7 flex flex-col gap-3">
-        {detail.reasons.slice(0, 3).map((reason) => (
-          <StaggerItem
-            key={reason}
-            as="li"
-            className="flex items-start gap-3 text-[15px] leading-relaxed"
-          >
-            <span className="mt-[7px] h-2.5 w-2.5 shrink-0 rounded-full bg-sky-400" />
-            {reason}
-          </StaggerItem>
-        ))}
-      </StaggerGroup>
-
-      <div className="mt-9 flex flex-wrap items-center gap-3.5">
-        <Link
-          href="/contact"
-          className="rounded-lg bg-sky-400 px-[26px] py-[15px] text-[15px] font-bold text-gray-900 transition-transform duration-150 hover:scale-105"
-        >
-          Get Admission
-        </Link>
-        {detail.brochureUrl ? (
-          <BrochureButton url={detail.brochureUrl} programName={program.name} />
-        ) : (
-          <span
-            className="cursor-not-allowed text-sm font-bold opacity-50"
-            title="Brochure not yet available"
-          >
-            Brochure — coming soon
-          </span>
-        )}
-      </div>
-    </div>
-  );
-
-  const imageCol = (
-    <div className="relative overflow-hidden rounded-2xl bg-gray-900 px-7 pt-7">
-      <div
-        aria-hidden
-        className="pointer-events-none absolute inset-0 opacity-[0.16]"
-        style={{
-          backgroundImage:
-            "radial-gradient(circle at 1.5px 1.5px, #e2e8f0 1.5px, transparent 0)",
-          backgroundSize: "24px 24px",
-        }}
-      />
-      <div className="cz-drift relative h-[220px] lg:h-[260px]">
-        {MOTIFS[program.slug]}
-      </div>
-
-      <div className="relative mt-2 flex flex-col gap-4 rounded-t-2xl bg-white p-6">
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          <div>
-            <div className={eyebrow}>Level</div>
-            <div className="mt-0.5 font-display text-xl font-bold">
-              {detail.level}
-            </div>
-          </div>
-          {detail.duration && (
-            <div>
-              <div className={eyebrow}>Duration</div>
-              <div className="mt-0.5 font-display text-xl font-bold">
-                {detail.duration}
-              </div>
-            </div>
-          )}
-          <div className="flex gap-1.5" aria-hidden>
-            {[1, 2, 3].map((n) => (
-              <span
-                key={n}
-                className={`h-2 w-7 rounded ${
-                  n <= levelFilled ? "bg-sky-400" : "bg-slate-200"
-                }`}
-              />
-            ))}
-          </div>
-        </div>
-
-        <div className="border-t border-line pt-4">
-          <div className={eyebrow}>Program Fee</div>
-          <div className="mt-0.5 font-display text-xl font-bold">
-            {detail.fee ?? "Fee on request"}
-          </div>
-          {detail.fee && (
-            <div className="mt-0.5 text-xs opacity-50">
-              Inclusive of all taxes
-            </div>
-          )}
-        </div>
-
-        <div className="border-t border-line pt-4">
-          <div className={eyebrow}>Prerequisites</div>
-          <div className="mt-0.5 text-sm leading-relaxed">
-            {detail.prerequisites}
-          </div>
-        </div>
-
-        <div className="border-t border-line pt-4">
-          <div className={eyebrow}>Roles you can aim for</div>
-          <div className="mt-2 flex flex-wrap gap-2">
-            {detail.roles.slice(0, 4).map((role) => (
-              <span
-                key={role}
-                className="rounded-full bg-sky-100 px-3.5 py-[7px] text-sm font-bold text-sky-700"
-              >
-                {role}
-              </span>
-            ))}
-          </div>
-        </div>
-      </div>
-    </div>
-  );
+  const y = useScrollY();
+  const reducedMotion = useReducedMotion();
+  const num = String(index + 1).padStart(2, "0");
+  const steps = detail.whatYoullDo;
 
   return (
-    <Reveal
+    <section
       id={program.slug}
-      className={`relative scroll-mt-[165px] px-6 py-14 md:px-10 lg:px-16 lg:py-16 ${
-        flip ? "bg-slate-100" : "bg-white"
-      }`}
+      className={`scroll-mt-[165px] ${index % 2 ? "bg-slate-100" : "bg-white"}`}
     >
-      <div className="mx-auto max-w-[1400px]">
-        {/*
-         * Text always precedes the visual panel in source order (title ->
-         * question -> description -> tools -> reasons -> CTAs -> panel),
-         * which is also the required mobile reading order. Desktop-only
-         * `order` classes swap the visual position for odd-indexed programs
-         * without touching DOM/tab order or mobile stacking.
-         */}
-        <div className="grid items-center gap-10 md:grid-cols-2 md:gap-16">
-          <div className={flip ? "md:order-2" : ""}>{textCol}</div>
-          <div className={flip ? "md:order-1" : ""}>{imageCol}</div>
+      <div className="mx-auto max-w-[1400px] px-6 pt-[72px] pb-[88px] md:px-10 lg:px-16">
+        <Reveal>
+          <div className="relative h-[340px] overflow-hidden rounded-[32px] bg-[#111827]">
+            <div
+              aria-hidden
+              className="absolute -inset-y-[6%] inset-x-0 bg-cover bg-center"
+              style={{
+                backgroundImage: `url(${PHOTO[program.slug] ?? FALLBACK_PHOTO})`,
+                transform: reducedMotion
+                  ? undefined
+                  : `translateY(${Math.round((y - 900 - index * 1100) * -0.06)}px)`,
+              }}
+            />
+            <div
+              aria-hidden
+              className="absolute inset-0 bg-gradient-to-t from-[#0b1220]/90 via-[#0b1220]/25 to-[#0b1220]/10"
+            />
+            <div className="absolute inset-x-9 bottom-7 flex flex-wrap items-end justify-between gap-5 text-white">
+              <div className="flex flex-wrap items-end gap-5">
+                <span className="font-display text-[clamp(64px,9vw,120px)] leading-[.85] font-semibold tracking-[-0.05em] text-sky-400">
+                  {num}
+                </span>
+                <h2 className="font-display text-[clamp(30px,4vw,52px)] leading-[1.05] font-semibold tracking-[-0.03em]">
+                  {program.name}
+                </h2>
+              </div>
+              <div className="flex flex-wrap gap-2.5">
+                <span className="rounded-full bg-sky-400 px-[18px] py-[9px] text-sm font-bold text-[#111827]">
+                  {detail.level}
+                </span>
+                {detail.duration && (
+                  <span className="rounded-full border border-white/40 bg-white/15 px-[18px] py-2 text-sm font-bold">
+                    {detail.duration}
+                  </span>
+                )}
+              </div>
+            </div>
+          </div>
+        </Reveal>
+
+        <div className="mt-12 grid items-start gap-14 lg:grid-cols-[1.2fr_1fr]">
+          <Reveal>
+            <p className="font-display text-[28px] leading-snug font-semibold tracking-tight text-sky-700 text-pretty">
+              {detail.question}
+            </p>
+            <p className="mt-4 max-w-[56ch] text-[17px] leading-relaxed text-slate-800">
+              {detail.context}
+            </p>
+            <ul className="mt-6 flex flex-col gap-3">
+              {detail.reasons.map((reason) => (
+                <li
+                  key={reason}
+                  className="flex items-start gap-3 text-base leading-normal"
+                >
+                  <span className="mt-[7px] h-2.5 w-2.5 shrink-0 rounded-full bg-sky-400" />
+                  {reason}
+                </li>
+              ))}
+            </ul>
+            <div className="mt-8 flex flex-wrap items-center gap-3.5">
+              <Link
+                href="/contact"
+                className="rounded-full bg-[#111827] px-[30px] py-4 text-base font-bold text-white transition-transform duration-150 hover:scale-105"
+              >
+                Get Admission
+              </Link>
+              {detail.brochureUrl ? (
+                <BrochureButton url={detail.brochureUrl} programName={program.name} />
+              ) : (
+                <span className="text-sm font-bold text-slate-800">
+                  Brochure — coming soon
+                </span>
+              )}
+            </div>
+          </Reveal>
+
+          <Reveal className="flex flex-col gap-5 rounded-3xl border border-slate-200 bg-white p-[30px] shadow-[0_24px_60px_-30px_rgba(17,24,39,.35)]">
+            <div>
+              <div className={eyebrow}>Program Fee</div>
+              <div className="mt-1 font-display text-xl font-bold">
+                {detail.fee ?? "Fee on request"}
+              </div>
+              {detail.fee && (
+                <div className="mt-0.5 text-xs opacity-50">
+                  Inclusive of all taxes
+                </div>
+              )}
+            </div>
+            <div>
+              <div className={eyebrow}>Prerequisites</div>
+              <div className="mt-1 text-[15px] leading-normal">
+                {detail.prerequisites}
+              </div>
+            </div>
+            {detail.tools.length > 0 && (
+              <div>
+                <div className={eyebrow}>Tools you&apos;ll use</div>
+                <div className="mt-2.5 flex flex-wrap gap-2">
+                  {detail.tools.map((tool) => (
+                    <span
+                      key={tool}
+                      className="rounded-full bg-[#111827] px-4 py-2 text-sm font-bold text-white"
+                    >
+                      {tool}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
+            <div>
+              <div className={eyebrow}>Roles you can aim for</div>
+              <div className="mt-2.5 flex flex-wrap gap-2">
+                {detail.roles.map((role) => (
+                  <span
+                    key={role}
+                    className="rounded-full bg-sky-100 px-4 py-2 text-sm font-bold"
+                  >
+                    {role}
+                  </span>
+                ))}
+              </div>
+            </div>
+          </Reveal>
         </div>
 
-        {/* Journey: numbered nodes on a connecting line, last node accented. */}
-        <div className="mt-14">
-          <div className={`${eyebrow} mb-6`}>What you&apos;ll do</div>
-          <ol className="grid grid-cols-2 gap-5 sm:grid-cols-3 lg:grid-cols-[repeat(auto-fit,minmax(150px,1fr))]">
-            {detail.whatYoullDo.map((step, i) => {
-              const last = i === detail.whatYoullDo.length - 1;
-              return (
-                <li key={step} className="flex flex-col gap-3.5">
-                  <div className="flex items-center">
-                    <span
-                      className={`flex h-[34px] w-[34px] flex-none items-center justify-center rounded-full text-sm font-bold ${
-                        last ? "bg-sky-400 text-gray-900" : "bg-gray-900 text-white"
-                      }`}
-                    >
-                      {i + 1}
-                    </span>
-                    <span
-                      className={`h-[3px] flex-1 rounded-sm ${
-                        last ? "bg-transparent" : "bg-slate-300"
-                      }`}
-                    />
-                  </div>
-                  <div className="pr-2 text-[15px] leading-snug font-bold">
-                    {step}
-                  </div>
-                </li>
-              );
-            })}
-          </ol>
-        </div>
+        {steps.length > 0 && (
+          <Reveal className="mt-14">
+            <div className={`${eyebrow} mb-5`}>What you&apos;ll do</div>
+            <ol className="grid grid-cols-2 gap-5 sm:grid-cols-3 lg:grid-cols-[repeat(auto-fit,minmax(150px,1fr))]">
+              {steps.map((step, i) => {
+                const last = i === steps.length - 1;
+                return (
+                  <li key={step} className="flex flex-col gap-3.5">
+                    <div className="flex items-center">
+                      <span
+                        className={`flex h-9 w-9 flex-none items-center justify-center rounded-full text-sm font-bold ${
+                          last ? "bg-sky-400 text-[#111827]" : "bg-[#111827] text-white"
+                        }`}
+                      >
+                        {i + 1}
+                      </span>
+                      <span
+                        className={`h-[3px] flex-1 rounded-sm ${last ? "bg-transparent" : "bg-slate-300"}`}
+                      />
+                    </div>
+                    <div className="pr-2 text-[15px] leading-snug font-bold">
+                      {step}
+                    </div>
+                  </li>
+                );
+              })}
+            </ol>
+          </Reveal>
+        )}
       </div>
-    </Reveal>
+    </section>
   );
 }

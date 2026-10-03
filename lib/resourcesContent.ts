@@ -8,8 +8,7 @@ export type Story = {
   description: string;
   source: string;
   url: string;
-  /** Path under /public once a real photo is supplied — null renders a pending placeholder. */
-  image: string | null;
+  image: string;
   imagePosition?: "top" | "center";
 };
 
@@ -45,7 +44,7 @@ export const STORIES: Story[] = [
       "A practical example of a bank using generative AI to build a customer-facing application.",
     source: "McKinsey",
     url: "https://www.mckinsey.com/industries/financial-services/how-we-help-clients/banking-on-innovation-how-ing-uses-generative-ai-to-put-people-first",
-    image: "/resources/ing.jpg",
+    image: "/resources/ing.svg",
     imagePosition: "top",
   },
   {
@@ -83,8 +82,7 @@ export type Report = {
   year: string;
   description: string;
   url: string;
-  /** Path under /public once cover artwork is supplied — null renders a pending placeholder. */
-  image: string | null;
+  image: string;
   featured?: boolean;
 };
 
@@ -96,7 +94,7 @@ export const REPORTS: Report[] = [
     description:
       "An independent, data-driven view of artificial intelligence from Stanford HAI, covering technical progress, economic influence and societal impact, including how demand for AI skills is changing.",
     url: "https://hai.stanford.edu/ai-index/2025-ai-index-report",
-    image: "/resources/ai-index-2025-cover.jpg",
+    image: "/resources/ai-index-2025.svg",
     featured: true,
   },
   {
@@ -106,7 +104,7 @@ export const REPORTS: Report[] = [
     description:
       "The World Bank's first comprehensive assessment of what AI means for developing economies, and how firms and governments are already using it.",
     url: "https://www.worldbank.org/en/publication/wdr2026",
-    image: "/resources/wdr-2026.png",
+    image: "/resources/wdr-2026.svg",
   },
   {
     title: "AI Index 2025: State of AI in 10 Charts",
@@ -115,6 +113,6 @@ export const REPORTS: Report[] = [
     description:
       "Ten charts from the AI Index on a maturing field, improvements in AI optimization and the growing use of the technology.",
     url: "https://hai.stanford.edu/news/ai-index-2025-state-of-ai-in-10-charts",
-    image: "/resources/ai-index-10-charts.png",
+    image: "/resources/ai-index-10-charts.svg",
   },
 ];

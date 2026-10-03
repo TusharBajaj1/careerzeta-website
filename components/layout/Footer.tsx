@@ -38,7 +38,7 @@ const legal = [
 
 export default function Footer() {
   return (
-    <footer className="bg-slate-900 px-6 pt-16 pb-10 md:px-10 lg:px-16">
+    <footer className="bg-[#0b1220] px-6 pt-16 pb-10 md:px-10 lg:px-16">
       <div className="mx-auto max-w-[1400px]">
         <div className="grid gap-12 lg:grid-cols-[1.4fr_1fr_1fr_1fr]">
           <div>

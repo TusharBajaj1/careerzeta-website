@@ -43,30 +43,30 @@ export default function Mentors({ heading = "Mentors" }: MentorsProps) {
           applied practice, batch by batch.
         </p>
 
-        <StaggerGroup className="mt-11 grid gap-7 sm:grid-cols-3">
+        <StaggerGroup className="mt-11 grid grid-cols-2 gap-6 sm:grid-cols-3 lg:grid-cols-5">
           {mentors.map((mentor) => (
             <StaggerItem
               key={mentor.name}
-              className="flex flex-col gap-3.5 transition-transform duration-200 hover:-translate-y-2"
+              className="flex flex-col gap-2.5 transition-transform duration-200 hover:-translate-y-2"
             >
-              {/* Brand rule: photo frame = 6px aqua→deep-aqua gradient border, 20px radius.
+              {/* Brand rule: photo frame = aqua→deep-aqua gradient border.
                   Portrait aspect matches the source crop (a square crop cuts inconsistently
                   across these nine photos, since each was framed slightly differently). */}
-              <div className="rounded-[20px] bg-gradient-to-br from-sky-400 to-sky-700 p-1.5">
-                <div className="relative aspect-[3/4] overflow-hidden rounded-[14px] bg-sky-100">
+              <div className="rounded-2xl bg-gradient-to-br from-sky-400 to-sky-700 p-1">
+                <div className="relative aspect-[3/4] overflow-hidden rounded-xl bg-sky-100">
                   <Image
                     src={mentor.photoUrl}
                     alt={mentor.name}
                     fill
-                    sizes="(min-width:640px) 33vw, 100vw"
+                    sizes="(min-width:1024px) 20vw, (min-width:640px) 33vw, 50vw"
                     className="object-cover"
                   />
                 </div>
               </div>
-              <div className="font-display text-base font-bold">
+              <div className="font-display text-sm font-bold">
                 {mentor.name}
               </div>
-              <div className="text-sm opacity-60">
+              <div className="text-xs opacity-60">
                 {mentor.title}, {mentor.company}
               </div>
             </StaggerItem>

@@ -75,21 +75,21 @@ export default function NewsletterForm() {
           type="text"
           placeholder="Name"
           required
-          className="rounded-lg border-2 border-line bg-white px-4 py-3 text-sm outline-none focus:border-sky-400"
+          className="rounded-full border-2 border-line bg-white px-5 py-3 text-sm outline-none focus:border-sky-400"
         />
         <input
           name="email"
           type="email"
           placeholder="Email"
           required
-          className="rounded-lg border-2 border-line bg-white px-4 py-3 text-sm outline-none focus:border-sky-400"
+          className="rounded-full border-2 border-line bg-white px-5 py-3 text-sm outline-none focus:border-sky-400"
         />
         <input
           name="mobile"
           type="tel"
           placeholder="Mobile Number"
           required
-          className="rounded-lg border-2 border-line bg-white px-4 py-3 text-sm outline-none focus:border-sky-400"
+          className="rounded-full border-2 border-line bg-white px-5 py-3 text-sm outline-none focus:border-sky-400"
         />
       </div>
 
@@ -98,7 +98,7 @@ export default function NewsletterForm() {
       <button
         type="submit"
         disabled={status === "submitting"}
-        className="cz-pulse-glow w-fit rounded-lg bg-sky-400 px-7 py-3 text-sm font-bold whitespace-nowrap text-slate-900 transition-transform duration-150 hover:scale-105 disabled:opacity-60"
+        className="w-fit rounded-full bg-[#111827] px-7 py-3 text-sm font-bold whitespace-nowrap text-white transition-transform duration-150 hover:scale-105 disabled:opacity-60"
       >
         {status === "submitting" ? "Subscribing…" : "Subscribe"}
       </button>
