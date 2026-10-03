@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { GoogleAnalytics } from "@next/third-parties/google";
 import { Manrope, Poppins } from "next/font/google";
 import "./globals.css";
 
@@ -80,6 +81,7 @@ export default function RootLayout({
           <WhatsAppButton />
         </LeadCaptureProvider>
       </body>
+      <GoogleAnalytics gaId="G-K83N5Y0C6P" />
     </html>
   );
 }
