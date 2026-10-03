@@ -3,11 +3,13 @@ import type { Metadata } from "next";
 import Footer from "@/components/layout/Footer";
 import Reveal from "@/components/ui/Reveal";
 import { CONTACT } from "@/lib/content";
+import { buildMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = buildMetadata({
   title: "Privacy Policy — CareerZeta",
   description: "How CareerZeta collects, uses and protects your information.",
-};
+  path: "/privacy-policy",
+});
 
 /**
  * Drafted from how this site actually behaves (the forms it runs and what

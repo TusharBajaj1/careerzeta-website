@@ -31,7 +31,7 @@ export default function ReportsResearch() {
               {featured.image ? (
                 <Image
                   src={featured.image}
-                  alt=""
+                  alt={featured.title}
                   fill
                   sizes="(min-width:768px) 50vw, 100vw"
                   className="object-cover"
@@ -76,7 +76,7 @@ export default function ReportsResearch() {
                   {r.image ? (
                     <Image
                       src={r.image}
-                      alt=""
+                      alt={r.title}
                       fill
                       sizes="150px"
                       className="object-cover"

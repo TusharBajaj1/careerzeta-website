@@ -6,12 +6,14 @@ import WorkWithUs from "@/components/contact/WorkWithUs";
 import WorkWithUsForm from "@/components/contact/WorkWithUsForm";
 import Reveal from "@/components/ui/Reveal";
 import Footer from "@/components/layout/Footer";
+import { buildMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = buildMetadata({
   title: "Contact Us — CareerZeta",
   description:
     "Get in touch about a program, mentorship, or working with CareerZeta.",
-};
+  path: "/contact",
+});
 
 export default function ContactPage() {
   return (

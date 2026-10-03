@@ -5,12 +5,14 @@ import Newsletter from "@/components/resources/Newsletter";
 import RealWorldStories from "@/components/resources/RealWorldStories";
 import ReportsResearch from "@/components/resources/ReportsResearch";
 import ResourcesHero from "@/components/resources/ResourcesHero";
+import { buildMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = buildMetadata({
   title: "Resources — CareerZeta",
   description:
     "Real-world stories and credible research on how data, analytics and AI are changing the way businesses work.",
-};
+  path: "/resources",
+});
 
 export default function ResourcesPage() {
   return (

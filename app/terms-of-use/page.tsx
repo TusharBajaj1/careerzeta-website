@@ -3,11 +3,13 @@ import type { Metadata } from "next";
 import Footer from "@/components/layout/Footer";
 import Reveal from "@/components/ui/Reveal";
 import { CONTACT } from "@/lib/content";
+import { buildMetadata } from "@/lib/seo";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = buildMetadata({
   title: "Terms of Use — CareerZeta",
   description: "The terms that govern your use of the CareerZeta website.",
-};
+  path: "/terms-of-use",
+});
 
 /**
  * Drafted from how this site actually behaves rather than a generic legal
