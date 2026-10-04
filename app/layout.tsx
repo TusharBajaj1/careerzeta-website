@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { GoogleTagManager } from "@next/third-parties/google";
 import { Manrope, Poppins } from "next/font/google";
 import "./globals.css";
 
@@ -67,6 +68,7 @@ export default function RootLayout({
       className={`${manrope.variable} ${poppins.variable} scroll-smooth`}
       data-scroll-behavior="smooth"
     >
+      <GoogleTagManager gtmId="GTM-KQ2XFKPS" />
       <body>
         <script
           type="application/ld+json"
