@@ -5,6 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 
 import BrochureButton from "@/components/programs/BrochureButton";
+import EnrollButton from "@/components/programs/EnrollButton";
 import Reveal from "@/components/ui/Reveal";
 import { useReducedMotion } from "@/lib/useReducedMotion";
 import type { ProgramSummary } from "@/lib/content";
@@ -144,9 +145,14 @@ export default function ProgramSection({
                 {detail.fee ?? "Fee on request"}
               </div>
               {detail.fee && (
-                <div className="mt-0.5 text-xs opacity-50">
-                  Inclusive of all taxes
-                </div>
+                <>
+                  <div className="mt-0.5 text-xs opacity-50">
+                    Inclusive of all taxes
+                  </div>
+                  <div className="mt-4">
+                    <EnrollButton programSlug={program.slug} programName={program.name} />
+                  </div>
+                </>
               )}
             </div>
             <div>
