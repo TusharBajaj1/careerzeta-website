@@ -3,6 +3,7 @@ import { eq } from "drizzle-orm";
 
 import { db } from "@/lib/db";
 import { enrollments, payments } from "@/lib/db/schema";
+import { sendPaymentInvoice } from "@/lib/invoiceEmail";
 import { verifyRazorpayWebhookSignature } from "@/lib/razorpay";
 
 /**
@@ -52,10 +53,12 @@ export async function POST(request: Request) {
     return NextResponse.json({ received: true });
   }
 
-  await db
+  const paidAt = new Date();
+  const [updatedPayment] = await db
     .update(payments)
-    .set({ status: "paid", razorpayPaymentId, paidAt: new Date() })
-    .where(eq(payments.id, payment.id));
+    .set({ status: "paid", razorpayPaymentId, paidAt })
+    .where(eq(payments.id, payment.id))
+    .returning();
 
   const [enrollment] = await db
     .select()
@@ -67,7 +70,18 @@ export async function POST(request: Request) {
     const amountPaid = enrollment.amountPaid + capturedAmount;
     const status = amountPaid >= enrollment.totalFee ? "fully_paid" : "registration_paid";
 
-    await db.update(enrollments).set({ amountPaid, status }).where(eq(enrollments.id, enrollment.id));
+    const [updatedEnrollment] = await db
+      .update(enrollments)
+      .set({ amountPaid, status })
+      .where(eq(enrollments.id, enrollment.id))
+      .returning();
+
+    try {
+      const { invoiceNumber, sent } = await sendPaymentInvoice(updatedPayment, updatedEnrollment);
+      await db.update(payments).set({ invoiceSent: sent, invoiceNumber }).where(eq(payments.id, payment.id));
+    } catch (err) {
+      console.error(`Invoice email failed for payment ${payment.id}:`, err);
+    }
   }
 
   return NextResponse.json({ received: true });

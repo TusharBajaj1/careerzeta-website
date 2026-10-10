@@ -20,6 +20,7 @@ export async function sendMail(options: {
   subject: string;
   text: string;
   replyTo?: string;
+  attachments?: { filename: string; content: Buffer; contentType?: string }[];
 }): Promise<boolean> {
   const transporter = getTransporter();
   if (!transporter) return false;
