@@ -12,9 +12,9 @@
     "db:studio": "drizzle-kit studio"
   },
   "dependencies": {
+    "@neondatabase/serverless": "^1.2.0",
     "@next/third-parties": "^16.3.8",
     "@react-pdf/renderer": "^4.9.0",
-    "@vercel/postgres": "^0.10.0",
     "drizzle-orm": "^0.45.4",
     "framer-motion": "^12.42.2",
     "lucide-react": "^1.23.0",
