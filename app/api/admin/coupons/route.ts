@@ -67,7 +67,9 @@ export async function POST(request: Request) {
         candidateEmail: hasEmail ? candidateEmail.trim() : null,
         candidatePhone: hasPhone ? candidatePhone.trim() : null,
         maxUses: typeof maxUses === "number" && maxUses > 0 ? Math.round(maxUses) : 1,
-        expiresAt: expiresAt ? new Date(expiresAt) : null,
+        // Stored as end-of-day IST, not UTC midnight — otherwise a coupon set
+        // to expire "today" would already look expired by 5:30am IST (UTC+5:30).
+        expiresAt: expiresAt ? new Date(`${expiresAt}T23:59:59+05:30`) : null,
         createdBy: createdBy.trim(),
         notes: typeof notes === "string" ? notes.trim() : null,
       })
