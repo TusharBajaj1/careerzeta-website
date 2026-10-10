@@ -155,6 +155,12 @@ export default function Footer() {
                 {item.label}
               </Link>
             ))}
+            <Link
+              href="/admin"
+              className="text-sm text-white opacity-50 transition hover:text-sky-400 hover:opacity-100"
+            >
+              Admin
+            </Link>
           </div>
         </div>
       </div>
