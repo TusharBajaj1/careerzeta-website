@@ -196,6 +196,16 @@ function EnrollmentCard({
   const programName = PROGRAMS.find((p) => p.slug === enrollment.programSlug)?.name ?? enrollment.programSlug;
   const remaining = enrollment.totalFee - enrollment.amountPaid;
 
+  async function handleCancel() {
+    if (!confirm("Cancel this enrollment? It can't be un-cancelled.")) return;
+    await fetch(`/api/admin/enrollments/${enrollment.id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ status: "cancelled" }),
+    });
+    onChanged();
+  }
+
   return (
     <div className="rounded-2xl border-2 border-line bg-white p-6">
       <div className="flex flex-wrap items-start justify-between gap-3">
@@ -206,9 +216,16 @@ function EnrollmentCard({
           </div>
           <div className="mt-1 text-sm font-semibold text-sky-700">{programName}</div>
         </div>
-        <span className="rounded-full bg-slate-100 px-4 py-1.5 text-xs font-bold whitespace-nowrap">
-          {STATUS_LABEL[enrollment.status]}
-        </span>
+        <div className="flex items-center gap-3">
+          <span className="rounded-full bg-slate-100 px-4 py-1.5 text-xs font-bold whitespace-nowrap">
+            {STATUS_LABEL[enrollment.status]}
+          </span>
+          {enrollment.status !== "cancelled" && (
+            <button onClick={handleCancel} className="text-sm text-red-600 hover:underline">
+              Cancel
+            </button>
+          )}
+        </div>
       </div>
 
       <div className="mt-4 grid grid-cols-3 gap-4 border-y border-line/60 py-3 text-sm">
