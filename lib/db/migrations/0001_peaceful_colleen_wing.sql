@@ -1,0 +1,1 @@
+ALTER TABLE "enrollments" ADD COLUMN "sales_executive" varchar(128);

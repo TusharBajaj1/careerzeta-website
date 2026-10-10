@@ -66,6 +66,8 @@ export const enrollments = pgTable("enrollments", {
   candidatePhone: varchar("candidate_phone", { length: 32 }).notNull(),
   programSlug: varchar("program_slug", { length: 64 }).notNull(),
   couponId: integer("coupon_id").references(() => coupons.id),
+  /** Owner of the lead — defaults to the linked coupon's createdBy, or set directly on admin-created enrollments. */
+  salesExecutive: varchar("sales_executive", { length: 128 }),
   /** Final price in paise, after any discount — what the candidate owes in total. */
   totalFee: integer("total_fee").notNull(),
   /** Running total of paid (successful) payments, in paise. */

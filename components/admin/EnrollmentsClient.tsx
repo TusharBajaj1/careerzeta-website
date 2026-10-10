@@ -27,6 +27,7 @@ export type EnrollmentRow = {
   candidatePhone: string;
   programSlug: string;
   couponId: number | null;
+  salesExecutive: string | null;
   totalFee: number;
   amountPaid: number;
   status: "pending" | "registration_paid" | "fully_paid" | "cancelled";
@@ -100,6 +101,7 @@ function CreateEnrollmentForm({ onCreated }: { onCreated: () => void }) {
   const [phone, setPhone] = useState("");
   const [programSlug, setProgramSlug] = useState(PROGRAMS[0]?.slug ?? "");
   const [totalFee, setTotalFee] = useState("");
+  const [salesExecutive, setSalesExecutive] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
 
@@ -111,7 +113,14 @@ function CreateEnrollmentForm({ onCreated }: { onCreated: () => void }) {
     const res = await fetch("/api/admin/enrollments", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ name, email, phone, programSlug, totalFee: Number(totalFee) }),
+      body: JSON.stringify({
+        name,
+        email,
+        phone,
+        programSlug,
+        totalFee: Number(totalFee),
+        salesExecutive,
+      }),
     });
 
     if (!res.ok) {
@@ -170,7 +179,13 @@ function CreateEnrollmentForm({ onCreated }: { onCreated: () => void }) {
         required
         value={totalFee}
         onChange={(e) => setTotalFee(e.target.value)}
-        className="rounded-lg border-2 border-line px-4 py-3 text-sm outline-none focus:border-sky-400 sm:col-span-2"
+        className="rounded-lg border-2 border-line px-4 py-3 text-sm outline-none focus:border-sky-400"
+      />
+      <input
+        placeholder="Sales executive (lead owner)"
+        value={salesExecutive}
+        onChange={(e) => setSalesExecutive(e.target.value)}
+        className="rounded-lg border-2 border-line px-4 py-3 text-sm outline-none focus:border-sky-400"
       />
 
       {error && <p className="text-sm text-red-600 sm:col-span-2">{error}</p>}
@@ -215,6 +230,9 @@ function EnrollmentCard({
             {enrollment.candidateEmail} · {enrollment.candidatePhone}
           </div>
           <div className="mt-1 text-sm font-semibold text-sky-700">{programName}</div>
+          {enrollment.salesExecutive && (
+            <div className="mt-1 text-xs opacity-60">Sales Executive: {enrollment.salesExecutive}</div>
+          )}
         </div>
         <div className="flex items-center gap-3">
           <span className="rounded-full bg-slate-100 px-4 py-1.5 text-xs font-bold whitespace-nowrap">

@@ -35,7 +35,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "invalid_payload" }, { status: 400 });
   }
 
-  const { name, email, phone, programSlug, totalFee } = body;
+  const { name, email, phone, programSlug, totalFee, salesExecutive } = body;
 
   if (
     typeof name !== "string" ||
@@ -59,6 +59,7 @@ export async function POST(request: Request) {
       candidateEmail: email.trim(),
       candidatePhone: phone.trim(),
       programSlug,
+      salesExecutive: typeof salesExecutive === "string" && salesExecutive.trim() ? salesExecutive.trim() : null,
       totalFee: rupeesToPaise(totalFee),
       status: "pending",
     })

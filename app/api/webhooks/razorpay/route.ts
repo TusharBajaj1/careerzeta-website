@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { eq } from "drizzle-orm";
 
 import { db } from "@/lib/db";
-import { enrollments, payments } from "@/lib/db/schema";
+import { coupons, enrollments, payments } from "@/lib/db/schema";
 import { sendPaymentInvoice } from "@/lib/invoiceEmail";
 import { verifyRazorpayWebhookSignature } from "@/lib/razorpay";
 
@@ -67,6 +67,16 @@ export async function POST(request: Request) {
     .limit(1);
 
   if (enrollment) {
+    // A coupon is "used" once its enrollment makes its first successful
+    // payment — not per-payment, since one coupon covers the whole
+    // enrollment even when it's paid in a registration-fee + balance split.
+    if (enrollment.couponId && enrollment.amountPaid === 0) {
+      const [coupon] = await db.select().from(coupons).where(eq(coupons.id, enrollment.couponId)).limit(1);
+      if (coupon) {
+        await db.update(coupons).set({ usedCount: coupon.usedCount + 1 }).where(eq(coupons.id, coupon.id));
+      }
+    }
+
     const amountPaid = enrollment.amountPaid + capturedAmount;
     const status = amountPaid >= enrollment.totalFee ? "fully_paid" : "registration_paid";
 
