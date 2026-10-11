@@ -3,6 +3,7 @@
 import { useState, type FormEvent } from "react";
 
 import { PROGRAMS } from "@/lib/content";
+import { INDIAN_STATE_NAMES } from "@/lib/indianStates";
 import { formatPaiseAsInr, paiseToRupees } from "@/lib/money";
 
 export type PaymentRow = {
@@ -25,6 +26,7 @@ export type EnrollmentRow = {
   candidateName: string;
   candidateEmail: string;
   candidatePhone: string;
+  candidateState: string | null;
   programSlug: string;
   couponId: number | null;
   salesExecutive: string | null;
@@ -100,6 +102,7 @@ function CreateEnrollmentForm({ onCreated }: { onCreated: () => void }) {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
+  const [state, setState] = useState("");
   const [programSlug, setProgramSlug] = useState(PROGRAMS[0]?.slug ?? "");
   const [totalFee, setTotalFee] = useState("");
   const [registrationFeeAmount, setRegistrationFeeAmount] = useState("");
@@ -119,6 +122,7 @@ function CreateEnrollmentForm({ onCreated }: { onCreated: () => void }) {
         name,
         email,
         phone,
+        state,
         programSlug,
         totalFee: Number(totalFee),
         registrationFeeAmount: registrationFeeAmount ? Number(registrationFeeAmount) : null,
@@ -181,6 +185,27 @@ function CreateEnrollmentForm({ onCreated }: { onCreated: () => void }) {
           onChange={(e) => setPhone(e.target.value)}
           className="w-full rounded-lg border-2 border-line px-4 py-3 text-sm outline-none focus:border-sky-400"
         />
+      </div>
+      <div>
+        <label htmlFor="enrollment-state" className="mb-1.5 block text-xs font-bold text-slate-700">
+          Candidate State
+        </label>
+        <select
+          id="enrollment-state"
+          required
+          value={state}
+          onChange={(e) => setState(e.target.value)}
+          className="w-full rounded-lg border-2 border-line px-4 py-3 text-sm outline-none focus:border-sky-400"
+        >
+          <option value="" disabled>
+            Select state (for GST invoice)
+          </option>
+          {INDIAN_STATE_NAMES.map((s) => (
+            <option key={s} value={s}>
+              {s}
+            </option>
+          ))}
+        </select>
       </div>
       <div>
         <label htmlFor="enrollment-program" className="mb-1.5 block text-xs font-bold text-slate-700">
@@ -298,6 +323,9 @@ function EnrollmentCard({
             {enrollment.candidateEmail} · {enrollment.candidatePhone}
           </div>
           <div className="mt-1 text-sm font-semibold text-sky-700">{programName}</div>
+          {enrollment.candidateState && (
+            <div className="mt-1 text-xs opacity-60">State: {enrollment.candidateState}</div>
+          )}
           {enrollment.salesExecutive && (
             <div className="mt-1 text-xs opacity-60">Sales Executive: {enrollment.salesExecutive}</div>
           )}

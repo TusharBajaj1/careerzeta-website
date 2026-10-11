@@ -1,6 +1,7 @@
 import { CONTACT, PROGRAMS } from "@/lib/content";
 import type { Enrollment, Payment } from "@/lib/db/schema";
 import { generateInvoicePdf } from "@/lib/invoice";
+import { nextInvoiceNumber } from "@/lib/invoiceNumber";
 import { sendMail } from "@/lib/mailer";
 import { formatPaiseAsInr } from "@/lib/money";
 
@@ -20,17 +21,19 @@ export async function sendPaymentInvoice(
   payment: Payment,
   enrollment: Enrollment,
 ): Promise<{ invoiceNumber: string; sent: boolean }> {
-  const invoiceNumber = `CZ-INV-${String(payment.id).padStart(6, "0")}`;
   const programName = PROGRAMS.find((p) => p.slug === enrollment.programSlug)?.name ?? enrollment.programSlug;
 
+  let invoiceNumber: string;
   let pdf: Buffer;
   try {
+    invoiceNumber = await nextInvoiceNumber();
     pdf = await generateInvoicePdf({
       invoiceNumber,
       issuedAt: payment.paidAt ?? new Date(),
       candidateName: enrollment.candidateName,
       candidateEmail: enrollment.candidateEmail,
       candidatePhone: enrollment.candidatePhone,
+      candidateState: enrollment.candidateState,
       programName,
       paymentType: payment.type,
       amountPaidNowPaise: payment.amount,
@@ -38,8 +41,8 @@ export async function sendPaymentInvoice(
       amountPaidTotalPaise: enrollment.amountPaid,
     });
   } catch (err) {
-    console.error(`Invoice PDF generation failed for payment ${payment.id}:`, err);
-    return { invoiceNumber, sent: false };
+    console.error(`Invoice generation failed for payment ${payment.id}:`, err);
+    return { invoiceNumber: "", sent: false };
   }
 
   const attachments = [{ filename: `${invoiceNumber}.pdf`, content: pdf, contentType: "application/pdf" }];

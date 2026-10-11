@@ -4,10 +4,12 @@ import { asc, desc } from "drizzle-orm";
 import { db } from "@/lib/db";
 import { enrollments, payments } from "@/lib/db/schema";
 import { isValidEmail, isValidMobile } from "@/lib/forms";
+import { INDIAN_STATE_NAMES } from "@/lib/indianStates";
 import { rupeesToPaise } from "@/lib/money";
 import { PROGRAMS } from "@/lib/content";
 
 const PROGRAM_SLUGS = new Set(PROGRAMS.map((p) => p.slug));
+const STATE_SET = new Set(INDIAN_STATE_NAMES);
 
 /** Enrollments with their payments nested, for the admin view. */
 export async function GET() {
@@ -35,7 +37,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "invalid_payload" }, { status: 400 });
   }
 
-  const { name, email, phone, programSlug, totalFee, salesExecutive, registrationFeeAmount } = body;
+  const { name, email, phone, state, programSlug, totalFee, salesExecutive, registrationFeeAmount } = body;
 
   if (
     typeof name !== "string" ||
@@ -44,6 +46,8 @@ export async function POST(request: Request) {
     !isValidEmail(email) ||
     typeof phone !== "string" ||
     !isValidMobile(phone) ||
+    typeof state !== "string" ||
+    !STATE_SET.has(state) ||
     typeof programSlug !== "string" ||
     !PROGRAM_SLUGS.has(programSlug) ||
     typeof totalFee !== "number" ||
@@ -61,6 +65,7 @@ export async function POST(request: Request) {
       candidateName: name.trim(),
       candidateEmail: email.trim(),
       candidatePhone: phone.trim(),
+      candidateState: state,
       programSlug,
       salesExecutive: typeof salesExecutive === "string" && salesExecutive.trim() ? salesExecutive.trim() : null,
       totalFee: rupeesToPaise(totalFee),

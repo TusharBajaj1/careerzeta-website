@@ -44,9 +44,10 @@ export async function computeEnrollQuote(params: {
   name: string;
   email: string;
   phone: string;
+  state: string;
   couponCode?: string | null;
 }): Promise<EnrollQuote | EnrollQuoteError> {
-  const { programSlug, name, email, phone, couponCode } = params;
+  const { programSlug, name, email, phone, state, couponCode } = params;
 
   const program = PROGRAMS.find((p) => p.slug === programSlug);
   const detail = PROGRAM_DETAILS.find((d) => d.slug === programSlug);
@@ -111,6 +112,7 @@ export async function computeEnrollQuote(params: {
               candidateName: name.trim(),
               candidateEmail: email.trim(),
               candidatePhone: phone.trim(),
+              candidateState: state,
               programSlug,
               status: "pending",
               ...values,
@@ -147,6 +149,7 @@ export async function computeEnrollQuote(params: {
       candidateName: name.trim(),
       candidateEmail: email.trim(),
       candidatePhone: phone.trim(),
+      candidateState: state,
       programSlug,
       totalFee: originalFeePaise,
       status: "pending",

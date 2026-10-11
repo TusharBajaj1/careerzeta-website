@@ -2,6 +2,9 @@ import { NextResponse } from "next/server";
 
 import { computeEnrollQuote } from "@/lib/enrollQuote";
 import { isValidEmail, isValidMobile } from "@/lib/forms";
+import { INDIAN_STATE_NAMES } from "@/lib/indianStates";
+
+const STATE_SET = new Set(INDIAN_STATE_NAMES);
 
 /**
  * Finds or creates the candidate's enrollment and shows them their fee
@@ -16,7 +19,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "invalid_payload" }, { status: 400 });
   }
 
-  const { programSlug, name, email, phone, couponCode } = body;
+  const { programSlug, name, email, phone, state, couponCode } = body;
 
   if (
     typeof programSlug !== "string" ||
@@ -25,12 +28,14 @@ export async function POST(request: Request) {
     typeof email !== "string" ||
     !isValidEmail(email) ||
     typeof phone !== "string" ||
-    !isValidMobile(phone)
+    !isValidMobile(phone) ||
+    typeof state !== "string" ||
+    !STATE_SET.has(state)
   ) {
     return NextResponse.json({ error: "invalid_payload" }, { status: 400 });
   }
 
-  const quote = await computeEnrollQuote({ programSlug, name, email, phone, couponCode });
+  const quote = await computeEnrollQuote({ programSlug, name, email, phone, state, couponCode });
   if (!quote.ok) {
     return NextResponse.json(quote, { status: 400 });
   }

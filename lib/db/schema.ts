@@ -2,12 +2,25 @@ import {
   boolean,
   integer,
   pgEnum,
+  pgSequence,
   pgTable,
   serial,
   text,
   timestamp,
   varchar,
 } from "drizzle-orm/pg-core";
+
+/**
+ * Invoice numbers must be unique and consecutive (gapless) for GST
+ * compliance — payments.id can't be used directly since not every payment
+ * row that gets created is ever actually invoiced (abandoned/failed
+ * Razorpay links). nextval() is only called at the moment an invoice is
+ * actually generated, so this sequence has no such gaps.
+ */
+export const invoiceNumberSeq = pgSequence("invoice_number_seq", {
+  startWith: 1,
+  increment: 1,
+});
 
 /** All money columns are in paise (smallest INR unit) — matches Razorpay's own API, avoids float rounding. */
 
@@ -66,6 +79,8 @@ export const enrollments = pgTable("enrollments", {
   candidateName: varchar("candidate_name", { length: 255 }).notNull(),
   candidateEmail: varchar("candidate_email", { length: 255 }).notNull(),
   candidatePhone: varchar("candidate_phone", { length: 32 }).notNull(),
+  /** Determines CGST+SGST (same state as CareerZeta, Uttar Pradesh) vs IGST (any other state) on the tax invoice. */
+  candidateState: varchar("candidate_state", { length: 64 }),
   programSlug: varchar("program_slug", { length: 64 }).notNull(),
   couponId: integer("coupon_id").references(() => coupons.id),
   /** Owner of the lead — defaults to the linked coupon's createdBy, or set directly on admin-created enrollments. */
@@ -83,6 +98,8 @@ export const enrollments = pgTable("enrollments", {
   /** Running total of paid (successful) payments, in paise. */
   amountPaid: integer("amount_paid").notNull().default(0),
   status: enrollmentStatusEnum("status").notNull().default("pending"),
+  /** Whether the 60-days-post-enrollment statement invoice has already gone out — prevents resending it on every sweep run. */
+  day60InvoiceSent: boolean("day60_invoice_sent").notNull().default(false),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 });
 

@@ -3,6 +3,7 @@
 import { useState, type FormEvent } from "react";
 
 import Modal from "@/components/ui/Modal";
+import { INDIAN_STATE_NAMES } from "@/lib/indianStates";
 import { formatPaiseAsInr } from "@/lib/money";
 
 type EnrollButtonProps = {
@@ -37,6 +38,7 @@ export default function EnrollButton({ programSlug, programName }: EnrollButtonP
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
+  const [state, setState] = useState("");
   const [couponCode, setCouponCode] = useState("");
   const [quote, setQuote] = useState<Quote | null>(null);
   const [paymentType, setPaymentType] = useState<"full" | "registration">("full");
@@ -49,6 +51,7 @@ export default function EnrollButton({ programSlug, programName }: EnrollButtonP
     setName("");
     setEmail("");
     setPhone("");
+    setState("");
     setCouponCode("");
     setQuote(null);
     setPaymentType("full");
@@ -65,7 +68,7 @@ export default function EnrollButton({ programSlug, programName }: EnrollButtonP
       const res = await fetch("/api/enroll/quote", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ programSlug, name, email, phone, couponCode }),
+        body: JSON.stringify({ programSlug, name, email, phone, state, couponCode }),
       });
       const data = await res.json().catch(() => ({}));
 
@@ -212,6 +215,23 @@ export default function EnrollButton({ programSlug, programName }: EnrollButtonP
               onChange={(e) => setPhone(e.target.value)}
               className="rounded-lg border-2 border-line bg-white px-4 py-3 text-sm outline-none focus:border-sky-400"
             />
+            <select
+              name="state"
+              aria-label="State"
+              required
+              value={state}
+              onChange={(e) => setState(e.target.value)}
+              className="rounded-lg border-2 border-line bg-white px-4 py-3 text-sm outline-none focus:border-sky-400"
+            >
+              <option value="" disabled>
+                State (for your invoice)
+              </option>
+              {INDIAN_STATE_NAMES.map((s) => (
+                <option key={s} value={s}>
+                  {s}
+                </option>
+              ))}
+            </select>
             <input
               name="couponCode"
               type="text"
