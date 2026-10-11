@@ -142,8 +142,11 @@ function CreateEnrollmentForm({ onCreated }: { onCreated: () => void }) {
       className="mt-6 grid gap-5 rounded-2xl border-2 border-line bg-white p-6 sm:grid-cols-2"
     >
       <div>
-        <label className="mb-1.5 block text-xs font-bold text-slate-700">Candidate Name</label>
+        <label htmlFor="enrollment-name" className="mb-1.5 block text-xs font-bold text-slate-700">
+          Candidate Name
+        </label>
         <input
+          id="enrollment-name"
           placeholder="Full name"
           required
           value={name}
@@ -152,8 +155,11 @@ function CreateEnrollmentForm({ onCreated }: { onCreated: () => void }) {
         />
       </div>
       <div>
-        <label className="mb-1.5 block text-xs font-bold text-slate-700">Candidate Email</label>
+        <label htmlFor="enrollment-email" className="mb-1.5 block text-xs font-bold text-slate-700">
+          Candidate Email
+        </label>
         <input
+          id="enrollment-email"
           type="email"
           placeholder="candidate@example.com"
           required
@@ -163,8 +169,11 @@ function CreateEnrollmentForm({ onCreated }: { onCreated: () => void }) {
         />
       </div>
       <div>
-        <label className="mb-1.5 block text-xs font-bold text-slate-700">Candidate Phone</label>
+        <label htmlFor="enrollment-phone" className="mb-1.5 block text-xs font-bold text-slate-700">
+          Candidate Phone
+        </label>
         <input
+          id="enrollment-phone"
           type="tel"
           placeholder="9999999999"
           required
@@ -174,8 +183,11 @@ function CreateEnrollmentForm({ onCreated }: { onCreated: () => void }) {
         />
       </div>
       <div>
-        <label className="mb-1.5 block text-xs font-bold text-slate-700">Program</label>
+        <label htmlFor="enrollment-program" className="mb-1.5 block text-xs font-bold text-slate-700">
+          Program
+        </label>
         <select
+          id="enrollment-program"
           value={programSlug}
           onChange={(e) => setProgramSlug(e.target.value)}
           className="w-full rounded-lg border-2 border-line px-4 py-3 text-sm outline-none focus:border-sky-400"
@@ -188,10 +200,11 @@ function CreateEnrollmentForm({ onCreated }: { onCreated: () => void }) {
         </select>
       </div>
       <div className="sm:col-span-2">
-        <label className="mb-1.5 block text-xs font-bold text-slate-700">
+        <label htmlFor="enrollment-total-fee" className="mb-1.5 block text-xs font-bold text-slate-700">
           Total Agreed Fee (₹, after any discount)
         </label>
         <input
+          id="enrollment-total-fee"
           type="number"
           min="1"
           placeholder="e.g. 105000"
@@ -202,10 +215,11 @@ function CreateEnrollmentForm({ onCreated }: { onCreated: () => void }) {
         />
       </div>
       <div>
-        <label className="mb-1.5 block text-xs font-bold text-slate-700">
+        <label htmlFor="enrollment-sales-exec" className="mb-1.5 block text-xs font-bold text-slate-700">
           Sales Executive (lead owner)
         </label>
         <input
+          id="enrollment-sales-exec"
           placeholder="Your name / initials"
           value={salesExecutive}
           onChange={(e) => setSalesExecutive(e.target.value)}
@@ -213,10 +227,14 @@ function CreateEnrollmentForm({ onCreated }: { onCreated: () => void }) {
         />
       </div>
       <div>
-        <label className="mb-1.5 block text-xs font-bold text-slate-700">
+        <label
+          htmlFor="enrollment-registration-fee"
+          className="mb-1.5 block text-xs font-bold text-slate-700"
+        >
           Registration Fee Amount (optional)
         </label>
         <input
+          id="enrollment-registration-fee"
           type="number"
           min="1"
           placeholder="₹ amount, e.g. 10000"
@@ -408,6 +426,7 @@ function AddPaymentForm({
       className="mt-4 flex flex-wrap items-center gap-3 border-t border-line/60 pt-4"
     >
       <select
+        aria-label="Payment type"
         value={type}
         onChange={(e) => setType(e.target.value as typeof type)}
         className="rounded-lg border-2 border-line px-3 py-2.5 text-sm outline-none focus:border-sky-400"
@@ -419,6 +438,7 @@ function AddPaymentForm({
       <input
         type="number"
         min="1"
+        aria-label="Amount (₹)"
         placeholder="Amount (₹)"
         required
         value={amount}

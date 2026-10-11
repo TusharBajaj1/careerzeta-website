@@ -185,6 +185,7 @@ export default function EnrollButton({ programSlug, programName }: EnrollButtonP
             <input
               name="name"
               type="text"
+              aria-label="Full name"
               placeholder="Full name"
               required
               value={name}
@@ -194,6 +195,7 @@ export default function EnrollButton({ programSlug, programName }: EnrollButtonP
             <input
               name="email"
               type="email"
+              aria-label="Email"
               placeholder="Email"
               required
               value={email}
@@ -203,6 +205,7 @@ export default function EnrollButton({ programSlug, programName }: EnrollButtonP
             <input
               name="phone"
               type="tel"
+              aria-label="Mobile number"
               placeholder="Mobile number"
               required
               value={phone}
@@ -212,6 +215,7 @@ export default function EnrollButton({ programSlug, programName }: EnrollButtonP
             <input
               name="couponCode"
               type="text"
+              aria-label="Coupon code (optional)"
               placeholder="Coupon code (optional)"
               value={couponCode}
               onChange={(e) => setCouponCode(e.target.value)}
@@ -326,6 +330,7 @@ export default function EnrollButton({ programSlug, programName }: EnrollButtonP
             <input
               name="name"
               type="text"
+              aria-label="Full name"
               placeholder="Full name"
               required
               value={name}
@@ -335,6 +340,7 @@ export default function EnrollButton({ programSlug, programName }: EnrollButtonP
             <input
               name="email"
               type="email"
+              aria-label="Email"
               placeholder="Email"
               required
               value={email}
@@ -344,6 +350,7 @@ export default function EnrollButton({ programSlug, programName }: EnrollButtonP
             <input
               name="phone"
               type="tel"
+              aria-label="Mobile number"
               placeholder="Mobile number"
               required
               value={phone}

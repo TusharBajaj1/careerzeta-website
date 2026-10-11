@@ -123,8 +123,11 @@ export default function CouponsClient({ initialCoupons }: { initialCoupons: Coup
         className="mt-8 grid gap-5 rounded-2xl border-2 border-line bg-white p-6 sm:grid-cols-2"
       >
         <div>
-          <label className="mb-1.5 block text-xs font-bold text-slate-700">Coupon Code</label>
+          <label htmlFor="coupon-code" className="mb-1.5 block text-xs font-bold text-slate-700">
+            Coupon Code
+          </label>
           <input
+            id="coupon-code"
             placeholder="e.g. ZETA10"
             required
             value={code}
@@ -133,10 +136,11 @@ export default function CouponsClient({ initialCoupons }: { initialCoupons: Coup
           />
         </div>
         <div>
-          <label className="mb-1.5 block text-xs font-bold text-slate-700">
+          <label htmlFor="coupon-created-by" className="mb-1.5 block text-xs font-bold text-slate-700">
             Created By (Sales Executive)
           </label>
           <input
+            id="coupon-created-by"
             placeholder="Your name / initials"
             required
             value={createdBy}
@@ -146,9 +150,12 @@ export default function CouponsClient({ initialCoupons }: { initialCoupons: Coup
         </div>
 
         <div className="sm:col-span-2">
-          <label className="mb-1.5 block text-xs font-bold text-slate-700">Discount</label>
+          <label htmlFor="coupon-discount-type" className="mb-1.5 block text-xs font-bold text-slate-700">
+            Discount
+          </label>
           <div className="flex gap-2">
             <select
+              id="coupon-discount-type"
               value={discountType}
               onChange={(e) => setDiscountType(e.target.value as "percent" | "amount")}
               className="rounded-lg border-2 border-line px-4 py-3 text-sm outline-none focus:border-sky-400"
@@ -159,6 +166,7 @@ export default function CouponsClient({ initialCoupons }: { initialCoupons: Coup
             <input
               type="number"
               min="1"
+              aria-label="Discount value"
               placeholder={discountType === "percent" ? "e.g. 10" : "e.g. 5000"}
               required
               value={discountValue}
@@ -169,10 +177,11 @@ export default function CouponsClient({ initialCoupons }: { initialCoupons: Coup
         </div>
 
         <div>
-          <label className="mb-1.5 block text-xs font-bold text-slate-700">
+          <label htmlFor="coupon-program" className="mb-1.5 block text-xs font-bold text-slate-700">
             Program (leave as-is to apply to any program)
           </label>
           <select
+            id="coupon-program"
             value={programSlug}
             onChange={(e) => setProgramSlug(e.target.value)}
             className="w-full rounded-lg border-2 border-line px-4 py-3 text-sm outline-none focus:border-sky-400"
@@ -186,8 +195,11 @@ export default function CouponsClient({ initialCoupons }: { initialCoupons: Coup
           </select>
         </div>
         <div>
-          <label className="mb-1.5 block text-xs font-bold text-slate-700">Max Uses</label>
+          <label htmlFor="coupon-max-uses" className="mb-1.5 block text-xs font-bold text-slate-700">
+            Max Uses
+          </label>
           <input
+            id="coupon-max-uses"
             type="number"
             min="1"
             placeholder="Default 1"
@@ -198,8 +210,11 @@ export default function CouponsClient({ initialCoupons }: { initialCoupons: Coup
         </div>
 
         <div>
-          <label className="mb-1.5 block text-xs font-bold text-slate-700">Candidate Email</label>
+          <label htmlFor="coupon-candidate-email" className="mb-1.5 block text-xs font-bold text-slate-700">
+            Candidate Email
+          </label>
           <input
+            id="coupon-candidate-email"
             type="email"
             placeholder="candidate@example.com"
             value={candidateEmail}
@@ -208,8 +223,11 @@ export default function CouponsClient({ initialCoupons }: { initialCoupons: Coup
           />
         </div>
         <div>
-          <label className="mb-1.5 block text-xs font-bold text-slate-700">Candidate Phone</label>
+          <label htmlFor="coupon-candidate-phone" className="mb-1.5 block text-xs font-bold text-slate-700">
+            Candidate Phone
+          </label>
           <input
+            id="coupon-candidate-phone"
             type="tel"
             placeholder="9999999999"
             value={candidatePhone}
@@ -223,10 +241,14 @@ export default function CouponsClient({ initialCoupons }: { initialCoupons: Coup
         </p>
 
         <div className="sm:col-span-2">
-          <label className="mb-1.5 block text-xs font-bold text-slate-700">
+          <label
+            htmlFor="coupon-registration-fee"
+            className="mb-1.5 block text-xs font-bold text-slate-700"
+          >
             Registration Fee Amount (optional)
           </label>
           <input
+            id="coupon-registration-fee"
             type="number"
             min="1"
             placeholder="₹ amount, e.g. 10000"
@@ -241,10 +263,11 @@ export default function CouponsClient({ initialCoupons }: { initialCoupons: Coup
         </p>
 
         <div>
-          <label className="mb-1.5 block text-xs font-bold text-slate-700">
+          <label htmlFor="coupon-expires-at" className="mb-1.5 block text-xs font-bold text-slate-700">
             Expiry Date (optional)
           </label>
           <input
+            id="coupon-expires-at"
             type="date"
             value={expiresAt}
             onChange={(e) => setExpiresAt(e.target.value)}
@@ -252,8 +275,11 @@ export default function CouponsClient({ initialCoupons }: { initialCoupons: Coup
           />
         </div>
         <div>
-          <label className="mb-1.5 block text-xs font-bold text-slate-700">Notes (optional)</label>
+          <label htmlFor="coupon-notes" className="mb-1.5 block text-xs font-bold text-slate-700">
+            Notes (optional)
+          </label>
           <input
+            id="coupon-notes"
             placeholder="Any internal notes"
             value={notes}
             onChange={(e) => setNotes(e.target.value)}

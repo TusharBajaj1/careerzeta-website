@@ -64,6 +64,7 @@ function LoginForm() {
           <input
             name="username"
             type="text"
+            aria-label="Username"
             placeholder="Username"
             required
             value={username}
@@ -73,6 +74,7 @@ function LoginForm() {
           <input
             name="password"
             type="password"
+            aria-label="Password"
             placeholder="Password"
             required
             value={password}
