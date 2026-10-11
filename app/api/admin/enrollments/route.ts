@@ -35,7 +35,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "invalid_payload" }, { status: 400 });
   }
 
-  const { name, email, phone, programSlug, totalFee, salesExecutive } = body;
+  const { name, email, phone, programSlug, totalFee, salesExecutive, registrationFeeAmount } = body;
 
   if (
     typeof name !== "string" ||
@@ -47,7 +47,10 @@ export async function POST(request: Request) {
     typeof programSlug !== "string" ||
     !PROGRAM_SLUGS.has(programSlug) ||
     typeof totalFee !== "number" ||
-    totalFee <= 0
+    totalFee <= 0 ||
+    (registrationFeeAmount !== undefined &&
+      registrationFeeAmount !== null &&
+      (typeof registrationFeeAmount !== "number" || registrationFeeAmount <= 0))
   ) {
     return NextResponse.json({ error: "invalid_payload" }, { status: 400 });
   }
@@ -61,6 +64,8 @@ export async function POST(request: Request) {
       programSlug,
       salesExecutive: typeof salesExecutive === "string" && salesExecutive.trim() ? salesExecutive.trim() : null,
       totalFee: rupeesToPaise(totalFee),
+      registrationFeeAmount:
+        typeof registrationFeeAmount === "number" ? rupeesToPaise(registrationFeeAmount) : null,
       status: "pending",
     })
     .returning();

@@ -11,6 +11,7 @@ type EnrollButtonProps = {
 };
 
 type Quote = {
+  enrollmentId: number;
   originalFeePaise: number;
   discountPaise: number;
   finalFeePaise: number;
@@ -64,7 +65,7 @@ export default function EnrollButton({ programSlug, programName }: EnrollButtonP
       const res = await fetch("/api/enroll/quote", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ programSlug, email, phone, couponCode }),
+        body: JSON.stringify({ programSlug, name, email, phone, couponCode }),
       });
       const data = await res.json().catch(() => ({}));
 
@@ -85,6 +86,7 @@ export default function EnrollButton({ programSlug, programName }: EnrollButtonP
   }
 
   async function handlePay() {
+    if (!quote) return;
     setError(null);
     setSubmitting(true);
 
@@ -92,7 +94,7 @@ export default function EnrollButton({ programSlug, programName }: EnrollButtonP
       const res = await fetch("/api/enroll", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ programSlug, name, email, phone, couponCode, paymentType }),
+        body: JSON.stringify({ enrollmentId: quote.enrollmentId, paymentType }),
       });
       const data = await res.json().catch(() => ({}));
 

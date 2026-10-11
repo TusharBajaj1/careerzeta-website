@@ -72,6 +72,14 @@ export const enrollments = pgTable("enrollments", {
   salesExecutive: varchar("sales_executive", { length: 128 }),
   /** Final price in paise, after any discount — what the candidate owes in total. */
   totalFee: integer("total_fee").notNull(),
+  /**
+   * Registration-fee amount in paise, if this candidate has one — set by
+   * the sales exec directly (admin-created enrollment) or copied in from
+   * the coupon they used at self-registration. Null means only full
+   * payment is offered. This is the field a self-service candidate's quote
+   * reads when they're matched to an existing pending enrollment by email.
+   */
+  registrationFeeAmount: integer("registration_fee_amount"),
   /** Running total of paid (successful) payments, in paise. */
   amountPaid: integer("amount_paid").notNull().default(0),
   status: enrollmentStatusEnum("status").notNull().default("pending"),

@@ -29,6 +29,7 @@ export type EnrollmentRow = {
   couponId: number | null;
   salesExecutive: string | null;
   totalFee: number;
+  registrationFeeAmount: number | null;
   amountPaid: number;
   status: "pending" | "registration_paid" | "fully_paid" | "cancelled";
   createdAt: string;
@@ -101,6 +102,7 @@ function CreateEnrollmentForm({ onCreated }: { onCreated: () => void }) {
   const [phone, setPhone] = useState("");
   const [programSlug, setProgramSlug] = useState(PROGRAMS[0]?.slug ?? "");
   const [totalFee, setTotalFee] = useState("");
+  const [registrationFeeAmount, setRegistrationFeeAmount] = useState("");
   const [salesExecutive, setSalesExecutive] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
@@ -119,6 +121,7 @@ function CreateEnrollmentForm({ onCreated }: { onCreated: () => void }) {
         phone,
         programSlug,
         totalFee: Number(totalFee),
+        registrationFeeAmount: registrationFeeAmount ? Number(registrationFeeAmount) : null,
         salesExecutive,
       }),
     });
@@ -187,6 +190,19 @@ function CreateEnrollmentForm({ onCreated }: { onCreated: () => void }) {
         onChange={(e) => setSalesExecutive(e.target.value)}
         className="rounded-lg border-2 border-line px-4 py-3 text-sm outline-none focus:border-sky-400"
       />
+      <input
+        type="number"
+        min="1"
+        placeholder="Registration fee amount (₹, optional)"
+        value={registrationFeeAmount}
+        onChange={(e) => setRegistrationFeeAmount(e.target.value)}
+        className="rounded-lg border-2 border-line px-4 py-3 text-sm outline-none focus:border-sky-400"
+      />
+      <p className="text-xs opacity-60 sm:col-span-2">
+        Optional — if set, this exact amount automatically shows up as the &quot;pay a
+        registration fee&quot; option when this candidate enrolls themselves on /programs
+        (matched by email), without needing a coupon.
+      </p>
 
       {error && <p className="text-sm text-red-600 sm:col-span-2">{error}</p>}
 
@@ -232,6 +248,11 @@ function EnrollmentCard({
           <div className="mt-1 text-sm font-semibold text-sky-700">{programName}</div>
           {enrollment.salesExecutive && (
             <div className="mt-1 text-xs opacity-60">Sales Executive: {enrollment.salesExecutive}</div>
+          )}
+          {enrollment.registrationFeeAmount !== null && (
+            <div className="mt-1 text-xs opacity-60">
+              Registration fee offered: {formatPaiseAsInr(enrollment.registrationFeeAmount)}
+            </div>
           )}
         </div>
         <div className="flex items-center gap-3">

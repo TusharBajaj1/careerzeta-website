@@ -4,9 +4,11 @@ import { computeEnrollQuote } from "@/lib/enrollQuote";
 import { isValidEmail, isValidMobile } from "@/lib/forms";
 
 /**
- * Read-only: shows the candidate their discounted fee (and the 10%
- * registration-fee option) before they commit to anything. No DB writes —
- * the real validation happens again in /api/enroll when they actually pay.
+ * Finds or creates the candidate's enrollment and shows them their fee
+ * (and the registration-fee option, if one applies) before they pay.
+ * This is where the enrollment row is actually created, so it's visible
+ * in /admin/enrollments right away — even if the candidate never
+ * completes payment.
  */
 export async function POST(request: Request) {
   const body = await request.json().catch(() => null);
@@ -14,10 +16,12 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "invalid_payload" }, { status: 400 });
   }
 
-  const { programSlug, email, phone, couponCode } = body;
+  const { programSlug, name, email, phone, couponCode } = body;
 
   if (
     typeof programSlug !== "string" ||
+    typeof name !== "string" ||
+    !name.trim() ||
     typeof email !== "string" ||
     !isValidEmail(email) ||
     typeof phone !== "string" ||
@@ -26,12 +30,13 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "invalid_payload" }, { status: 400 });
   }
 
-  const quote = await computeEnrollQuote({ programSlug, email, phone, couponCode });
+  const quote = await computeEnrollQuote({ programSlug, name, email, phone, couponCode });
   if (!quote.ok) {
     return NextResponse.json(quote, { status: 400 });
   }
 
   return NextResponse.json({
+    enrollmentId: quote.enrollmentId,
     originalFeePaise: quote.originalFeePaise,
     discountPaise: quote.discountPaise,
     finalFeePaise: quote.finalFeePaise,
