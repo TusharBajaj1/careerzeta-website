@@ -237,6 +237,12 @@ function EnrollmentCard({
     onChanged();
   }
 
+  async function handleDelete() {
+    if (!confirm("Delete this enrollment permanently? This can't be undone.")) return;
+    await fetch(`/api/admin/enrollments/${enrollment.id}`, { method: "DELETE" });
+    onChanged();
+  }
+
   return (
     <div className="rounded-2xl border-2 border-line bg-white p-6">
       <div className="flex flex-wrap items-start justify-between gap-3">
@@ -262,6 +268,11 @@ function EnrollmentCard({
           {enrollment.status !== "cancelled" && (
             <button onClick={handleCancel} className="text-sm text-red-600 hover:underline">
               Cancel
+            </button>
+          )}
+          {enrollment.amountPaid === 0 && (
+            <button onClick={handleDelete} className="text-sm text-red-600 hover:underline">
+              Delete
             </button>
           )}
         </div>

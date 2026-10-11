@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { eq } from "drizzle-orm";
 
 import { db } from "@/lib/db";
-import { enrollments } from "@/lib/db/schema";
+import { enrollments, payments } from "@/lib/db/schema";
 
 export async function PATCH(
   request: Request,
@@ -30,4 +30,30 @@ export async function PATCH(
   }
 
   return NextResponse.json({ enrollment: updated });
+}
+
+/** Only removes an enrollment that's never actually been paid — anything with real payment history keeps using Cancel instead. */
+export async function DELETE(
+  _request: Request,
+  { params }: { params: Promise<{ id: string }> },
+) {
+  const { id } = await params;
+  const enrollmentId = Number(id);
+  if (!Number.isInteger(enrollmentId)) {
+    return NextResponse.json({ error: "invalid_id" }, { status: 400 });
+  }
+
+  const [enrollment] = await db.select().from(enrollments).where(eq(enrollments.id, enrollmentId)).limit(1);
+  if (!enrollment) {
+    return NextResponse.json({ error: "not_found" }, { status: 404 });
+  }
+  if (enrollment.amountPaid > 0) {
+    return NextResponse.json({ error: "enrollment_already_paid" }, { status: 400 });
+  }
+
+  // Any payments on an unpaid enrollment are just stale "created"/unpaid link attempts.
+  await db.delete(payments).where(eq(payments.enrollmentId, enrollmentId));
+  await db.delete(enrollments).where(eq(enrollments.id, enrollmentId));
+
+  return NextResponse.json({ ok: true });
 }

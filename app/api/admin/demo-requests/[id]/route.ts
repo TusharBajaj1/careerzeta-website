@@ -31,3 +31,21 @@ export async function PATCH(
 
   return NextResponse.json({ demoRequest: updated });
 }
+
+export async function DELETE(
+  _request: Request,
+  { params }: { params: Promise<{ id: string }> },
+) {
+  const { id } = await params;
+  const requestId = Number(id);
+  if (!Number.isInteger(requestId)) {
+    return NextResponse.json({ error: "invalid_id" }, { status: 400 });
+  }
+
+  const [deleted] = await db.delete(demoRequests).where(eq(demoRequests.id, requestId)).returning();
+  if (!deleted) {
+    return NextResponse.json({ error: "not_found" }, { status: 404 });
+  }
+
+  return NextResponse.json({ ok: true });
+}

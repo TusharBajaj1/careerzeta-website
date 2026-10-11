@@ -32,6 +32,14 @@ export default function DemoRequestsClient({
     setRequests(data.demoRequests ?? []);
   }
 
+  async function handleDelete(id: number) {
+    if (!confirm("Delete this demo request permanently? This can't be undone.")) return;
+    await fetch(`/api/admin/demo-requests/${id}`, { method: "DELETE" });
+    const res = await fetch("/api/admin/demo-requests");
+    const data = await res.json();
+    setRequests(data.demoRequests ?? []);
+  }
+
   return (
     <div className="mt-10 overflow-x-auto">
       {requests.length === 0 ? (
@@ -70,12 +78,17 @@ export default function DemoRequestsClient({
                   </span>
                 </td>
                 <td className="py-3 pr-4">
-                  <button
-                    onClick={() => toggleContacted(r.id, !r.contacted)}
-                    className="text-sky-700 hover:underline"
-                  >
-                    {r.contacted ? "Mark as new" : "Mark contacted"}
-                  </button>
+                  <div className="flex gap-3">
+                    <button
+                      onClick={() => toggleContacted(r.id, !r.contacted)}
+                      className="text-sky-700 hover:underline"
+                    >
+                      {r.contacted ? "Mark as new" : "Mark contacted"}
+                    </button>
+                    <button onClick={() => handleDelete(r.id)} className="text-red-600 hover:underline">
+                      Delete
+                    </button>
+                  </div>
                 </td>
               </tr>
             ))}

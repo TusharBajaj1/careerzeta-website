@@ -110,6 +110,12 @@ export default function CouponsClient({ initialCoupons }: { initialCoupons: Coup
     refresh();
   }
 
+  async function handleDelete(id: number) {
+    if (!confirm("Delete this coupon permanently? This can't be undone.")) return;
+    await fetch(`/api/admin/coupons/${id}`, { method: "DELETE" });
+    refresh();
+  }
+
   return (
     <>
       <form
@@ -266,14 +272,24 @@ export default function CouponsClient({ initialCoupons }: { initialCoupons: Coup
                   <td className="py-3 pr-4 capitalize">{c.status}</td>
                   <td className="py-3 pr-4">{c.createdBy}</td>
                   <td className="py-3 pr-4">
-                    {c.status === "active" && (
-                      <button
-                        onClick={() => handleRevoke(c.id)}
-                        className="text-red-600 hover:underline"
-                      >
-                        Revoke
-                      </button>
-                    )}
+                    <div className="flex gap-3">
+                      {c.status === "active" && (
+                        <button
+                          onClick={() => handleRevoke(c.id)}
+                          className="text-red-600 hover:underline"
+                        >
+                          Revoke
+                        </button>
+                      )}
+                      {c.usedCount === 0 && (
+                        <button
+                          onClick={() => handleDelete(c.id)}
+                          className="text-red-600 hover:underline"
+                        >
+                          Delete
+                        </button>
+                      )}
+                    </div>
                   </td>
                 </tr>
               ))}
