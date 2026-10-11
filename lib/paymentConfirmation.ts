@@ -34,7 +34,11 @@ export async function confirmPaymentPaid(params: {
   const paidAt = new Date();
   const [updatedPayment] = await db
     .update(payments)
-    .set({ status: "paid", razorpayPaymentId: razorpayPaymentId ?? null, paidAt })
+    // amount is overwritten to what was actually received — may differ from
+    // the amount the payment link/row was originally created for (e.g. a
+    // manual confirm where the candidate paid a different amount outside
+    // Razorpay), so the stored record and invoice reflect reality.
+    .set({ status: "paid", amount: capturedAmountPaise, razorpayPaymentId: razorpayPaymentId ?? null, paidAt })
     .where(eq(payments.id, paymentId))
     .returning();
 

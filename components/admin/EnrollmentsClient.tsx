@@ -3,7 +3,7 @@
 import { useState, type FormEvent } from "react";
 
 import { PROGRAMS } from "@/lib/content";
-import { formatPaiseAsInr } from "@/lib/money";
+import { formatPaiseAsInr, paiseToRupees } from "@/lib/money";
 
 export type PaymentRow = {
   id: number;
@@ -288,16 +288,6 @@ function EnrollmentCard({
     onChanged();
   }
 
-  async function handleMarkPaid(paymentId: number) {
-    if (
-      !confirm(
-        "Mark this payment as received? This sends the invoice email to the candidate right away — only do this once the money has actually come in.",
-      )
-    )
-      return;
-    await fetch(`/api/admin/payments/${paymentId}/confirm`, { method: "POST" });
-    onChanged();
-  }
 
   return (
     <div className="rounded-2xl border-2 border-line bg-white p-6">
@@ -374,12 +364,7 @@ function EnrollmentCard({
                         Payment link
                       </a>
                     )}
-                    <button
-                      onClick={() => handleMarkPaid(p.id)}
-                      className="text-green-700 hover:underline"
-                    >
-                      Mark as Paid
-                    </button>
+                    <MarkPaidControl payment={p} onConfirmed={onChanged} />
                   </div>
                 )}
               </li>
@@ -392,6 +377,76 @@ function EnrollmentCard({
         <AddPaymentForm enrollment={enrollment} onAdded={onChanged} />
       )}
     </div>
+  );
+}
+
+function MarkPaidControl({ payment, onConfirmed }: { payment: PaymentRow; onConfirmed: () => void }) {
+  const [open, setOpen] = useState(false);
+  const [amount, setAmount] = useState(String(paiseToRupees(payment.amount)));
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  async function handleConfirm(e: FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    setError(null);
+
+    if (
+      !confirm(
+        "Mark this payment as received? This sends the invoice email to the candidate right away — only do this once the money has actually come in.",
+      )
+    ) {
+      return;
+    }
+
+    setSubmitting(true);
+    const res = await fetch(`/api/admin/payments/${payment.id}/confirm`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ amount: Number(amount) }),
+    });
+
+    if (!res.ok) {
+      setError("Couldn't confirm the payment — try again.");
+      setSubmitting(false);
+      return;
+    }
+
+    setSubmitting(false);
+    setOpen(false);
+    onConfirmed();
+  }
+
+  if (!open) {
+    return (
+      <button onClick={() => setOpen(true)} className="text-green-700 hover:underline">
+        Mark as Paid
+      </button>
+    );
+  }
+
+  return (
+    <form onSubmit={handleConfirm} className="flex items-center gap-2">
+      <input
+        type="number"
+        min="1"
+        step="0.01"
+        aria-label="Amount actually received (₹)"
+        value={amount}
+        onChange={(e) => setAmount(e.target.value)}
+        className="w-28 rounded-lg border-2 border-line px-2 py-1.5 text-sm outline-none focus:border-sky-400"
+      />
+      <button
+        type="submit"
+        disabled={submitting}
+        className="rounded-lg bg-green-700 px-3 py-1.5 text-xs font-bold text-white disabled:opacity-60"
+      >
+        {submitting ? "Confirming…" : "Confirm"}
+      </button>
+      <button type="button" onClick={() => setOpen(false)} className="text-xs opacity-60 hover:underline">
+        Cancel
+      </button>
+      {error && <span className="text-xs text-red-600">{error}</span>}
+    </form>
   );
 }
 
