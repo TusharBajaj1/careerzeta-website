@@ -1,10 +1,11 @@
 "use client";
 
 import { Suspense, useState, type FormEvent } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
+
+const LOGIN_TIMEOUT_MS = 15000;
 
 function LoginForm() {
-  const router = useRouter();
   const searchParams = useSearchParams();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
@@ -16,11 +17,15 @@ function LoginForm() {
     setError(null);
     setSubmitting(true);
 
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), LOGIN_TIMEOUT_MS);
+
     try {
       const res = await fetch("/api/admin/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ username, password }),
+        signal: controller.signal,
       });
 
       if (!res.ok) {
@@ -29,11 +34,20 @@ function LoginForm() {
         return;
       }
 
-      router.replace(searchParams.get("next") || "/admin");
-      router.refresh();
-    } catch {
-      setError("Something went wrong — please try again.");
+      // A full navigation (not router.replace/refresh) guarantees the
+      // browser sends the just-set session cookie on a fresh request to
+      // the proxy-gated route — avoids the client router getting stuck
+      // mid-transition, which showed up as the login page hanging.
+      window.location.href = searchParams.get("next") || "/admin";
+    } catch (err) {
+      setError(
+        err instanceof DOMException && err.name === "AbortError"
+          ? "That took too long — please try again."
+          : "Something went wrong — please try again.",
+      );
       setSubmitting(false);
+    } finally {
+      clearTimeout(timeout);
     }
   }
 
