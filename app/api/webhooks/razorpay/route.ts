@@ -2,8 +2,8 @@ import { NextResponse } from "next/server";
 import { eq } from "drizzle-orm";
 
 import { db } from "@/lib/db";
-import { coupons, enrollments, payments } from "@/lib/db/schema";
-import { sendPaymentInvoice } from "@/lib/invoiceEmail";
+import { payments } from "@/lib/db/schema";
+import { confirmPaymentPaid } from "@/lib/paymentConfirmation";
 import { verifyRazorpayWebhookSignature } from "@/lib/razorpay";
 
 /**
@@ -11,7 +11,9 @@ import { verifyRazorpayWebhookSignature } from "@/lib/razorpay";
  * candidate completes checkout on a hosted payment link. Covers both the
  * public full-fee flow (/api/enroll) and admin-created registration/balance
  * links (task #44), since both write a `payments` row with the link ID
- * before the candidate ever sees the link.
+ * before the candidate ever sees the link — including links the sales team
+ * shares directly over email/WhatsApp rather than through the website,
+ * since this fires off the payment link itself, not website traffic.
  */
 export async function POST(request: Request) {
   const rawBody = await request.text();
@@ -48,51 +50,9 @@ export async function POST(request: Request) {
     return NextResponse.json({ received: true });
   }
 
-  // Razorpay retries webhooks until it gets a 2xx — this makes re-delivery a no-op.
-  if (payment.status === "paid") {
-    return NextResponse.json({ received: true });
-  }
-
-  const paidAt = new Date();
-  const [updatedPayment] = await db
-    .update(payments)
-    .set({ status: "paid", razorpayPaymentId, paidAt })
-    .where(eq(payments.id, payment.id))
-    .returning();
-
-  const [enrollment] = await db
-    .select()
-    .from(enrollments)
-    .where(eq(enrollments.id, payment.enrollmentId))
-    .limit(1);
-
-  if (enrollment) {
-    // A coupon is "used" once its enrollment makes its first successful
-    // payment — not per-payment, since one coupon covers the whole
-    // enrollment even when it's paid in a registration-fee + balance split.
-    if (enrollment.couponId && enrollment.amountPaid === 0) {
-      const [coupon] = await db.select().from(coupons).where(eq(coupons.id, enrollment.couponId)).limit(1);
-      if (coupon) {
-        await db.update(coupons).set({ usedCount: coupon.usedCount + 1 }).where(eq(coupons.id, coupon.id));
-      }
-    }
-
-    const amountPaid = enrollment.amountPaid + capturedAmount;
-    const status = amountPaid >= enrollment.totalFee ? "fully_paid" : "registration_paid";
-
-    const [updatedEnrollment] = await db
-      .update(enrollments)
-      .set({ amountPaid, status })
-      .where(eq(enrollments.id, enrollment.id))
-      .returning();
-
-    try {
-      const { invoiceNumber, sent } = await sendPaymentInvoice(updatedPayment, updatedEnrollment);
-      await db.update(payments).set({ invoiceSent: sent, invoiceNumber }).where(eq(payments.id, payment.id));
-    } catch (err) {
-      console.error(`Invoice email failed for payment ${payment.id}:`, err);
-    }
-  }
+  // confirmPaymentPaid no-ops if already paid — makes both Razorpay's own
+  // webhook retries and a prior manual "Mark as Paid" override harmless.
+  await confirmPaymentPaid({ paymentId: payment.id, capturedAmountPaise: capturedAmount, razorpayPaymentId });
 
   return NextResponse.json({ received: true });
 }

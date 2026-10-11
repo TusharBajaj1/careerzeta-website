@@ -288,6 +288,17 @@ function EnrollmentCard({
     onChanged();
   }
 
+  async function handleMarkPaid(paymentId: number) {
+    if (
+      !confirm(
+        "Mark this payment as received? This sends the invoice email to the candidate right away — only do this once the money has actually come in.",
+      )
+    )
+      return;
+    await fetch(`/api/admin/payments/${paymentId}/confirm`, { method: "POST" });
+    onChanged();
+  }
+
   return (
     <div className="rounded-2xl border-2 border-line bg-white p-6">
       <div className="flex flex-wrap items-start justify-between gap-3">
@@ -351,15 +362,25 @@ function EnrollmentCard({
                   </span>
                   {p.invoiceNumber && <span className="opacity-60"> ({p.invoiceNumber})</span>}
                 </span>
-                {p.status !== "paid" && p.paymentLinkUrl && (
-                  <a
-                    href={p.paymentLinkUrl}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="text-sky-700 hover:underline"
-                  >
-                    Payment link
-                  </a>
+                {p.status !== "paid" && (
+                  <div className="flex items-center gap-3">
+                    {p.paymentLinkUrl && (
+                      <a
+                        href={p.paymentLinkUrl}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="text-sky-700 hover:underline"
+                      >
+                        Payment link
+                      </a>
+                    )}
+                    <button
+                      onClick={() => handleMarkPaid(p.id)}
+                      className="text-green-700 hover:underline"
+                    >
+                      Mark as Paid
+                    </button>
+                  </div>
                 )}
               </li>
             ))}
