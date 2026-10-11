@@ -30,6 +30,7 @@ export async function POST(request: Request) {
     expiresAt,
     createdBy,
     notes,
+    registrationFeeAmount,
   } = body;
 
   if (typeof code !== "string" || !code.trim()) {
@@ -55,6 +56,13 @@ export async function POST(request: Request) {
   if (typeof createdBy !== "string" || !createdBy.trim()) {
     return NextResponse.json({ error: "created_by_required" }, { status: 400 });
   }
+  if (
+    registrationFeeAmount !== undefined &&
+    registrationFeeAmount !== null &&
+    (typeof registrationFeeAmount !== "number" || registrationFeeAmount <= 0)
+  ) {
+    return NextResponse.json({ error: "invalid_registration_fee_amount" }, { status: 400 });
+  }
 
   try {
     const [created] = await db
@@ -67,6 +75,8 @@ export async function POST(request: Request) {
         candidateEmail: hasEmail ? candidateEmail.trim() : null,
         candidatePhone: hasPhone ? candidatePhone.trim() : null,
         maxUses: typeof maxUses === "number" && maxUses > 0 ? Math.round(maxUses) : 1,
+        registrationFeeAmount:
+          typeof registrationFeeAmount === "number" ? rupeesToPaise(registrationFeeAmount) : null,
         // Stored as end-of-day IST, not UTC midnight — otherwise a coupon set
         // to expire "today" would already look expired by 5:30am IST (UTC+5:30).
         expiresAt: expiresAt ? new Date(`${expiresAt}T23:59:59+05:30`) : null,

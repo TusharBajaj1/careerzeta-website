@@ -51,6 +51,8 @@ export const coupons = pgTable("coupons", {
   candidatePhone: varchar("candidate_phone", { length: 32 }),
   maxUses: integer("max_uses").notNull().default(1),
   usedCount: integer("used_count").notNull().default(0),
+  /** Case-by-case registration-fee amount in paise the sales exec negotiated for this candidate — null means the "pay a registration fee" option isn't offered to anyone using this coupon. */
+  registrationFeeAmount: integer("registration_fee_amount"),
   expiresAt: timestamp("expires_at", { withTimezone: true }),
   status: couponStatusEnum("status").notNull().default("active"),
   /** Free-text name/initials of the admin who created it — no per-user accounts, so no FK. */
@@ -94,9 +96,21 @@ export const payments = pgTable("payments", {
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 });
 
+export const demoRequests = pgTable("demo_requests", {
+  id: serial("id").primaryKey(),
+  candidateName: varchar("candidate_name", { length: 255 }).notNull(),
+  candidateEmail: varchar("candidate_email", { length: 255 }).notNull(),
+  candidatePhone: varchar("candidate_phone", { length: 32 }).notNull(),
+  programSlug: varchar("program_slug", { length: 64 }).notNull(),
+  contacted: boolean("contacted").notNull().default(false),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+});
+
 export type Coupon = typeof coupons.$inferSelect;
 export type NewCoupon = typeof coupons.$inferInsert;
 export type Enrollment = typeof enrollments.$inferSelect;
 export type NewEnrollment = typeof enrollments.$inferInsert;
 export type Payment = typeof payments.$inferSelect;
 export type NewPayment = typeof payments.$inferInsert;
+export type DemoRequest = typeof demoRequests.$inferSelect;
+export type NewDemoRequest = typeof demoRequests.$inferInsert;

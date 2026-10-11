@@ -36,7 +36,10 @@ export async function POST(request: Request) {
   }
   const { program, finalFeePaise, registrationFeePaise, couponId, salesExecutive } = quote;
 
-  const paymentAmountPaise = paymentType === "registration" ? registrationFeePaise : finalFeePaise;
+  if (paymentType === "registration" && registrationFeePaise === null) {
+    return NextResponse.json({ error: "registration_fee_not_available" }, { status: 400 });
+  }
+  const paymentAmountPaise = paymentType === "registration" ? registrationFeePaise! : finalFeePaise;
 
   const razorpay = getRazorpayClient();
   if (!razorpay) {

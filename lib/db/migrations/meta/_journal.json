@@ -15,6 +15,13 @@
       "when": 1791654072137,
       "tag": "0001_peaceful_colleen_wing",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1791709715911,
+      "tag": "0002_bumpy_magik",
+      "breakpoints": true
     }
   ]
 }

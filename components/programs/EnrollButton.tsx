@@ -14,7 +14,7 @@ type Quote = {
   originalFeePaise: number;
   discountPaise: number;
   finalFeePaise: number;
-  registrationFeePaise: number;
+  registrationFeePaise: number | null;
 };
 
 type ApiError = { error?: string; reason?: string };
@@ -27,9 +27,11 @@ function errorMessage(data: ApiError): string {
   return "Something went wrong — please try again, or contact us directly.";
 }
 
+type Step = "choice" | "payDetails" | "pay" | "demoDetails" | "demoSuccess";
+
 export default function EnrollButton({ programSlug, programName }: EnrollButtonProps) {
   const [open, setOpen] = useState(false);
-  const [step, setStep] = useState<"details" | "pay">("details");
+  const [step, setStep] = useState<Step>("choice");
 
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -42,7 +44,7 @@ export default function EnrollButton({ programSlug, programName }: EnrollButtonP
   const [submitting, setSubmitting] = useState(false);
 
   function reset() {
-    setStep("details");
+    setStep("choice");
     setName("");
     setEmail("");
     setPhone("");
@@ -53,7 +55,7 @@ export default function EnrollButton({ programSlug, programName }: EnrollButtonP
     setSubmitting(false);
   }
 
-  async function handleContinue(e: FormEvent<HTMLFormElement>) {
+  async function handleQuote(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setError(null);
     setSubmitting(true);
@@ -73,6 +75,7 @@ export default function EnrollButton({ programSlug, programName }: EnrollButtonP
       }
 
       setQuote(data);
+      setPaymentType("full");
       setStep("pay");
       setSubmitting(false);
     } catch {
@@ -106,6 +109,35 @@ export default function EnrollButton({ programSlug, programName }: EnrollButtonP
     }
   }
 
+  async function handleDemoRequest(e: FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    setError(null);
+    setSubmitting(true);
+
+    try {
+      const res = await fetch("/api/demo-request", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ programSlug, name, email, phone }),
+      });
+
+      if (!res.ok) {
+        setError("Something went wrong — please try again, or contact us directly.");
+        setSubmitting(false);
+        return;
+      }
+
+      setStep("demoSuccess");
+      setSubmitting(false);
+    } catch {
+      setError("Something went wrong — please try again, or contact us directly.");
+      setSubmitting(false);
+    }
+  }
+
+  const title =
+    step === "demoSuccess" ? `Request received — ${programName}` : `Enroll — ${programName}`;
+
   return (
     <>
       <button
@@ -122,10 +154,32 @@ export default function EnrollButton({ programSlug, programName }: EnrollButtonP
           setOpen(false);
           reset();
         }}
-        title={`Enroll — ${programName}`}
+        title={title}
       >
-        {step === "details" ? (
-          <form onSubmit={handleContinue} className="flex flex-col gap-4">
+        {step === "choice" && (
+          <div className="flex flex-col gap-4">
+            <button
+              type="button"
+              onClick={() => setStep("payDetails")}
+              className="w-full rounded-lg bg-sky-400 px-7 py-4 text-base font-bold text-slate-900 transition-transform duration-150 hover:scale-105"
+            >
+              Pay Fee
+            </button>
+            <p className="text-center text-xs opacity-60">
+              Pay in full or pay a registration fee to get started
+            </p>
+            <button
+              type="button"
+              onClick={() => setStep("demoDetails")}
+              className="w-full rounded-lg border-2 border-line px-7 py-3.5 text-sm font-bold transition hover:border-sky-400"
+            >
+              Register for a Demo
+            </button>
+          </div>
+        )}
+
+        {step === "payDetails" && (
+          <form onSubmit={handleQuote} className="flex flex-col gap-4">
             <input
               name="name"
               type="text"
@@ -164,82 +218,178 @@ export default function EnrollButton({ programSlug, programName }: EnrollButtonP
 
             {error && <p className="text-sm text-red-600">{error}</p>}
 
-            <button
-              type="submit"
-              disabled={submitting}
-              className="mt-2 w-full rounded-lg bg-sky-400 px-7 py-3.5 text-sm font-bold text-slate-900 transition-transform duration-150 hover:scale-105 disabled:opacity-60"
-            >
-              {submitting ? "Checking…" : "Continue"}
-            </button>
+            <div className="flex gap-3">
+              <button
+                type="button"
+                onClick={() => {
+                  setError(null);
+                  setStep("choice");
+                }}
+                className="rounded-lg border-2 border-line px-5 py-3.5 text-sm font-bold"
+              >
+                Back
+              </button>
+              <button
+                type="submit"
+                disabled={submitting}
+                className="flex-1 rounded-lg bg-sky-400 px-7 py-3.5 text-sm font-bold text-slate-900 transition-transform duration-150 hover:scale-105 disabled:opacity-60"
+              >
+                {submitting ? "Checking…" : "Continue"}
+              </button>
+            </div>
           </form>
-        ) : (
-          quote && (
-            <div className="flex flex-col gap-4">
-              <div className="rounded-lg bg-slate-50 p-4 text-sm">
-                {quote.discountPaise > 0 && (
-                  <>
-                    <div className="flex justify-between opacity-70">
-                      <span>Program fee</span>
-                      <span className="line-through">{formatPaiseAsInr(quote.originalFeePaise)}</span>
-                    </div>
-                    <div className="flex justify-between text-green-700">
-                      <span>Coupon discount</span>
-                      <span>-{formatPaiseAsInr(quote.discountPaise)}</span>
-                    </div>
-                  </>
-                )}
-                <div className="mt-1 flex justify-between border-t border-line/60 pt-1 font-bold">
-                  <span>Total fee</span>
-                  <span>{formatPaiseAsInr(quote.finalFeePaise)}</span>
+        )}
+
+        {step === "pay" &&
+          quote &&
+          (() => {
+            const q = quote;
+            return (
+              <div className="flex flex-col gap-4">
+                <div className="rounded-lg bg-slate-50 p-4 text-sm">
+                  {q.discountPaise > 0 && (
+                    <>
+                      <div className="flex justify-between opacity-70">
+                        <span>Program fee</span>
+                        <span className="line-through">{formatPaiseAsInr(q.originalFeePaise)}</span>
+                      </div>
+                      <div className="flex justify-between text-green-700">
+                        <span>Coupon discount</span>
+                        <span>-{formatPaiseAsInr(q.discountPaise)}</span>
+                      </div>
+                    </>
+                  )}
+                  <div className="mt-1 flex justify-between border-t border-line/60 pt-1 font-bold">
+                    <span>Total fee</span>
+                    <span>{formatPaiseAsInr(q.finalFeePaise)}</span>
+                  </div>
+                </div>
+
+                <div className="flex flex-col gap-2.5">
+                  <label className="flex cursor-pointer items-center gap-3 rounded-lg border-2 border-line px-4 py-3 text-sm has-[:checked]:border-sky-400">
+                    <input
+                      type="radio"
+                      name="paymentType"
+                      checked={paymentType === "full"}
+                      onChange={() => setPaymentType("full")}
+                    />
+                    <span>
+                      Pay full fee — <strong>{formatPaiseAsInr(q.finalFeePaise)}</strong>
+                    </span>
+                  </label>
+                  {q.registrationFeePaise !== null && (
+                    <label className="flex cursor-pointer items-center gap-3 rounded-lg border-2 border-line px-4 py-3 text-sm has-[:checked]:border-sky-400">
+                      <input
+                        type="radio"
+                        name="paymentType"
+                        checked={paymentType === "registration"}
+                        onChange={() => setPaymentType("registration")}
+                      />
+                      <span>
+                        Pay registration fee —{" "}
+                        <strong>{formatPaiseAsInr(q.registrationFeePaise)}</strong>
+                      </span>
+                    </label>
+                  )}
+                </div>
+
+                {error && <p className="text-sm text-red-600">{error}</p>}
+
+                <div className="flex gap-3">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setError(null);
+                      setStep("payDetails");
+                    }}
+                    className="rounded-lg border-2 border-line px-5 py-3.5 text-sm font-bold"
+                  >
+                    Back
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handlePay}
+                    disabled={submitting}
+                    className="flex-1 rounded-lg bg-sky-400 px-7 py-3.5 text-sm font-bold text-slate-900 transition-transform duration-150 hover:scale-105 disabled:opacity-60"
+                  >
+                    {submitting ? "Redirecting to payment…" : "Continue to payment"}
+                  </button>
                 </div>
               </div>
+            );
+          })()}
 
-              <div className="flex flex-col gap-2.5">
-                <label className="flex cursor-pointer items-center gap-3 rounded-lg border-2 border-line px-4 py-3 text-sm has-[:checked]:border-sky-400">
-                  <input
-                    type="radio"
-                    name="paymentType"
-                    checked={paymentType === "full"}
-                    onChange={() => setPaymentType("full")}
-                  />
-                  <span>
-                    Pay full fee — <strong>{formatPaiseAsInr(quote.finalFeePaise)}</strong>
-                  </span>
-                </label>
-                <label className="flex cursor-pointer items-center gap-3 rounded-lg border-2 border-line px-4 py-3 text-sm has-[:checked]:border-sky-400">
-                  <input
-                    type="radio"
-                    name="paymentType"
-                    checked={paymentType === "registration"}
-                    onChange={() => setPaymentType("registration")}
-                  />
-                  <span>
-                    Pay registration fee (10%) — <strong>{formatPaiseAsInr(quote.registrationFeePaise)}</strong>
-                  </span>
-                </label>
-              </div>
+        {step === "demoDetails" && (
+          <form onSubmit={handleDemoRequest} className="flex flex-col gap-4">
+            <input
+              name="name"
+              type="text"
+              placeholder="Full name"
+              required
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              className="rounded-lg border-2 border-line bg-white px-4 py-3 text-sm outline-none focus:border-sky-400"
+            />
+            <input
+              name="email"
+              type="email"
+              placeholder="Email"
+              required
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="rounded-lg border-2 border-line bg-white px-4 py-3 text-sm outline-none focus:border-sky-400"
+            />
+            <input
+              name="phone"
+              type="tel"
+              placeholder="Mobile number"
+              required
+              value={phone}
+              onChange={(e) => setPhone(e.target.value)}
+              className="rounded-lg border-2 border-line bg-white px-4 py-3 text-sm outline-none focus:border-sky-400"
+            />
 
-              {error && <p className="text-sm text-red-600">{error}</p>}
+            {error && <p className="text-sm text-red-600">{error}</p>}
 
-              <div className="flex gap-3">
-                <button
-                  type="button"
-                  onClick={() => setStep("details")}
-                  className="rounded-lg border-2 border-line px-5 py-3.5 text-sm font-bold"
-                >
-                  Back
-                </button>
-                <button
-                  type="button"
-                  onClick={handlePay}
-                  disabled={submitting}
-                  className="flex-1 rounded-lg bg-sky-400 px-7 py-3.5 text-sm font-bold text-slate-900 transition-transform duration-150 hover:scale-105 disabled:opacity-60"
-                >
-                  {submitting ? "Redirecting to payment…" : "Continue to payment"}
-                </button>
-              </div>
+            <div className="flex gap-3">
+              <button
+                type="button"
+                onClick={() => {
+                  setError(null);
+                  setStep("choice");
+                }}
+                className="rounded-lg border-2 border-line px-5 py-3.5 text-sm font-bold"
+              >
+                Back
+              </button>
+              <button
+                type="submit"
+                disabled={submitting}
+                className="flex-1 rounded-lg bg-sky-400 px-7 py-3.5 text-sm font-bold text-slate-900 transition-transform duration-150 hover:scale-105 disabled:opacity-60"
+              >
+                {submitting ? "Submitting…" : "Request demo"}
+              </button>
             </div>
-          )
+          </form>
+        )}
+
+        {step === "demoSuccess" && (
+          <div className="flex flex-col gap-4 text-center">
+            <p className="text-sm opacity-80">
+              Thanks, {name.split(" ")[0] || "there"}! Our team will reach out shortly to schedule
+              your demo for {programName}.
+            </p>
+            <button
+              type="button"
+              onClick={() => {
+                setOpen(false);
+                reset();
+              }}
+              className="w-full rounded-lg bg-sky-400 px-7 py-3.5 text-sm font-bold text-slate-900 transition-transform duration-150 hover:scale-105"
+            >
+              Done
+            </button>
+          </div>
         )}
       </Modal>
     </>

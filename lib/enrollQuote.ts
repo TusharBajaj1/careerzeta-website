@@ -3,16 +3,14 @@ import { PROGRAMS } from "@/lib/content";
 import { PROGRAM_DETAILS } from "@/lib/programsDetail";
 import { parseFeeStringToRupees, rupeesToPaise } from "@/lib/money";
 
-/** Registration-fee option is a fixed 10% of the (coupon-discounted) total fee. */
-const REGISTRATION_FEE_PERCENT = 10;
-
 export type EnrollQuote = {
   ok: true;
   program: (typeof PROGRAMS)[number];
   originalFeePaise: number;
   discountPaise: number;
   finalFeePaise: number;
-  registrationFeePaise: number;
+  /** Null when there's no coupon, or the coupon doesn't set one — the registration-fee option isn't offered in that case. */
+  registrationFeePaise: number | null;
   couponId: number | null;
   salesExecutive: string | null;
 };
@@ -52,6 +50,7 @@ export async function computeEnrollQuote(params: {
   let discountPaise = 0;
   let couponId: number | null = null;
   let salesExecutive: string | null = null;
+  let registrationFeePaise: number | null = null;
 
   if (couponCode && couponCode.trim()) {
     const result = await validateCoupon({
@@ -67,10 +66,10 @@ export async function computeEnrollQuote(params: {
     discountPaise = result.discountPaise;
     couponId = result.coupon.id;
     salesExecutive = result.coupon.createdBy;
+    registrationFeePaise = result.coupon.registrationFeeAmount;
   }
 
   const finalFeePaise = originalFeePaise - discountPaise;
-  const registrationFeePaise = Math.round(finalFeePaise * (REGISTRATION_FEE_PERCENT / 100));
 
   return {
     ok: true,

@@ -14,6 +14,7 @@ export type CouponRow = {
   candidatePhone: string | null;
   maxUses: number;
   usedCount: number;
+  registrationFeeAmount: number | null;
   expiresAt: string | null;
   status: "active" | "used" | "expired" | "revoked";
   createdBy: string | null;
@@ -39,6 +40,7 @@ export default function CouponsClient({ initialCoupons }: { initialCoupons: Coup
   const [candidateEmail, setCandidateEmail] = useState("");
   const [candidatePhone, setCandidatePhone] = useState("");
   const [maxUses, setMaxUses] = useState("1");
+  const [registrationFeeAmount, setRegistrationFeeAmount] = useState("");
   const [expiresAt, setExpiresAt] = useState("");
   const [createdBy, setCreatedBy] = useState("");
   const [notes, setNotes] = useState("");
@@ -65,6 +67,7 @@ export default function CouponsClient({ initialCoupons }: { initialCoupons: Coup
         candidateEmail: candidateEmail || null,
         candidatePhone: candidatePhone || null,
         maxUses: Number(maxUses),
+        registrationFeeAmount: registrationFeeAmount ? Number(registrationFeeAmount) : null,
         expiresAt: expiresAt || null,
         createdBy,
         notes,
@@ -90,6 +93,7 @@ export default function CouponsClient({ initialCoupons }: { initialCoupons: Coup
     setCandidateEmail("");
     setCandidatePhone("");
     setMaxUses("1");
+    setRegistrationFeeAmount("");
     setExpiresAt("");
     setNotes("");
     setSubmitting(false);
@@ -188,6 +192,19 @@ export default function CouponsClient({ initialCoupons }: { initialCoupons: Coup
         </p>
 
         <input
+          type="number"
+          min="1"
+          placeholder="Registration fee amount (₹, optional)"
+          value={registrationFeeAmount}
+          onChange={(e) => setRegistrationFeeAmount(e.target.value)}
+          className="rounded-lg border-2 border-line px-4 py-3 text-sm outline-none focus:border-sky-400 sm:col-span-2"
+        />
+        <p className="text-xs opacity-60 sm:col-span-2">
+          Optional — if set, the candidate sees a &quot;pay a registration fee&quot; option at this
+          exact amount alongside paying in full. Leave blank to only offer full payment.
+        </p>
+
+        <input
           type="date"
           value={expiresAt}
           onChange={(e) => setExpiresAt(e.target.value)}
@@ -220,6 +237,7 @@ export default function CouponsClient({ initialCoupons }: { initialCoupons: Coup
               <tr className="border-b-2 border-line text-xs tracking-wide uppercase opacity-60">
                 <th className="py-2 pr-4">Code</th>
                 <th className="py-2 pr-4">Discount</th>
+                <th className="py-2 pr-4">Reg. Fee</th>
                 <th className="py-2 pr-4">Program</th>
                 <th className="py-2 pr-4">Candidate</th>
                 <th className="py-2 pr-4">Used</th>
@@ -233,6 +251,11 @@ export default function CouponsClient({ initialCoupons }: { initialCoupons: Coup
                 <tr key={c.id} className="border-b border-line/60">
                   <td className="py-3 pr-4 font-mono font-semibold">{c.code}</td>
                   <td className="py-3 pr-4">{discountLabel(c)}</td>
+                  <td className="py-3 pr-4">
+                    {c.registrationFeeAmount
+                      ? `₹${(c.registrationFeeAmount / 100).toLocaleString("en-IN")}`
+                      : "—"}
+                  </td>
                   <td className="py-3 pr-4">
                     {PROGRAMS.find((p) => p.slug === c.programSlug)?.name ?? "Any"}
                   </td>
