@@ -5,6 +5,12 @@ import { useSearchParams } from "next/navigation";
 
 const LOGIN_TIMEOUT_MS = 15000;
 
+/** Only an internal path is safe to redirect to — rejects absolute/protocol-relative URLs an attacker could put in ?next= to phish post-login. */
+function safeNextPath(next: string | null): string {
+  if (next && /^\/(?!\/)/.test(next)) return next;
+  return "/admin";
+}
+
 function LoginForm() {
   const searchParams = useSearchParams();
   const [username, setUsername] = useState("");
@@ -38,7 +44,7 @@ function LoginForm() {
       // browser sends the just-set session cookie on a fresh request to
       // the proxy-gated route — avoids the client router getting stuck
       // mid-transition, which showed up as the login page hanging.
-      window.location.href = searchParams.get("next") || "/admin";
+      window.location.href = safeNextPath(searchParams.get("next"));
     } catch (err) {
       setError(
         err instanceof DOMException && err.name === "AbortError"

@@ -4,6 +4,7 @@ import { eq } from "drizzle-orm";
 import { db } from "@/lib/db";
 import { enrollments, payments } from "@/lib/db/schema";
 import { PROGRAMS } from "@/lib/content";
+import { isValidEmail, isValidMobile } from "@/lib/forms";
 import { getRazorpayClient } from "@/lib/razorpay";
 
 const SITE_URL = "https://www.careerzeta.com";
@@ -12,6 +13,13 @@ const SITE_URL = "https://www.careerzeta.com";
  * The enrollment itself was already created (or matched to an existing
  * one) back in /api/enroll/quote — this step just adds a payment and a
  * Razorpay link to it, for whichever amount the candidate picked.
+ *
+ * enrollmentId is a sequential, guessable id, and /api/enroll/quote can
+ * return someone else's existing enrollment to anyone who merely knows
+ * their email — so this step re-checks the caller supplies the matching
+ * email AND phone on file before it will trigger a real Razorpay payment
+ * link + SMS/email notification for that enrollment. A mismatch looks
+ * identical to "not found" so this can't be used to probe which ids exist.
  */
 export async function POST(request: Request) {
   const body = await request.json().catch(() => null);
@@ -19,17 +27,27 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "invalid_payload" }, { status: 400 });
   }
 
-  const { enrollmentId, paymentType } = body;
+  const { enrollmentId, paymentType, email, phone } = body;
 
   if (
     !Number.isInteger(enrollmentId) ||
-    (paymentType !== "full" && paymentType !== "registration")
+    (paymentType !== "full" && paymentType !== "registration") ||
+    typeof email !== "string" ||
+    !isValidEmail(email) ||
+    typeof phone !== "string" ||
+    !isValidMobile(phone)
   ) {
     return NextResponse.json({ error: "invalid_payload" }, { status: 400 });
   }
 
   const [enrollment] = await db.select().from(enrollments).where(eq(enrollments.id, enrollmentId)).limit(1);
-  if (!enrollment) {
+
+  const emailMatches =
+    enrollment && enrollment.candidateEmail.trim().toLowerCase() === email.trim().toLowerCase();
+  const phoneMatches =
+    enrollment && enrollment.candidatePhone.replace(/\D/g, "") === phone.replace(/\D/g, "");
+
+  if (!enrollment || !emailMatches || !phoneMatches) {
     return NextResponse.json({ error: "enrollment_not_found" }, { status: 404 });
   }
 

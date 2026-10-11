@@ -94,7 +94,7 @@ export default function EnrollButton({ programSlug, programName }: EnrollButtonP
       const res = await fetch("/api/enroll", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ enrollmentId: quote.enrollmentId, paymentType }),
+        body: JSON.stringify({ enrollmentId: quote.enrollmentId, paymentType, email, phone }),
       });
       const data = await res.json().catch(() => ({}));
 
