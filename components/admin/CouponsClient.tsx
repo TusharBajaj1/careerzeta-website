@@ -120,108 +120,146 @@ export default function CouponsClient({ initialCoupons }: { initialCoupons: Coup
     <>
       <form
         onSubmit={handleCreate}
-        className="mt-8 grid gap-4 rounded-2xl border-2 border-line bg-white p-6 sm:grid-cols-2"
+        className="mt-8 grid gap-5 rounded-2xl border-2 border-line bg-white p-6 sm:grid-cols-2"
       >
-        <input
-          placeholder="Coupon code (e.g. ZETA10)"
-          required
-          value={code}
-          onChange={(e) => setCode(e.target.value)}
-          className="rounded-lg border-2 border-line px-4 py-3 text-sm outline-none focus:border-sky-400"
-        />
-        <input
-          placeholder="Your name / initials"
-          required
-          value={createdBy}
-          onChange={(e) => setCreatedBy(e.target.value)}
-          className="rounded-lg border-2 border-line px-4 py-3 text-sm outline-none focus:border-sky-400"
-        />
-
-        <div className="flex gap-2 sm:col-span-2">
-          <select
-            value={discountType}
-            onChange={(e) => setDiscountType(e.target.value as "percent" | "amount")}
-            className="rounded-lg border-2 border-line px-4 py-3 text-sm outline-none focus:border-sky-400"
-          >
-            <option value="percent">% off</option>
-            <option value="amount">₹ off</option>
-          </select>
+        <div>
+          <label className="mb-1.5 block text-xs font-bold text-slate-700">Coupon Code</label>
           <input
-            type="number"
-            min="1"
-            placeholder={discountType === "percent" ? "e.g. 10" : "e.g. 5000"}
+            placeholder="e.g. ZETA10"
             required
-            value={discountValue}
-            onChange={(e) => setDiscountValue(e.target.value)}
-            className="flex-1 rounded-lg border-2 border-line px-4 py-3 text-sm outline-none focus:border-sky-400"
+            value={code}
+            onChange={(e) => setCode(e.target.value)}
+            className="w-full rounded-lg border-2 border-line px-4 py-3 text-sm outline-none focus:border-sky-400"
+          />
+        </div>
+        <div>
+          <label className="mb-1.5 block text-xs font-bold text-slate-700">
+            Created By (Sales Executive)
+          </label>
+          <input
+            placeholder="Your name / initials"
+            required
+            value={createdBy}
+            onChange={(e) => setCreatedBy(e.target.value)}
+            className="w-full rounded-lg border-2 border-line px-4 py-3 text-sm outline-none focus:border-sky-400"
           />
         </div>
 
-        <select
-          value={programSlug}
-          onChange={(e) => setProgramSlug(e.target.value)}
-          className="rounded-lg border-2 border-line px-4 py-3 text-sm outline-none focus:border-sky-400"
-        >
-          <option value="">Any program</option>
-          {PROGRAMS.map((p) => (
-            <option key={p.slug} value={p.slug}>
-              {p.name}
-            </option>
-          ))}
-        </select>
-        <input
-          type="number"
-          min="1"
-          placeholder="Max uses (default 1)"
-          value={maxUses}
-          onChange={(e) => setMaxUses(e.target.value)}
-          className="rounded-lg border-2 border-line px-4 py-3 text-sm outline-none focus:border-sky-400"
-        />
+        <div className="sm:col-span-2">
+          <label className="mb-1.5 block text-xs font-bold text-slate-700">Discount</label>
+          <div className="flex gap-2">
+            <select
+              value={discountType}
+              onChange={(e) => setDiscountType(e.target.value as "percent" | "amount")}
+              className="rounded-lg border-2 border-line px-4 py-3 text-sm outline-none focus:border-sky-400"
+            >
+              <option value="percent">% off</option>
+              <option value="amount">₹ off</option>
+            </select>
+            <input
+              type="number"
+              min="1"
+              placeholder={discountType === "percent" ? "e.g. 10" : "e.g. 5000"}
+              required
+              value={discountValue}
+              onChange={(e) => setDiscountValue(e.target.value)}
+              className="flex-1 rounded-lg border-2 border-line px-4 py-3 text-sm outline-none focus:border-sky-400"
+            />
+          </div>
+        </div>
 
-        <input
-          type="email"
-          placeholder="Candidate email"
-          value={candidateEmail}
-          onChange={(e) => setCandidateEmail(e.target.value)}
-          className="rounded-lg border-2 border-line px-4 py-3 text-sm outline-none focus:border-sky-400"
-        />
-        <input
-          type="tel"
-          placeholder="Candidate phone"
-          value={candidatePhone}
-          onChange={(e) => setCandidatePhone(e.target.value)}
-          className="rounded-lg border-2 border-line px-4 py-3 text-sm outline-none focus:border-sky-400"
-        />
-        <p className="text-xs opacity-60 sm:col-span-2">
+        <div>
+          <label className="mb-1.5 block text-xs font-bold text-slate-700">
+            Program (leave as-is to apply to any program)
+          </label>
+          <select
+            value={programSlug}
+            onChange={(e) => setProgramSlug(e.target.value)}
+            className="w-full rounded-lg border-2 border-line px-4 py-3 text-sm outline-none focus:border-sky-400"
+          >
+            <option value="">Any program</option>
+            {PROGRAMS.map((p) => (
+              <option key={p.slug} value={p.slug}>
+                {p.name}
+              </option>
+            ))}
+          </select>
+        </div>
+        <div>
+          <label className="mb-1.5 block text-xs font-bold text-slate-700">Max Uses</label>
+          <input
+            type="number"
+            min="1"
+            placeholder="Default 1"
+            value={maxUses}
+            onChange={(e) => setMaxUses(e.target.value)}
+            className="w-full rounded-lg border-2 border-line px-4 py-3 text-sm outline-none focus:border-sky-400"
+          />
+        </div>
+
+        <div>
+          <label className="mb-1.5 block text-xs font-bold text-slate-700">Candidate Email</label>
+          <input
+            type="email"
+            placeholder="candidate@example.com"
+            value={candidateEmail}
+            onChange={(e) => setCandidateEmail(e.target.value)}
+            className="w-full rounded-lg border-2 border-line px-4 py-3 text-sm outline-none focus:border-sky-400"
+          />
+        </div>
+        <div>
+          <label className="mb-1.5 block text-xs font-bold text-slate-700">Candidate Phone</label>
+          <input
+            type="tel"
+            placeholder="9999999999"
+            value={candidatePhone}
+            onChange={(e) => setCandidatePhone(e.target.value)}
+            className="w-full rounded-lg border-2 border-line px-4 py-3 text-sm outline-none focus:border-sky-400"
+          />
+        </div>
+        <p className="-mt-2 text-xs opacity-60 sm:col-span-2">
           At least one of email/phone is required — this is what restricts the coupon to a
           specific candidate.
         </p>
 
-        <input
-          type="number"
-          min="1"
-          placeholder="Registration fee amount (₹, optional)"
-          value={registrationFeeAmount}
-          onChange={(e) => setRegistrationFeeAmount(e.target.value)}
-          className="rounded-lg border-2 border-line px-4 py-3 text-sm outline-none focus:border-sky-400 sm:col-span-2"
-        />
-        <p className="text-xs opacity-60 sm:col-span-2">
+        <div className="sm:col-span-2">
+          <label className="mb-1.5 block text-xs font-bold text-slate-700">
+            Registration Fee Amount (optional)
+          </label>
+          <input
+            type="number"
+            min="1"
+            placeholder="₹ amount, e.g. 10000"
+            value={registrationFeeAmount}
+            onChange={(e) => setRegistrationFeeAmount(e.target.value)}
+            className="w-full rounded-lg border-2 border-line px-4 py-3 text-sm outline-none focus:border-sky-400"
+          />
+        </div>
+        <p className="-mt-2 text-xs opacity-60 sm:col-span-2">
           Optional — if set, the candidate sees a &quot;pay a registration fee&quot; option at this
           exact amount alongside paying in full. Leave blank to only offer full payment.
         </p>
 
-        <input
-          type="date"
-          value={expiresAt}
-          onChange={(e) => setExpiresAt(e.target.value)}
-          className="rounded-lg border-2 border-line px-4 py-3 text-sm outline-none focus:border-sky-400"
-        />
-        <input
-          placeholder="Notes (optional)"
-          value={notes}
-          onChange={(e) => setNotes(e.target.value)}
-          className="rounded-lg border-2 border-line px-4 py-3 text-sm outline-none focus:border-sky-400"
-        />
+        <div>
+          <label className="mb-1.5 block text-xs font-bold text-slate-700">
+            Expiry Date (optional)
+          </label>
+          <input
+            type="date"
+            value={expiresAt}
+            onChange={(e) => setExpiresAt(e.target.value)}
+            className="w-full rounded-lg border-2 border-line px-4 py-3 text-sm outline-none focus:border-sky-400"
+          />
+        </div>
+        <div>
+          <label className="mb-1.5 block text-xs font-bold text-slate-700">Notes (optional)</label>
+          <input
+            placeholder="Any internal notes"
+            value={notes}
+            onChange={(e) => setNotes(e.target.value)}
+            className="w-full rounded-lg border-2 border-line px-4 py-3 text-sm outline-none focus:border-sky-400"
+          />
+        </div>
 
         {error && <p className="text-sm text-red-600 sm:col-span-2">{error}</p>}
 

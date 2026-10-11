@@ -139,66 +139,93 @@ function CreateEnrollmentForm({ onCreated }: { onCreated: () => void }) {
   return (
     <form
       onSubmit={handleSubmit}
-      className="mt-6 grid gap-4 rounded-2xl border-2 border-line bg-white p-6 sm:grid-cols-2"
+      className="mt-6 grid gap-5 rounded-2xl border-2 border-line bg-white p-6 sm:grid-cols-2"
     >
-      <input
-        placeholder="Candidate name"
-        required
-        value={name}
-        onChange={(e) => setName(e.target.value)}
-        className="rounded-lg border-2 border-line px-4 py-3 text-sm outline-none focus:border-sky-400"
-      />
-      <input
-        type="email"
-        placeholder="Candidate email"
-        required
-        value={email}
-        onChange={(e) => setEmail(e.target.value)}
-        className="rounded-lg border-2 border-line px-4 py-3 text-sm outline-none focus:border-sky-400"
-      />
-      <input
-        type="tel"
-        placeholder="Candidate phone"
-        required
-        value={phone}
-        onChange={(e) => setPhone(e.target.value)}
-        className="rounded-lg border-2 border-line px-4 py-3 text-sm outline-none focus:border-sky-400"
-      />
-      <select
-        value={programSlug}
-        onChange={(e) => setProgramSlug(e.target.value)}
-        className="rounded-lg border-2 border-line px-4 py-3 text-sm outline-none focus:border-sky-400"
-      >
-        {PROGRAMS.map((p) => (
-          <option key={p.slug} value={p.slug}>
-            {p.name}
-          </option>
-        ))}
-      </select>
-      <input
-        type="number"
-        min="1"
-        placeholder="Total agreed fee (₹, after any discount)"
-        required
-        value={totalFee}
-        onChange={(e) => setTotalFee(e.target.value)}
-        className="rounded-lg border-2 border-line px-4 py-3 text-sm outline-none focus:border-sky-400"
-      />
-      <input
-        placeholder="Sales executive (lead owner)"
-        value={salesExecutive}
-        onChange={(e) => setSalesExecutive(e.target.value)}
-        className="rounded-lg border-2 border-line px-4 py-3 text-sm outline-none focus:border-sky-400"
-      />
-      <input
-        type="number"
-        min="1"
-        placeholder="Registration fee amount (₹, optional)"
-        value={registrationFeeAmount}
-        onChange={(e) => setRegistrationFeeAmount(e.target.value)}
-        className="rounded-lg border-2 border-line px-4 py-3 text-sm outline-none focus:border-sky-400"
-      />
-      <p className="text-xs opacity-60 sm:col-span-2">
+      <div>
+        <label className="mb-1.5 block text-xs font-bold text-slate-700">Candidate Name</label>
+        <input
+          placeholder="Full name"
+          required
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          className="w-full rounded-lg border-2 border-line px-4 py-3 text-sm outline-none focus:border-sky-400"
+        />
+      </div>
+      <div>
+        <label className="mb-1.5 block text-xs font-bold text-slate-700">Candidate Email</label>
+        <input
+          type="email"
+          placeholder="candidate@example.com"
+          required
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          className="w-full rounded-lg border-2 border-line px-4 py-3 text-sm outline-none focus:border-sky-400"
+        />
+      </div>
+      <div>
+        <label className="mb-1.5 block text-xs font-bold text-slate-700">Candidate Phone</label>
+        <input
+          type="tel"
+          placeholder="9999999999"
+          required
+          value={phone}
+          onChange={(e) => setPhone(e.target.value)}
+          className="w-full rounded-lg border-2 border-line px-4 py-3 text-sm outline-none focus:border-sky-400"
+        />
+      </div>
+      <div>
+        <label className="mb-1.5 block text-xs font-bold text-slate-700">Program</label>
+        <select
+          value={programSlug}
+          onChange={(e) => setProgramSlug(e.target.value)}
+          className="w-full rounded-lg border-2 border-line px-4 py-3 text-sm outline-none focus:border-sky-400"
+        >
+          {PROGRAMS.map((p) => (
+            <option key={p.slug} value={p.slug}>
+              {p.name}
+            </option>
+          ))}
+        </select>
+      </div>
+      <div className="sm:col-span-2">
+        <label className="mb-1.5 block text-xs font-bold text-slate-700">
+          Total Agreed Fee (₹, after any discount)
+        </label>
+        <input
+          type="number"
+          min="1"
+          placeholder="e.g. 105000"
+          required
+          value={totalFee}
+          onChange={(e) => setTotalFee(e.target.value)}
+          className="w-full rounded-lg border-2 border-line px-4 py-3 text-sm outline-none focus:border-sky-400"
+        />
+      </div>
+      <div>
+        <label className="mb-1.5 block text-xs font-bold text-slate-700">
+          Sales Executive (lead owner)
+        </label>
+        <input
+          placeholder="Your name / initials"
+          value={salesExecutive}
+          onChange={(e) => setSalesExecutive(e.target.value)}
+          className="w-full rounded-lg border-2 border-line px-4 py-3 text-sm outline-none focus:border-sky-400"
+        />
+      </div>
+      <div>
+        <label className="mb-1.5 block text-xs font-bold text-slate-700">
+          Registration Fee Amount (optional)
+        </label>
+        <input
+          type="number"
+          min="1"
+          placeholder="₹ amount, e.g. 10000"
+          value={registrationFeeAmount}
+          onChange={(e) => setRegistrationFeeAmount(e.target.value)}
+          className="w-full rounded-lg border-2 border-line px-4 py-3 text-sm outline-none focus:border-sky-400"
+        />
+      </div>
+      <p className="-mt-2 text-xs opacity-60 sm:col-span-2">
         Optional — if set, this exact amount automatically shows up as the &quot;pay a
         registration fee&quot; option when this candidate enrolls themselves on /programs
         (matched by email), without needing a coupon.
