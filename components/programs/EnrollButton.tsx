@@ -39,7 +39,6 @@ export default function EnrollButton({ programSlug, programName }: EnrollButtonP
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
   const [state, setState] = useState("");
-  const [couponCode, setCouponCode] = useState("");
   const [quote, setQuote] = useState<Quote | null>(null);
   const [paymentType, setPaymentType] = useState<"full" | "registration">("full");
 
@@ -52,7 +51,6 @@ export default function EnrollButton({ programSlug, programName }: EnrollButtonP
     setEmail("");
     setPhone("");
     setState("");
-    setCouponCode("");
     setQuote(null);
     setPaymentType("full");
     setError(null);
@@ -68,7 +66,7 @@ export default function EnrollButton({ programSlug, programName }: EnrollButtonP
       const res = await fetch("/api/enroll/quote", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ programSlug, name, email, phone, state, couponCode }),
+        body: JSON.stringify({ programSlug, name, email, phone, state }),
       });
       const data = await res.json().catch(() => ({}));
 
@@ -232,15 +230,6 @@ export default function EnrollButton({ programSlug, programName }: EnrollButtonP
                 </option>
               ))}
             </select>
-            <input
-              name="couponCode"
-              type="text"
-              aria-label="Coupon code (optional)"
-              placeholder="Coupon code (optional)"
-              value={couponCode}
-              onChange={(e) => setCouponCode(e.target.value)}
-              className="rounded-lg border-2 border-line bg-white px-4 py-3 text-sm outline-none focus:border-sky-400"
-            />
 
             {error && <p className="text-sm text-red-600">{error}</p>}
 
