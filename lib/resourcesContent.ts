@@ -10,6 +10,7 @@ export type Story = {
   url: string;
   image: string;
   imagePosition?: "top" | "center";
+  isNew?: boolean;
 };
 
 /**
@@ -18,6 +19,46 @@ export type Story = {
  * more without an equally credible, externally-published source.
  */
 export const STORIES: Story[] = [
+  {
+    tags: ["Generative & Agentic AI"],
+    title: "How KPN is building an agentic AI engine for customer care",
+    description:
+      "KPN and McKinsey's QuantumBlack built an in-house network of specialized AI agents to handle the Dutch telecom's roughly five million customer calls a year — covering verification, order status, appointments and troubleshooting — while keeping humans in the loop at key moments.",
+    source: "McKinsey",
+    url: "https://www.mckinsey.com/industries/technology-media-and-telecommunications/how-we-help-clients/how-kpn-is-building-an-agentic-ai-engine-for-customer-care",
+    image: "/resources/kpn-customer-care.jpg",
+    isNew: true,
+  },
+  {
+    tags: ["Business Analytics & Agentic AI"],
+    title: "Reinventing pricing and promotion with agentic AI",
+    description:
+      "A leading beverage company partnered with BCG on an agentic revenue-growth-management platform for pricing and promotion, paired with a redesigned operating model — delivering €150m in gross profit uplift and 2-3% net sales growth.",
+    source: "BCG",
+    url: "https://www.bcg.com/x/mark-your-moment/reinventing-pricing-and-promotion-with-agentic-ai",
+    image: "/resources/bcg-pricing-promotion.jpg",
+    isNew: true,
+  },
+  {
+    tags: ["Data Analytics & Agentic AI"],
+    title: "How an iron ore producer modernized mining operations with AI",
+    description:
+      "Rio Tinto worked with BCG X to replace aging scheduling systems with an AI-driven platform combining machine learning and real-time data — helping 50 schedulers make better rail and port decisions, more than doubling productivity, and paying back the investment in under three months.",
+    source: "BCG",
+    url: "https://www.bcg.com/x/mark-your-moment/how-an-iron-ore-producer-modernized-mining-operations-with-ai",
+    image: "/resources/bcg-iron-ore.webp",
+    isNew: true,
+  },
+  {
+    tags: ["PG Program in Data Science & AI"],
+    title: "Modernizing a 100-year-old business model with AI",
+    description:
+      "The American Arbitration Association, under CEO Bridget McCormack, worked with McKinsey's QuantumBlack to build an AI-native approach to case management — projecting at least 20% faster case resolution, 35%+ cost savings, and a goal of tenfold caseload capacity.",
+    source: "McKinsey",
+    url: "https://www.mckinsey.com/capabilities/quantumblack/how-we-help-clients/modernizing-a-100-year-old-business-model-with-ai",
+    image: "/resources/mckinsey-100-year-business.jpg",
+    isNew: true,
+  },
   {
     tags: ["Data Analytics & Agentic AI", "Business Analytics & Agentic AI"],
     title:
@@ -84,9 +125,30 @@ export type Report = {
   url: string;
   image: string;
   featured?: boolean;
+  isNew?: boolean;
 };
 
 export const REPORTS: Report[] = [
+  {
+    title: "India's AI Advantage is Human — Work Trend Index 2026",
+    organisation: "Microsoft",
+    year: "2026",
+    description:
+      "32% of India's AI users are \"Frontier Professionals\" who redesign work around AI agents — double the 16% global average. 78% say AI now enables work that wasn't possible a year ago, and 63% prioritize quality control of AI output.",
+    url: "https://news.microsoft.com/source/asia/2026/09/03/indias-ai-advantage-is-human-microsoft-work-trend-index-2026-finds-india-among-the-worlds-leading-frontier-workforces/",
+    image: "/resources/microsoft-work-trend-2026.webp",
+    isNew: true,
+  },
+  {
+    title: "India's AI Talent Inflection Point: From Skill Gaps to Competitive Advantage",
+    organisation: "NASSCOM",
+    year: "2026",
+    description:
+      "86% of employers say AI has already impacted job roles and responsibilities, with 35% seeing significant redefinition — and nearly all expect their 2026 workforce strategy to center on AI-related or AI-supported roles.",
+    url: "https://nasscom.in/knowledge-center/publications/indias-ai-talent-inflection-point-skill-gaps-competitive-advantage",
+    image: "/resources/nasscom-ai-talent.webp",
+    isNew: true,
+  },
   {
     title: "The 2025 AI Index Report",
     organisation: "Stanford HAI",

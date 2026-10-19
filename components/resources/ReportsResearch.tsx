@@ -36,6 +36,11 @@ export default function ReportsResearch() {
                   sizes="(min-width:768px) 50vw, 100vw"
                   className="object-cover"
                 />
+                {featured.isNew && (
+                  <span className="absolute top-5 right-5 rounded-full bg-sky-400 px-4 py-2 text-xs font-bold tracking-[0.06em] text-[#111827] uppercase">
+                    New
+                  </span>
+                )}
               </div>
               <div className="flex flex-col items-start justify-center gap-4 p-8 lg:p-12">
                 <span className="text-xs font-bold tracking-[0.06em] text-sky-400 uppercase">
@@ -72,6 +77,11 @@ export default function ReportsResearch() {
                     sizes="160px"
                     className="object-cover"
                   />
+                  {r.isNew && (
+                    <span className="absolute top-3 right-3 rounded-full bg-sky-400 px-3 py-1 text-[10px] font-bold tracking-[0.06em] text-[#111827] uppercase">
+                      New
+                    </span>
+                  )}
                 </div>
                 <div className="flex flex-col gap-2.5 p-[26px]">
                   <span className="text-xs font-bold tracking-[0.06em] text-sky-400 uppercase">

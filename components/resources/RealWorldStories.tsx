@@ -93,6 +93,11 @@ export default function RealWorldStories() {
               <span className="absolute top-5 left-5 rounded-full bg-[#111827] px-4 py-2 text-xs font-bold tracking-[0.06em] text-white uppercase">
                 {lead.source}
               </span>
+              {lead.isNew && (
+                <span className="absolute top-5 right-5 rounded-full bg-sky-400 px-4 py-2 text-xs font-bold tracking-[0.06em] text-[#111827] uppercase">
+                  New
+                </span>
+              )}
             </div>
             <div className="flex flex-col items-start justify-center gap-4 p-8 lg:p-11">
               <span className="text-xs font-bold tracking-[0.06em] text-sky-700 uppercase">
@@ -135,6 +140,11 @@ export default function RealWorldStories() {
                   <span className="absolute top-4 left-4 rounded-full bg-[#111827] px-3.5 py-[7px] text-xs font-bold tracking-[0.06em] text-white uppercase">
                     {story.source}
                   </span>
+                  {story.isNew && (
+                    <span className="absolute top-4 right-4 rounded-full bg-sky-400 px-3.5 py-[7px] text-xs font-bold tracking-[0.06em] text-[#111827] uppercase">
+                      New
+                    </span>
+                  )}
                 </div>
                 <div className="flex flex-1 flex-col gap-3 p-[26px]">
                   <h3 className="font-display text-xl leading-snug font-semibold tracking-tight text-pretty">
