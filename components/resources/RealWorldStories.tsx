@@ -94,7 +94,7 @@ export default function RealWorldStories() {
                 {lead.source}
               </span>
               {lead.isNew && (
-                <span className="absolute top-5 right-5 rounded-full bg-sky-400 px-4 py-2 text-xs font-bold tracking-[0.06em] text-[#111827] uppercase">
+                <span className="absolute top-5 right-5 rounded-full bg-white/95 px-2.5 py-1 text-[10px] font-bold tracking-[0.06em] text-sky-700 uppercase">
                   New
                 </span>
               )}
@@ -141,7 +141,7 @@ export default function RealWorldStories() {
                     {story.source}
                   </span>
                   {story.isNew && (
-                    <span className="absolute top-4 right-4 rounded-full bg-sky-400 px-3.5 py-[7px] text-xs font-bold tracking-[0.06em] text-[#111827] uppercase">
+                    <span className="absolute top-4 right-4 rounded-full bg-white/95 px-2.5 py-1 text-[10px] font-bold tracking-[0.06em] text-sky-700 uppercase">
                       New
                     </span>
                   )}
