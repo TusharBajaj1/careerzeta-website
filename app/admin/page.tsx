@@ -15,7 +15,7 @@ export default function AdminHomePage() {
           href="/admin/direct-enroll"
           className="rounded-lg border-2 border-line bg-white px-5 py-4 font-semibold transition hover:border-sky-400"
         >
-          Direct Enroll (demo flow)
+          Direct Enroll
         </Link>
       </div>
     </div>
