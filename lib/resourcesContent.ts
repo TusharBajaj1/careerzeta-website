@@ -137,6 +137,7 @@ export const REPORTS: Report[] = [
       "32% of India's AI users are \"Frontier Professionals\" who redesign work around AI agents — double the 16% global average. 78% say AI now enables work that wasn't possible a year ago, and 63% prioritize quality control of AI output.",
     url: "https://news.microsoft.com/source/asia/2026/09/03/indias-ai-advantage-is-human-microsoft-work-trend-index-2026-finds-india-among-the-worlds-leading-frontier-workforces/",
     image: "/resources/microsoft-work-trend-2026.webp",
+    featured: true,
     isNew: true,
   },
   {
@@ -157,7 +158,6 @@ export const REPORTS: Report[] = [
       "An independent, data-driven view of artificial intelligence from Stanford HAI, covering technical progress, economic influence and societal impact, including how demand for AI skills is changing.",
     url: "https://hai.stanford.edu/ai-index/2025-ai-index-report",
     image: "/resources/ai-index-2025.svg",
-    featured: true,
   },
   {
     title: "World Development Report 2026: The Promise of Artificial Intelligence",
