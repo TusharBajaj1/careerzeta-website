@@ -37,7 +37,7 @@ export default function ReportsResearch() {
                   className="object-cover"
                 />
                 {featured.isNew && (
-                  <span className="absolute top-5 right-5 rounded-full bg-white/95 px-2.5 py-1 text-[10px] font-bold tracking-[0.06em] text-sky-700 uppercase">
+                  <span className="absolute top-5 right-5 rounded-full bg-white/95 px-2 py-0.5 text-[8px] font-bold tracking-[0.06em] text-sky-700 uppercase">
                     New
                   </span>
                 )}
@@ -78,7 +78,7 @@ export default function ReportsResearch() {
                     className="object-cover"
                   />
                   {r.isNew && (
-                    <span className="absolute top-3 right-3 rounded-full bg-white/95 px-2 py-0.5 text-[9px] font-bold tracking-[0.06em] text-sky-700 uppercase">
+                    <span className="absolute top-3 right-3 rounded-full bg-white/95 px-2 py-0.5 text-[8px] font-bold tracking-[0.06em] text-sky-700 uppercase">
                       New
                     </span>
                   )}
