@@ -30,18 +30,34 @@ export default function RefundAndCancellationPolicyPage() {
 
         <div className="mt-10 flex flex-col gap-8 text-base leading-relaxed opacity-90">
           <p>
-            This policy covers cancelling your enrollment in a CareerZeta program and
-            what, if anything, is refunded depending on when you cancel.
+            We want you to enroll with confidence. This policy explains what happens if
+            your plans change — written to be fair to you as a professional investing in
+            your growth, and to CareerZeta as the organization committing mentors,
+            cohort seats and resources to your program from the day you sign up.
           </p>
 
           <section>
             <h2 className="font-display text-xl font-bold text-gray-900">
-              Registration fee
+              How you can pay
             </h2>
             <p className="mt-2.5">
-              The registration fee secures your seat in a program and is{" "}
-              <strong>non-refundable</strong> once paid, regardless of when you cancel —
-              including if you cancel before the program starts.
+              You can enroll in two ways: pay the full program fee upfront, or pay a
+              smaller registration fee now and the remaining balance later. Either way
+              works — what you get back if you cancel depends on which path you chose
+              and when you cancel.
+            </p>
+          </section>
+
+          <section>
+            <h2 className="font-display text-xl font-bold text-gray-900">
+              The registration fee is non-refundable
+            </h2>
+            <p className="mt-2.5">
+              The moment you pay your registration fee, we reserve your seat in the
+              cohort and begin planning around it — mentor allocation, batch sizing and
+              scheduling all happen on the assumption you&apos;re joining. Because that
+              commitment is made on our end immediately, the registration fee itself
+              isn&apos;t refundable, however early you cancel.
             </p>
           </section>
 
@@ -50,21 +66,34 @@ export default function RefundAndCancellationPolicyPage() {
               Cancelling before the program starts
             </h2>
             <p className="mt-2.5">
-              If you&apos;ve paid the full program fee and cancel before your program&apos;s
-              start date, we refund everything you paid beyond the registration fee.
+              If you&apos;ve paid more than the registration fee and cancel before your
+              program&apos;s start date, we refund everything you paid beyond it.
             </p>
           </section>
 
           <section>
             <h2 className="font-display text-xl font-bold text-gray-900">
-              Cancelling after the program starts
+              Paid in full? You get a 15-day trial.
             </h2>
             <p className="mt-2.5">
-              Once your program has started, the remaining fee (everything beyond the
-              registration fee) is refunded on a <strong>pro-rated basis</strong> — you&apos;re
-              refunded for the portion of the program not yet delivered as of your
-              cancellation date, based on sessions completed out of the program&apos;s total
-              sessions.
+              If you pay your full program fee upfront, you get <strong>15 days</strong>{" "}
+              from your program&apos;s start date to make sure it&apos;s genuinely right
+              for you. Cancel within that window, and we refund everything you paid
+              beyond the registration fee — no questions asked. This exists because
+              committing to the full fee upfront is a bigger step, and we think you
+              should be able to take it without worrying you&apos;re locked in before
+              you&apos;ve even experienced the program.
+            </p>
+          </section>
+
+          <section>
+            <h2 className="font-display text-xl font-bold text-gray-900">
+              After that
+            </h2>
+            <p className="mt-2.5">
+              Once your 15-day trial has passed, or once your program has started if
+              you chose to pay via registration fee + balance, fees paid are no longer
+              refundable.
             </p>
           </section>
 
