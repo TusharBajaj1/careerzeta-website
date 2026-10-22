@@ -34,6 +34,7 @@ const connect = [
 const legal = [
   { label: "Privacy Policy", href: "/privacy-policy" },
   { label: "Terms of Use", href: "/terms-of-use" },
+  { label: "Refund and Cancellation Policy", href: "/refund-and-cancellation-policy" },
 ];
 
 export default function Footer() {
