@@ -11,6 +11,8 @@ export type InvoiceData = {
   candidateEmail: string;
   candidatePhone: string;
   candidateState: string | null;
+  candidateAddress?: string | null;
+  candidateGstin?: string | null;
   programName: string;
   paymentType: "full" | "registration" | "balance";
   /** GST-inclusive amount for this specific transaction, in paise — program fees are quoted inclusive of all taxes. */
@@ -101,7 +103,11 @@ export function generateInvoicePdf(data: InvoiceData): Promise<Buffer> {
     doc.text(data.candidateName, colRightX);
     doc.text(data.candidateEmail, colRightX);
     doc.text(data.candidatePhone, colRightX);
+    if (data.candidateAddress) {
+      doc.text(data.candidateAddress, colRightX, undefined, { width: 200 });
+    }
     if (data.candidateState) doc.text(data.candidateState, colRightX);
+    if (data.candidateGstin) doc.text(`GSTIN: ${data.candidateGstin}`, colRightX);
 
     doc.x = colLeftX;
     doc.moveDown(1.5);

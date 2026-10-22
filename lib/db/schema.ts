@@ -35,6 +35,7 @@ export const enrollmentStatusEnum = pgEnum("enrollment_status", [
   "pending",
   "registration_paid",
   "fully_paid",
+  "refund_requested",
   "cancelled",
 ]);
 
@@ -81,6 +82,10 @@ export const enrollments = pgTable("enrollments", {
   candidatePhone: varchar("candidate_phone", { length: 32 }).notNull(),
   /** Determines CGST+SGST (same state as CareerZeta, Uttar Pradesh) vs IGST (any other state) on the tax invoice. */
   candidateState: varchar("candidate_state", { length: 64 }),
+  /** Street/billing address shown on the tax invoice — optional, since not every candidate needs it on the document. */
+  candidateAddress: text("candidate_address"),
+  /** GSTIN of the candidate's employer, if they want it on the invoice for input tax credit — optional. */
+  candidateGstin: varchar("candidate_gstin", { length: 15 }),
   programSlug: varchar("program_slug", { length: 64 }).notNull(),
   couponId: integer("coupon_id").references(() => coupons.id),
   /** Owner of the lead — defaults to the linked coupon's createdBy, or set directly on admin-created enrollments. */

@@ -1,6 +1,7 @@
 "use client";
 
 import { Suspense, useState, type FormEvent } from "react";
+import Image from "next/image";
 import { useSearchParams } from "next/navigation";
 
 const LOGIN_TIMEOUT_MS = 15000;
@@ -58,15 +59,29 @@ function LoginForm() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-slate-100 px-6">
+    <div className="relative flex min-h-screen items-center justify-center overflow-hidden bg-[#0b1220] px-6">
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_20%_20%,rgba(56,189,248,0.18),transparent_55%),radial-gradient(circle_at_80%_80%,rgba(56,189,248,0.12),transparent_55%)]"
+      />
+
       <form
         onSubmit={handleSubmit}
-        className="w-full max-w-sm rounded-2xl border-2 border-line bg-white p-8 shadow-sm"
+        className="relative w-full max-w-sm rounded-2xl border border-white/10 bg-[#111c33] p-8 shadow-[0_30px_80px_-20px_rgba(0,0,0,0.6)]"
       >
-        <h1 className="font-display text-2xl font-bold">Admin Login</h1>
-        <p className="mt-1 text-sm opacity-70">CareerZeta internal tools</p>
+        <div className="flex flex-col items-center text-center">
+          <Image
+            src="/brand/careerzeta-mark-white.png"
+            alt="CareerZeta"
+            width={632}
+            height={544}
+            className="h-12 w-auto"
+          />
+          <h1 className="mt-5 font-display text-2xl font-bold text-white">Admin Login</h1>
+          <p className="mt-1 text-sm text-white/60">CareerZeta internal tools</p>
+        </div>
 
-        <div className="mt-6 flex flex-col gap-4">
+        <div className="mt-7 flex flex-col gap-4">
           <input
             name="username"
             type="text"
@@ -89,7 +104,7 @@ function LoginForm() {
           />
         </div>
 
-        {error && <p className="mt-4 text-sm text-red-600">{error}</p>}
+        {error && <p className="mt-4 text-sm text-red-400">{error}</p>}
 
         <button
           type="submit"

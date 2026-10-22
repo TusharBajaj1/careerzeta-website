@@ -3,7 +3,7 @@ import { asc, desc } from "drizzle-orm";
 
 import { db } from "@/lib/db";
 import { enrollments, payments } from "@/lib/db/schema";
-import { isValidEmail, isValidMobile } from "@/lib/forms";
+import { isValidEmail, isValidGstin, isValidMobile } from "@/lib/forms";
 import { INDIAN_STATE_NAMES } from "@/lib/indianStates";
 import { rupeesToPaise } from "@/lib/money";
 import { PROGRAMS } from "@/lib/content";
@@ -37,7 +37,8 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "invalid_payload" }, { status: 400 });
   }
 
-  const { name, email, phone, state, programSlug, totalFee, salesExecutive, registrationFeeAmount } = body;
+  const { name, email, phone, state, address, gstin, programSlug, totalFee, salesExecutive, registrationFeeAmount } =
+    body;
 
   if (
     typeof name !== "string" ||
@@ -54,7 +55,10 @@ export async function POST(request: Request) {
     totalFee <= 0 ||
     (registrationFeeAmount !== undefined &&
       registrationFeeAmount !== null &&
-      (typeof registrationFeeAmount !== "number" || registrationFeeAmount <= 0))
+      (typeof registrationFeeAmount !== "number" ||
+        registrationFeeAmount <= 0 ||
+        registrationFeeAmount >= totalFee)) ||
+    (gstin !== undefined && gstin !== null && gstin !== "" && (typeof gstin !== "string" || !isValidGstin(gstin)))
   ) {
     return NextResponse.json({ error: "invalid_payload" }, { status: 400 });
   }
@@ -63,9 +67,11 @@ export async function POST(request: Request) {
     .insert(enrollments)
     .values({
       candidateName: name.trim(),
-      candidateEmail: email.trim(),
+      candidateEmail: email.trim().toLowerCase(),
       candidatePhone: phone.trim(),
       candidateState: state,
+      candidateAddress: typeof address === "string" && address.trim() ? address.trim() : null,
+      candidateGstin: typeof gstin === "string" && gstin.trim() ? gstin.trim().toUpperCase() : null,
       programSlug,
       salesExecutive: typeof salesExecutive === "string" && salesExecutive.trim() ? salesExecutive.trim() : null,
       totalFee: rupeesToPaise(totalFee),

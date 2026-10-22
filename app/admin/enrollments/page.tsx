@@ -36,7 +36,6 @@ export default async function AdminEnrollmentsPage() {
       <Link href="/admin" className="text-sm text-sky-700 hover:underline">
         ← Admin
       </Link>
-      <h1 className="mt-2 font-display text-3xl font-bold">Enrollments</h1>
 
       <EnrollmentsClient initialEnrollments={initialEnrollments} />
 

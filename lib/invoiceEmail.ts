@@ -34,6 +34,8 @@ export async function sendPaymentInvoice(
       candidateEmail: enrollment.candidateEmail,
       candidatePhone: enrollment.candidatePhone,
       candidateState: enrollment.candidateState,
+      candidateAddress: enrollment.candidateAddress,
+      candidateGstin: enrollment.candidateGstin,
       programName,
       paymentType: payment.type,
       amountPaidNowPaise: payment.amount,
