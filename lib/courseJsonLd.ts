@@ -1,5 +1,6 @@
 import type { Program } from "@/lib/content";
 import type { ProgramDetail } from "@/lib/programsDetail";
+import { parseFeeStringToRupees } from "@/lib/money";
 
 const SITE_URL = "https://www.careerzeta.com";
 
@@ -9,15 +10,10 @@ function toIsoDuration(duration: string | null): string | undefined {
   return match ? `P${match[1]}M` : undefined;
 }
 
-/** "₹1,05,000" -> "105000". */
-function toNumericPrice(fee: string | null): string | undefined {
-  const digits = fee?.replace(/[^\d]/g, "");
-  return digits || undefined;
-}
-
 /** Builds a schema.org/Course entry so each program is eligible for Google's Course rich result. */
 export function buildCourseJsonLd(program: Program, detail: ProgramDetail) {
-  const price = toNumericPrice(detail.fee);
+  const rupees = parseFeeStringToRupees(detail.fee);
+  const price = rupees ? String(rupees) : undefined;
 
   return {
     "@context": "https://schema.org",

@@ -34,6 +34,7 @@ const connect = [
 const legal = [
   { label: "Privacy Policy", href: "/privacy-policy" },
   { label: "Terms of Use", href: "/terms-of-use" },
+  { label: "Refund and Cancellation Policy", href: "/refund-and-cancellation-policy" },
 ];
 
 export default function Footer() {
@@ -140,9 +141,20 @@ export default function Footer() {
           </div>
         </div>
 
-        <div className="mt-12 flex flex-wrap items-center justify-between gap-4 border-t border-white/15 pt-6">
-          <span className="text-sm text-white opacity-50">
+        <div className="mt-12 flex flex-wrap items-center justify-between gap-4 border-t border-white/15 pt-6 pr-0 pb-20 sm:pr-24 sm:pb-0">
+          {/* Admin sits beside the copyright on the left, not after the legal
+              links on the right — the fixed WhatsApp button occupies that
+              same bottom-right corner once the page is scrolled all the way
+              down. The right padding above also keeps whichever legal link
+              ends up last clear of that same button on wider screens; below
+              the breakpoint the row wraps so bottom padding does the same
+              job instead. */}
+          <span className="flex items-center gap-2 text-sm text-white opacity-50">
             © {new Date().getFullYear()} CareerZeta
+            <span aria-hidden="true">·</span>
+            <Link href="/admin" className="transition hover:text-sky-400 hover:opacity-100">
+              Admin
+            </Link>
           </span>
 
           <div className="flex gap-6">
