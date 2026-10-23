@@ -19,7 +19,13 @@ export function proxy(request: NextRequest) {
     return NextResponse.redirect(loginUrl);
   }
 
-  return NextResponse.next();
+  // Without this, the browser can restore a protected admin page from its
+  // back/forward cache after logout — showing stale content for a page the
+  // proxy never re-checked. no-store opts every admin response out of that
+  // cache, forcing a real request (and a fresh auth check) on back/forward.
+  const response = NextResponse.next();
+  response.headers.set("Cache-Control", "no-store, must-revalidate");
+  return response;
 }
 
 export const config = {
