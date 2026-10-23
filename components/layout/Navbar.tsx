@@ -71,11 +71,17 @@ export default function Navbar() {
               <Link
                 key={link.href}
                 href={link.href}
-                className={`shrink-0 text-[15px] font-semibold whitespace-nowrap transition ${
+                className={`relative shrink-0 text-[15px] font-semibold whitespace-nowrap transition ${
                   isHeroOverlay ? "text-white hover:text-sky-300" : "hover:text-sky-700"
                 }`}
               >
                 {link.label}
+                {link.href === "/resources" && (
+                  <span
+                    aria-hidden="true"
+                    className="absolute -top-1 -right-2.5 h-1.5 w-1.5 rounded-full bg-sky-400"
+                  />
+                )}
               </Link>
             ))}
 
@@ -106,9 +112,12 @@ export default function Navbar() {
                   key={link.href}
                   href={link.href}
                   onClick={() => setOpen(false)}
-                  className="rounded-lg px-2 py-3 text-[15px] font-semibold transition hover:bg-white"
+                  className="flex items-center gap-2 rounded-lg px-2 py-3 text-[15px] font-semibold transition hover:bg-white"
                 >
                   {link.label}
+                  {link.href === "/resources" && (
+                    <span aria-hidden="true" className="h-1.5 w-1.5 rounded-full bg-sky-400" />
+                  )}
                 </Link>
               ))}
 

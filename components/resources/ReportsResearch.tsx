@@ -26,7 +26,9 @@ export default function ReportsResearch() {
               href={featured.url}
               target="_blank"
               rel="noopener noreferrer"
-              className="mt-11 grid overflow-hidden rounded-[32px] border border-sky-300/20 bg-[#111c33] text-white md:grid-cols-2"
+              className={`mt-11 grid overflow-hidden rounded-[32px] border bg-[#111c33] text-white md:grid-cols-2 ${
+                featured.isNew ? "border-sky-400" : "border-sky-300/20"
+              }`}
             >
               <div className="relative min-h-[320px] bg-slate-800">
                 <Image
@@ -62,7 +64,9 @@ export default function ReportsResearch() {
                 href={r.url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="grid h-full grid-cols-[130px_1fr] overflow-hidden rounded-3xl border border-sky-300/20 bg-[#111c33] text-white transition-colors duration-150 hover:border-sky-400 sm:grid-cols-[160px_1fr]"
+                className={`grid h-full grid-cols-[130px_1fr] overflow-hidden rounded-3xl border bg-[#111c33] text-white transition-colors duration-150 hover:border-sky-400 sm:grid-cols-[160px_1fr] ${
+                  r.isNew ? "border-sky-400" : "border-sky-300/20"
+                }`}
               >
                 <div className="relative min-h-[170px] bg-slate-800">
                   <Image

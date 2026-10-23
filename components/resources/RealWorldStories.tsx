@@ -80,7 +80,9 @@ export default function RealWorldStories() {
             href={lead.url}
             target="_blank"
             rel="noopener noreferrer"
-            className="mt-10 grid overflow-hidden rounded-[32px] bg-white text-[#111827] shadow-[0_30px_70px_-30px_rgba(17,24,39,.4)] transition-transform duration-200 hover:-translate-y-2 md:grid-cols-2"
+            className={`mt-10 grid overflow-hidden rounded-[32px] bg-white text-[#111827] shadow-[0_30px_70px_-30px_rgba(17,24,39,.4)] transition-transform duration-200 hover:-translate-y-2 md:grid-cols-2 ${
+              lead.isNew ? "ring-2 ring-sky-400" : ""
+            }`}
           >
             <div className="relative min-h-[340px] bg-slate-200">
               <Image
@@ -122,7 +124,9 @@ export default function RealWorldStories() {
                 href={story.url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex h-full flex-col overflow-hidden rounded-3xl bg-white text-[#111827] transition-shadow duration-200 hover:shadow-[0_24px_50px_-20px_rgba(17,24,39,.4)]"
+                className={`flex h-full flex-col overflow-hidden rounded-3xl bg-white text-[#111827] transition-shadow duration-200 hover:shadow-[0_24px_50px_-20px_rgba(17,24,39,.4)] ${
+                  story.isNew ? "ring-2 ring-sky-400" : ""
+                }`}
               >
                 <div className="relative h-[210px] bg-slate-200">
                   <Image
