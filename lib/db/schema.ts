@@ -52,6 +52,8 @@ export const paymentTypeEnum = pgEnum("payment_type", [
   "balance",
 ]);
 
+export const blogPostStatusEnum = pgEnum("blog_post_status", ["draft", "published"]);
+
 export const coupons = pgTable("coupons", {
   id: serial("id").primaryKey(),
   code: varchar("code", { length: 64 }).notNull().unique(),
@@ -136,6 +138,25 @@ export const demoRequests = pgTable("demo_requests", {
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 });
 
+export const blogPosts = pgTable("blog_posts", {
+  id: serial("id").primaryKey(),
+  title: varchar("title", { length: 200 }).notNull(),
+  slug: varchar("slug", { length: 200 }).notNull().unique(),
+  /** Groups weekly posts into a named series — null for a standalone post. */
+  series: varchar("series", { length: 150 }),
+  seriesPart: integer("series_part"),
+  excerpt: text("excerpt"),
+  /** Sanitized HTML from the admin rich-text editor. */
+  contentHtml: text("content_html").notNull(),
+  coverImageUrl: text("cover_image_url"),
+  author: varchar("author", { length: 120 }),
+  status: blogPostStatusEnum("status").notNull().default("draft"),
+  /** Set when a post is first published — used for public ordering and the sitemap, kept even if later unpublished and republished. */
+  publishedAt: timestamp("published_at", { withTimezone: true }),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+});
+
 export type Coupon = typeof coupons.$inferSelect;
 export type NewCoupon = typeof coupons.$inferInsert;
 export type Enrollment = typeof enrollments.$inferSelect;
@@ -144,3 +165,5 @@ export type Payment = typeof payments.$inferSelect;
 export type NewPayment = typeof payments.$inferInsert;
 export type DemoRequest = typeof demoRequests.$inferSelect;
 export type NewDemoRequest = typeof demoRequests.$inferInsert;
+export type BlogPost = typeof blogPosts.$inferSelect;
+export type NewBlogPost = typeof blogPosts.$inferInsert;
