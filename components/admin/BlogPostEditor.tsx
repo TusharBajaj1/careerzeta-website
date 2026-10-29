@@ -7,8 +7,6 @@ import StarterKit from "@tiptap/starter-kit";
 import TiptapImage from "@tiptap/extension-image";
 import Placeholder from "@tiptap/extension-placeholder";
 
-import { slugify } from "@/lib/blog";
-
 export type BlogPostRow = {
   id: number;
   title: string;
@@ -136,8 +134,6 @@ export default function BlogPostEditor(props: Props) {
   const existing = props.mode === "edit" ? props.post : null;
 
   const [title, setTitle] = useState(existing?.title ?? "");
-  const [slug, setSlug] = useState(existing?.slug ?? "");
-  const [slugTouched, setSlugTouched] = useState(props.mode === "edit");
   const [series, setSeries] = useState(existing?.series ?? "");
   const [seriesPart, setSeriesPart] = useState(existing?.seriesPart ? String(existing.seriesPart) : "");
   const [excerpt, setExcerpt] = useState(existing?.excerpt ?? "");
@@ -167,11 +163,6 @@ export default function BlogPostEditor(props: Props) {
       attributes: { class: "cz-prose min-h-[360px] px-4 py-4 focus:outline-none" },
     },
   });
-
-  function handleTitleChange(value: string) {
-    setTitle(value);
-    if (!slugTouched) setSlug(slugify(value));
-  }
 
   async function handleCoverUpload(e: ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
@@ -209,7 +200,6 @@ export default function BlogPostEditor(props: Props) {
     setSubmitting(nextStatus);
     const payload = {
       title: title.trim(),
-      slug: slug.trim(),
       series: series.trim() || null,
       seriesPart: seriesPart.trim() ? Number(seriesPart) : null,
       excerpt: excerpt.trim() || null,
@@ -250,29 +240,10 @@ export default function BlogPostEditor(props: Props) {
             id="post-title"
             type="text"
             value={title}
-            onChange={(e) => handleTitleChange(e.target.value)}
+            onChange={(e) => setTitle(e.target.value)}
             placeholder="This week's post title"
             className="w-full rounded-lg border-2 border-line bg-white px-4 py-3 text-sm outline-none focus:border-sky-400"
           />
-        </div>
-
-        <div>
-          <label htmlFor="post-slug" className="mb-1 block text-sm font-semibold">
-            URL slug
-          </label>
-          <div className="flex items-center gap-2 text-sm opacity-60">
-            <span>careerzeta.com/blog/</span>
-            <input
-              id="post-slug"
-              type="text"
-              value={slug}
-              onChange={(e) => {
-                setSlugTouched(true);
-                setSlug(e.target.value);
-              }}
-              className="flex-1 rounded-lg border-2 border-line bg-white px-3 py-2 text-sm outline-none focus:border-sky-400"
-            />
-          </div>
         </div>
 
         <div className="grid grid-cols-2 gap-4">
