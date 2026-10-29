@@ -3,8 +3,7 @@ import { eq } from "drizzle-orm";
 
 import { db } from "@/lib/db";
 import { blogPosts } from "@/lib/db/schema";
-import { sanitizeBlogHtml, slugify } from "@/lib/blog";
-import { uniqueSlug } from "@/app/api/admin/blog/route";
+import { sanitizeBlogHtml, slugify, uniqueBlogSlug } from "@/lib/blog";
 
 export async function PATCH(request: Request, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -46,7 +45,7 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
 
   const requestedBase = typeof requestedSlug === "string" && requestedSlug.trim() ? requestedSlug : title;
   const normalizedSlug = slugify(requestedBase);
-  const slug = normalizedSlug === existing.slug ? existing.slug : await uniqueSlug(normalizedSlug, postId);
+  const slug = normalizedSlug === existing.slug ? existing.slug : await uniqueBlogSlug(normalizedSlug, postId);
 
   const [updated] = await db
     .update(blogPosts)

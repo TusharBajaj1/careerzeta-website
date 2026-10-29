@@ -1,4 +1,8 @@
+import { eq } from "drizzle-orm";
 import sanitizeHtml from "sanitize-html";
+
+import { db } from "@/lib/db";
+import { blogPosts } from "@/lib/db/schema";
 
 /** Converts a post title into a URL-safe slug — lowercase, hyphenated, ASCII only. */
 export function slugify(title: string): string {
@@ -8,6 +12,19 @@ export function slugify(title: string): string {
     .replace(/[^a-z0-9\s-]/g, "")
     .replace(/[\s_-]+/g, "-")
     .replace(/^-+|-+$/g, "");
+}
+
+/** base-slug, base-slug-2, base-slug-3, ... — the first one not already taken (excluding excludeId, for edits). */
+export async function uniqueBlogSlug(base: string, excludeId?: number): Promise<string> {
+  const safeBase = base || "post";
+  let candidate = safeBase;
+  let suffix = 2;
+  for (;;) {
+    const [existing] = await db.select().from(blogPosts).where(eq(blogPosts.slug, candidate)).limit(1);
+    if (!existing || existing.id === excludeId) return candidate;
+    candidate = `${safeBase}-${suffix}`;
+    suffix += 1;
+  }
 }
 
 /** ~200 wpm reading speed, based on the plain-text word count of the rendered HTML. */

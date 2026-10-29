@@ -1,27 +1,14 @@
 import { NextResponse } from "next/server";
-import { desc, eq } from "drizzle-orm";
+import { desc } from "drizzle-orm";
 
 import { db } from "@/lib/db";
 import { blogPosts } from "@/lib/db/schema";
-import { sanitizeBlogHtml, slugify } from "@/lib/blog";
+import { sanitizeBlogHtml, slugify, uniqueBlogSlug } from "@/lib/blog";
 
 /** Every post (draft and published) for the admin list, newest first. */
 export async function GET() {
   const rows = await db.select().from(blogPosts).orderBy(desc(blogPosts.createdAt));
   return NextResponse.json({ posts: rows });
-}
-
-/** base-slug, base-slug-2, base-slug-3, ... — the first one not already taken (excluding excludeId, for edits). */
-export async function uniqueSlug(base: string, excludeId?: number): Promise<string> {
-  const safeBase = base || "post";
-  let candidate = safeBase;
-  let suffix = 2;
-  for (;;) {
-    const [existing] = await db.select().from(blogPosts).where(eq(blogPosts.slug, candidate)).limit(1);
-    if (!existing || existing.id === excludeId) return candidate;
-    candidate = `${safeBase}-${suffix}`;
-    suffix += 1;
-  }
 }
 
 export async function POST(request: Request) {
@@ -51,7 +38,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "invalid_payload" }, { status: 400 });
   }
 
-  const slug = await uniqueSlug(slugify(typeof requestedSlug === "string" && requestedSlug.trim() ? requestedSlug : title));
+  const slug = await uniqueBlogSlug(slugify(typeof requestedSlug === "string" && requestedSlug.trim() ? requestedSlug : title));
 
   const [post] = await db
     .insert(blogPosts)
