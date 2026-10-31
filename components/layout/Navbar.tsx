@@ -77,7 +77,7 @@ export default function Navbar() {
                 }`}
               >
                 {link.label}
-                {link.href === "/resources" && (
+                {(link.href === "/resources" || link.href === "/blog") && (
                   <span
                     aria-hidden="true"
                     className="absolute -top-1 -right-2.5 h-1.5 w-1.5 rounded-full bg-sky-400"
@@ -116,7 +116,7 @@ export default function Navbar() {
                   className="flex items-center gap-2 rounded-lg px-2 py-3 text-[15px] font-semibold transition hover:bg-white"
                 >
                   {link.label}
-                  {link.href === "/resources" && (
+                  {(link.href === "/resources" || link.href === "/blog") && (
                     <span aria-hidden="true" className="h-1.5 w-1.5 rounded-full bg-sky-400" />
                   )}
                 </Link>
