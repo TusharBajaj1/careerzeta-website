@@ -1,7 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { Mail } from "lucide-react";
-import { FaInstagram, FaLinkedin } from "react-icons/fa";
+import { FaFacebook, FaInstagram, FaLinkedin, FaYoutube } from "react-icons/fa";
 
 import { CONTACT, PROGRAMS } from "@/lib/content";
 
@@ -24,6 +24,16 @@ const connect = [
     icon: FaInstagram,
     label: "Instagram",
     href: CONTACT.instagram,
+  },
+  {
+    icon: FaFacebook,
+    label: "Facebook",
+    href: CONTACT.facebook,
+  },
+  {
+    icon: FaYoutube,
+    label: "YouTube",
+    href: CONTACT.youtube,
   },
   {
     icon: Mail,

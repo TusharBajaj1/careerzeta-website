@@ -145,6 +145,8 @@ export const CONTACT = {
   whatsapp: "https://wa.me/message/TV5NDL2D6UI3B1",
   linkedin: "https://www.linkedin.com/company/careerzeta-learning-pvt-ltd/",
   instagram: "https://www.instagram.com/careerzeta_learning/",
+  facebook: "https://www.facebook.com/careerzeta/",
+  youtube: "https://www.youtube.com/@CareerZeta",
 };
 
 /**
