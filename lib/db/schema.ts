@@ -138,12 +138,21 @@ export const demoRequests = pgTable("demo_requests", {
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 });
 
+export const blogSeries = pgTable("blog_series", {
+  id: serial("id").primaryKey(),
+  name: varchar("name", { length: 150 }).notNull(),
+  slug: varchar("slug", { length: 150 }).notNull().unique(),
+  description: text("description"),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+});
+
 export const blogPosts = pgTable("blog_posts", {
   id: serial("id").primaryKey(),
   title: varchar("title", { length: 200 }).notNull(),
   slug: varchar("slug", { length: 200 }).notNull().unique(),
-  /** Groups weekly posts into a named series — null for a standalone post. */
-  series: varchar("series", { length: 150 }),
+  /** Groups weekly posts under a registered series — null for a standalone post. */
+  seriesId: integer("series_id").references(() => blogSeries.id),
+  /** This post's position within its series — purely for display ordering, independent of publish date. */
   seriesPart: integer("series_part"),
   excerpt: text("excerpt"),
   /** Sanitized HTML from the admin rich-text editor. */
@@ -167,3 +176,5 @@ export type DemoRequest = typeof demoRequests.$inferSelect;
 export type NewDemoRequest = typeof demoRequests.$inferInsert;
 export type BlogPost = typeof blogPosts.$inferSelect;
 export type NewBlogPost = typeof blogPosts.$inferInsert;
+export type BlogSeries = typeof blogSeries.$inferSelect;
+export type NewBlogSeries = typeof blogSeries.$inferInsert;

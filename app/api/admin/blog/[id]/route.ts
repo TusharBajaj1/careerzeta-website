@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { eq } from "drizzle-orm";
 
 import { db } from "@/lib/db";
-import { blogPosts } from "@/lib/db/schema";
+import { blogPosts, blogSeries } from "@/lib/db/schema";
 import { sanitizeBlogHtml } from "@/lib/blog";
 
 export async function PATCH(request: Request, { params }: { params: Promise<{ id: string }> }) {
@@ -22,7 +22,7 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
     return NextResponse.json({ error: "not_found" }, { status: 404 });
   }
 
-  const { title, series, seriesPart, excerpt, contentHtml, coverImageUrl, author, status } = body;
+  const { title, seriesId, seriesPart, excerpt, contentHtml, coverImageUrl, author, status } = body;
 
   if (
     typeof title !== "string" ||
@@ -30,7 +30,7 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
     typeof contentHtml !== "string" ||
     !contentHtml.trim() ||
     (status !== "draft" && status !== "published") ||
-    (series !== undefined && series !== null && typeof series !== "string") ||
+    (seriesId !== undefined && seriesId !== null && (typeof seriesId !== "number" || !Number.isInteger(seriesId))) ||
     (seriesPart !== undefined &&
       seriesPart !== null &&
       (typeof seriesPart !== "number" || !Number.isInteger(seriesPart) || seriesPart <= 0)) ||
@@ -41,13 +41,20 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
     return NextResponse.json({ error: "invalid_payload" }, { status: 400 });
   }
 
+  if (typeof seriesId === "number") {
+    const [series] = await db.select().from(blogSeries).where(eq(blogSeries.id, seriesId)).limit(1);
+    if (!series) {
+      return NextResponse.json({ error: "invalid_series" }, { status: 400 });
+    }
+  }
+
   // The slug is never changed on edit, even if the title changes — a
   // published post's URL has to stay stable once shared.
   const [updated] = await db
     .update(blogPosts)
     .set({
       title: title.trim(),
-      series: typeof series === "string" && series.trim() ? series.trim() : null,
+      seriesId: typeof seriesId === "number" ? seriesId : null,
       seriesPart: typeof seriesPart === "number" ? seriesPart : null,
       excerpt: typeof excerpt === "string" && excerpt.trim() ? excerpt.trim() : null,
       contentHtml: sanitizeBlogHtml(contentHtml),

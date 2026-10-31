@@ -11,7 +11,7 @@ export type BlogPostRow = {
   id: number;
   title: string;
   slug: string;
-  series: string | null;
+  seriesId: number | null;
   seriesPart: number | null;
   excerpt: string | null;
   contentHtml: string;
@@ -23,7 +23,11 @@ export type BlogPostRow = {
   updatedAt: string;
 };
 
-type Props = { mode: "create" } | { mode: "edit"; post: BlogPostRow };
+export type SeriesOption = { id: number; name: string };
+
+type Props =
+  | { mode: "create"; seriesOptions: SeriesOption[] }
+  | { mode: "edit"; post: BlogPostRow; seriesOptions: SeriesOption[] };
 
 async function uploadImage(file: File): Promise<string | null> {
   const formData = new FormData();
@@ -134,7 +138,7 @@ export default function BlogPostEditor(props: Props) {
   const existing = props.mode === "edit" ? props.post : null;
 
   const [title, setTitle] = useState(existing?.title ?? "");
-  const [series, setSeries] = useState(existing?.series ?? "");
+  const [seriesId, setSeriesId] = useState(existing?.seriesId ? String(existing.seriesId) : "");
   const [seriesPart, setSeriesPart] = useState(existing?.seriesPart ? String(existing.seriesPart) : "");
   const [excerpt, setExcerpt] = useState(existing?.excerpt ?? "");
   const [author, setAuthor] = useState(existing?.author ?? "");
@@ -200,7 +204,7 @@ export default function BlogPostEditor(props: Props) {
     setSubmitting(nextStatus);
     const payload = {
       title: title.trim(),
-      series: series.trim() || null,
+      seriesId: seriesId ? Number(seriesId) : null,
       seriesPart: seriesPart.trim() ? Number(seriesPart) : null,
       excerpt: excerpt.trim() || null,
       contentHtml: editor.getHTML(),
@@ -251,14 +255,24 @@ export default function BlogPostEditor(props: Props) {
             <label htmlFor="post-series" className="mb-1 block text-sm font-semibold">
               Series <span className="text-xs font-normal opacity-60">(optional)</span>
             </label>
-            <input
+            <select
               id="post-series"
-              type="text"
-              value={series}
-              onChange={(e) => setSeries(e.target.value)}
-              placeholder="e.g. AI at Work"
+              value={seriesId}
+              onChange={(e) => setSeriesId(e.target.value)}
               className="w-full rounded-lg border-2 border-line bg-white px-4 py-3 text-sm outline-none focus:border-sky-400"
-            />
+            >
+              <option value="">No series</option>
+              {props.seriesOptions.map((s) => (
+                <option key={s.id} value={s.id}>
+                  {s.name}
+                </option>
+              ))}
+            </select>
+            {props.seriesOptions.length === 0 ? (
+              <p className="mt-1 text-xs opacity-60">
+                No series registered yet — go to Admin → Blog → Series to add one.
+              </p>
+            ) : null}
           </div>
           <div>
             <label htmlFor="post-series-part" className="mb-1 block text-sm font-semibold">

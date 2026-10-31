@@ -1,9 +1,18 @@
-import type { BlogPost } from "@/lib/db/schema";
-
 const SITE_URL = "https://www.careerzeta.com";
 
+type JsonLdPost = {
+  title: string;
+  slug: string;
+  excerpt: string | null;
+  coverImageUrl: string | null;
+  author: string | null;
+  publishedAt: Date | null;
+  createdAt: Date;
+  updatedAt: Date;
+};
+
 /** Builds a schema.org/BlogPosting entry so a published post is eligible for Google's article rich result. */
-export function buildBlogPostingJsonLd(post: BlogPost) {
+export function buildBlogPostingJsonLd(post: JsonLdPost, seriesName?: string | null) {
   const url = `${SITE_URL}/blog/${post.slug}`;
   const publishedAt = (post.publishedAt ?? post.createdAt).toISOString();
 
@@ -17,6 +26,7 @@ export function buildBlogPostingJsonLd(post: BlogPost) {
     mainEntityOfPage: url,
     datePublished: publishedAt,
     dateModified: post.updatedAt.toISOString(),
+    isPartOf: seriesName ? { "@type": "CreativeWorkSeries", name: seriesName } : undefined,
     author: {
       "@type": "Person",
       name: post.author ?? "CareerZeta",

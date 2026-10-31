@@ -2,7 +2,7 @@ import { eq } from "drizzle-orm";
 import sanitizeHtml from "sanitize-html";
 
 import { db } from "@/lib/db";
-import { blogPosts } from "@/lib/db/schema";
+import { blogPosts, blogSeries } from "@/lib/db/schema";
 
 /** Converts a post title into a URL-safe slug — lowercase, hyphenated, ASCII only. */
 export function slugify(title: string): string {
@@ -21,6 +21,19 @@ export async function uniqueBlogSlug(base: string, excludeId?: number): Promise<
   let suffix = 2;
   for (;;) {
     const [existing] = await db.select().from(blogPosts).where(eq(blogPosts.slug, candidate)).limit(1);
+    if (!existing || existing.id === excludeId) return candidate;
+    candidate = `${safeBase}-${suffix}`;
+    suffix += 1;
+  }
+}
+
+/** Same idea as uniqueBlogSlug, for the blog_series table. */
+export async function uniqueSeriesSlug(base: string, excludeId?: number): Promise<string> {
+  const safeBase = base || "series";
+  let candidate = safeBase;
+  let suffix = 2;
+  for (;;) {
+    const [existing] = await db.select().from(blogSeries).where(eq(blogSeries.slug, candidate)).limit(1);
     if (!existing || existing.id === excludeId) return candidate;
     candidate = `${safeBase}-${suffix}`;
     suffix += 1;

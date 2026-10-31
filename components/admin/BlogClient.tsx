@@ -7,7 +7,8 @@ export type BlogPostRow = {
   id: number;
   title: string;
   slug: string;
-  series: string | null;
+  seriesId: number | null;
+  seriesName: string | null;
   seriesPart: number | null;
   status: "draft" | "published";
   publishedAt: string | null;
@@ -26,7 +27,7 @@ export default function BlogClient({ initialPosts }: { initialPosts: BlogPostRow
   return (
     <div className="mt-8">
       <div className="flex items-center justify-between">
-        <h1 className="font-display text-3xl font-bold">Blog</h1>
+        <h2 className="font-display text-2xl font-bold">Posts</h2>
         <Link
           href="/admin/blog/new"
           className="rounded-lg bg-sky-400 px-5 py-3 text-sm font-bold text-slate-900 transition-transform duration-150 hover:scale-105"
@@ -54,7 +55,9 @@ export default function BlogClient({ initialPosts }: { initialPosts: BlogPostRow
                 <tr key={post.id} className="border-b border-line/60">
                   <td className="py-3 pr-4 font-semibold">{post.title}</td>
                   <td className="py-3 pr-4 opacity-70">
-                    {post.series ? `${post.series}${post.seriesPart ? ` · Part ${post.seriesPart}` : ""}` : "—"}
+                    {post.seriesName
+                      ? `${post.seriesName}${post.seriesPart ? ` · Part ${post.seriesPart}` : ""}`
+                      : "—"}
                   </td>
                   <td className="py-3 pr-4">
                     <span

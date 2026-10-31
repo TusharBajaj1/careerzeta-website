@@ -1,9 +1,9 @@
 import { notFound } from "next/navigation";
-import { eq } from "drizzle-orm";
+import { asc, eq } from "drizzle-orm";
 
 import BlogPostEditor from "@/components/admin/BlogPostEditor";
 import { db } from "@/lib/db";
-import { blogPosts } from "@/lib/db/schema";
+import { blogPosts, blogSeries } from "@/lib/db/schema";
 
 export const dynamic = "force-dynamic";
 
@@ -12,12 +12,16 @@ export default async function EditBlogPostPage({ params }: { params: Promise<{ i
   const postId = Number(id);
   if (!Number.isInteger(postId)) notFound();
 
-  const [post] = await db.select().from(blogPosts).where(eq(blogPosts.id, postId)).limit(1);
+  const [[post], seriesOptions] = await Promise.all([
+    db.select().from(blogPosts).where(eq(blogPosts.id, postId)).limit(1),
+    db.select({ id: blogSeries.id, name: blogSeries.name }).from(blogSeries).orderBy(asc(blogSeries.name)),
+  ]);
   if (!post) notFound();
 
   return (
     <BlogPostEditor
       mode="edit"
+      seriesOptions={seriesOptions}
       post={{
         ...post,
         publishedAt: post.publishedAt ? post.publishedAt.toISOString() : null,

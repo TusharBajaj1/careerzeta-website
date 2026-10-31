@@ -9,13 +9,28 @@ import Reveal from "@/components/ui/Reveal";
 import { estimateReadingMinutes } from "@/lib/blog";
 import { buildBlogPostingJsonLd } from "@/lib/blogJsonLd";
 import { db } from "@/lib/db";
-import { blogPosts } from "@/lib/db/schema";
+import { blogPosts, blogSeries } from "@/lib/db/schema";
 import { buildMetadata } from "@/lib/seo";
 
 async function getPublishedPost(slug: string) {
   const [post] = await db
-    .select()
+    .select({
+      id: blogPosts.id,
+      title: blogPosts.title,
+      slug: blogPosts.slug,
+      excerpt: blogPosts.excerpt,
+      contentHtml: blogPosts.contentHtml,
+      coverImageUrl: blogPosts.coverImageUrl,
+      author: blogPosts.author,
+      publishedAt: blogPosts.publishedAt,
+      createdAt: blogPosts.createdAt,
+      updatedAt: blogPosts.updatedAt,
+      seriesPart: blogPosts.seriesPart,
+      seriesName: blogSeries.name,
+      seriesSlug: blogSeries.slug,
+    })
     .from(blogPosts)
+    .leftJoin(blogSeries, eq(blogPosts.seriesId, blogSeries.id))
     .where(and(eq(blogPosts.slug, slug), eq(blogPosts.status, "published")))
     .limit(1);
   return post ?? null;
@@ -53,7 +68,9 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
     <>
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(buildBlogPostingJsonLd(post)) }}
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(buildBlogPostingJsonLd(post, post.seriesName)),
+        }}
       />
 
       <Reveal className="mx-auto max-w-[760px] px-6 pt-16 pb-6 md:px-10 lg:px-16 lg:pt-20">
@@ -61,11 +78,14 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
           ← Blog
         </Link>
 
-        {post.series ? (
-          <span className="mt-6 inline-block w-fit rounded-full bg-sky-100 px-3 py-1 text-xs font-bold text-sky-700">
-            {post.series}
+        {post.seriesName && post.seriesSlug ? (
+          <Link
+            href={`/blog/series/${post.seriesSlug}`}
+            className="mt-6 inline-block w-fit rounded-full bg-sky-100 px-3 py-1 text-xs font-bold text-sky-700 transition hover:bg-sky-200"
+          >
+            {post.seriesName}
             {post.seriesPart ? ` · Part ${post.seriesPart}` : ""}
-          </span>
+          </Link>
         ) : null}
 
         <h1 className="mt-3 font-display text-3xl font-bold md:text-4xl">{post.title}</h1>

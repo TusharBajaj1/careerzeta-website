@@ -1,8 +1,8 @@
 import type { MetadataRoute } from "next";
-import { desc, eq } from "drizzle-orm";
+import { and, desc, eq } from "drizzle-orm";
 
 import { db } from "@/lib/db";
-import { blogPosts } from "@/lib/db/schema";
+import { blogPosts, blogSeries } from "@/lib/db/schema";
 
 const BASE_URL = "https://www.careerzeta.com";
 
@@ -12,6 +12,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     "/programs",
     "/resources",
     "/blog",
+    "/blog/series",
     "/about",
     "/contact",
     "/privacy-policy",
@@ -39,7 +40,18 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       lastModified: post.updatedAt,
     }));
 
-    return [...staticEntries, ...postEntries];
+    // Only series with at least one published post get a public page.
+    const seriesRows = await db
+      .selectDistinct({ slug: blogSeries.slug })
+      .from(blogSeries)
+      .innerJoin(blogPosts, and(eq(blogPosts.seriesId, blogSeries.id), eq(blogPosts.status, "published")));
+
+    const seriesEntries = seriesRows.map((s) => ({
+      url: `${BASE_URL}/blog/series/${s.slug}`,
+      lastModified: new Date(),
+    }));
+
+    return [...staticEntries, ...postEntries, ...seriesEntries];
   } catch {
     return staticEntries;
   }

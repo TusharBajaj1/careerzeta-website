@@ -6,7 +6,7 @@ import { desc, eq } from "drizzle-orm";
 import Footer from "@/components/layout/Footer";
 import Reveal from "@/components/ui/Reveal";
 import { db } from "@/lib/db";
-import { blogPosts } from "@/lib/db/schema";
+import { blogPosts, blogSeries } from "@/lib/db/schema";
 import { buildMetadata } from "@/lib/seo";
 
 export const metadata: Metadata = buildMetadata({
@@ -20,8 +20,20 @@ export const dynamic = "force-dynamic";
 
 export default async function BlogIndexPage() {
   const posts = await db
-    .select()
+    .select({
+      id: blogPosts.id,
+      slug: blogPosts.slug,
+      title: blogPosts.title,
+      excerpt: blogPosts.excerpt,
+      coverImageUrl: blogPosts.coverImageUrl,
+      author: blogPosts.author,
+      publishedAt: blogPosts.publishedAt,
+      seriesName: blogSeries.name,
+      seriesSlug: blogSeries.slug,
+      seriesPart: blogPosts.seriesPart,
+    })
     .from(blogPosts)
+    .leftJoin(blogSeries, eq(blogPosts.seriesId, blogSeries.id))
     .where(eq(blogPosts.status, "published"))
     .orderBy(desc(blogPosts.publishedAt));
 
@@ -36,6 +48,12 @@ export default async function BlogIndexPage() {
           A weekly series on what&apos;s actually changing in data, analytics and AI
           careers — and how to keep up.
         </p>
+        <Link
+          href="/blog/series"
+          className="mt-4 inline-block text-sm font-bold text-sky-700 hover:underline"
+        >
+          Browse by series →
+        </Link>
       </Reveal>
 
       <div className="mx-auto max-w-[1100px] px-6 pb-20 md:px-10 lg:px-16">
@@ -55,9 +73,9 @@ export default async function BlogIndexPage() {
                   ) : null}
                 </div>
                 <div className="flex flex-1 flex-col p-6">
-                  {post.series ? (
+                  {post.seriesName ? (
                     <span className="mb-2 inline-block w-fit rounded-full bg-sky-100 px-3 py-1 text-xs font-bold text-sky-700">
-                      {post.series}
+                      {post.seriesName}
                       {post.seriesPart ? ` · Part ${post.seriesPart}` : ""}
                     </span>
                   ) : null}
