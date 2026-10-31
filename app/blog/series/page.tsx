@@ -32,7 +32,7 @@ export default async function BlogSeriesIndexPage() {
 
   return (
     <>
-      <Reveal className="mx-auto max-w-[1100px] px-6 pt-16 pb-6 md:px-10 lg:px-16 lg:pt-20">
+      <Reveal className="mx-auto max-w-[1400px] px-6 pt-16 pb-6 md:px-10 lg:px-16 lg:pt-20">
         <Link href="/blog" className="text-sm font-semibold text-sky-700 hover:underline">
           ← Blog
         </Link>
@@ -42,7 +42,7 @@ export default async function BlogSeriesIndexPage() {
         </p>
       </Reveal>
 
-      <div className="mx-auto max-w-[1100px] px-6 pb-20 md:px-10 lg:px-16">
+      <div className="mx-auto max-w-[1400px] px-6 pb-20 md:px-10 lg:px-16">
         {rows.length === 0 ? (
           <p className="mt-10 text-sm opacity-60">No series published yet — check back soon.</p>
         ) : (
