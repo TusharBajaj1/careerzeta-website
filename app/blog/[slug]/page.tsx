@@ -73,10 +73,9 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
         }}
       />
 
-      {/* Title, meta and cover image use the blog section's wide container
-          (same 1100px as /blog) for visual impact; the body text below
-          switches to a narrower column since a 1100px-wide paragraph is
-          uncomfortably long to read. */}
+      {/* Same outer container (and so the same margins) as the article
+          body below — the cz-prose class keeps paragraph line-length
+          readable internally instead of narrowing the whole column. */}
       <Reveal className="mx-auto max-w-[1100px] px-6 pt-16 pb-6 md:px-10 lg:px-16 lg:pt-20">
         <Link href="/blog" className="text-sm font-semibold text-sky-700 hover:underline">
           ← Blog
@@ -112,7 +111,7 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
         ) : null}
       </Reveal>
 
-      <article className="mx-auto max-w-[760px] px-6 pt-8 pb-20 md:px-10 lg:px-16">
+      <article className="mx-auto max-w-[1100px] px-6 pt-8 pb-20 md:px-10 lg:px-16">
         <div className="cz-prose" dangerouslySetInnerHTML={{ __html: post.contentHtml }} />
       </article>
 
