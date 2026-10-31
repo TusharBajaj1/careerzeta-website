@@ -22,6 +22,7 @@ export default async function AdminBlogPage() {
         seriesName: blogSeries.name,
         seriesPart: blogPosts.seriesPart,
         status: blogPosts.status,
+        scheduledAt: blogPosts.scheduledAt,
         publishedAt: blogPosts.publishedAt,
         createdAt: blogPosts.createdAt,
       })
@@ -35,6 +36,7 @@ export default async function AdminBlogPage() {
 
   const initialPosts = postRows.map((post) => ({
     ...post,
+    scheduledAt: post.scheduledAt ? post.scheduledAt.toISOString() : null,
     publishedAt: post.publishedAt ? post.publishedAt.toISOString() : null,
     createdAt: post.createdAt.toISOString(),
   }));

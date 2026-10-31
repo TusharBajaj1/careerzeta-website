@@ -24,6 +24,7 @@ export default async function EditBlogPostPage({ params }: { params: Promise<{ i
       seriesOptions={seriesOptions}
       post={{
         ...post,
+        scheduledAt: post.scheduledAt ? post.scheduledAt.toISOString() : null,
         publishedAt: post.publishedAt ? post.publishedAt.toISOString() : null,
         createdAt: post.createdAt.toISOString(),
         updatedAt: post.updatedAt.toISOString(),

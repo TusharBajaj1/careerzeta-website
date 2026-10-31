@@ -22,14 +22,14 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
     return NextResponse.json({ error: "not_found" }, { status: 404 });
   }
 
-  const { title, seriesId, seriesPart, excerpt, contentHtml, coverImageUrl, author, status } = body;
+  const { title, seriesId, seriesPart, excerpt, contentHtml, coverImageUrl, author, status, scheduledAt } = body;
 
   if (
     typeof title !== "string" ||
     !title.trim() ||
     typeof contentHtml !== "string" ||
     !contentHtml.trim() ||
-    (status !== "draft" && status !== "published") ||
+    (status !== "draft" && status !== "scheduled" && status !== "published") ||
     (seriesId !== undefined && seriesId !== null && (typeof seriesId !== "number" || !Number.isInteger(seriesId))) ||
     (seriesPart !== undefined &&
       seriesPart !== null &&
@@ -39,6 +39,14 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
     (author !== undefined && author !== null && typeof author !== "string")
   ) {
     return NextResponse.json({ error: "invalid_payload" }, { status: 400 });
+  }
+
+  let scheduledAtDate: Date | null = null;
+  if (status === "scheduled") {
+    scheduledAtDate = typeof scheduledAt === "string" ? new Date(scheduledAt) : null;
+    if (!scheduledAtDate || Number.isNaN(scheduledAtDate.getTime()) || scheduledAtDate <= new Date()) {
+      return NextResponse.json({ error: "invalid_schedule" }, { status: 400 });
+    }
   }
 
   if (typeof seriesId === "number") {
@@ -61,6 +69,7 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
       coverImageUrl: typeof coverImageUrl === "string" && coverImageUrl.trim() ? coverImageUrl.trim() : null,
       author: typeof author === "string" && author.trim() ? author.trim() : null,
       status,
+      scheduledAt: scheduledAtDate,
       // First time this post goes live, lock in publishedAt — unpublishing
       // and republishing later keeps the original date rather than bumping
       // it, so a post's place in the series/feed ordering stays stable.

@@ -16,6 +16,7 @@ export async function GET() {
       seriesName: blogSeries.name,
       seriesPart: blogPosts.seriesPart,
       status: blogPosts.status,
+      scheduledAt: blogPosts.scheduledAt,
       publishedAt: blogPosts.publishedAt,
       createdAt: blogPosts.createdAt,
     })
@@ -32,15 +33,25 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "invalid_payload" }, { status: 400 });
   }
 
-  const { title, slug: requestedSlug, seriesId, seriesPart, excerpt, contentHtml, coverImageUrl, author, status } =
-    body;
+  const {
+    title,
+    slug: requestedSlug,
+    seriesId,
+    seriesPart,
+    excerpt,
+    contentHtml,
+    coverImageUrl,
+    author,
+    status,
+    scheduledAt,
+  } = body;
 
   if (
     typeof title !== "string" ||
     !title.trim() ||
     typeof contentHtml !== "string" ||
     !contentHtml.trim() ||
-    (status !== "draft" && status !== "published") ||
+    (status !== "draft" && status !== "scheduled" && status !== "published") ||
     (requestedSlug !== undefined && requestedSlug !== null && typeof requestedSlug !== "string") ||
     (seriesId !== undefined && seriesId !== null && (typeof seriesId !== "number" || !Number.isInteger(seriesId))) ||
     (seriesPart !== undefined &&
@@ -51,6 +62,14 @@ export async function POST(request: Request) {
     (author !== undefined && author !== null && typeof author !== "string")
   ) {
     return NextResponse.json({ error: "invalid_payload" }, { status: 400 });
+  }
+
+  let scheduledAtDate: Date | null = null;
+  if (status === "scheduled") {
+    scheduledAtDate = typeof scheduledAt === "string" ? new Date(scheduledAt) : null;
+    if (!scheduledAtDate || Number.isNaN(scheduledAtDate.getTime()) || scheduledAtDate <= new Date()) {
+      return NextResponse.json({ error: "invalid_schedule" }, { status: 400 });
+    }
   }
 
   if (typeof seriesId === "number") {
@@ -74,6 +93,7 @@ export async function POST(request: Request) {
       coverImageUrl: typeof coverImageUrl === "string" && coverImageUrl.trim() ? coverImageUrl.trim() : null,
       author: typeof author === "string" && author.trim() ? author.trim() : null,
       status,
+      scheduledAt: scheduledAtDate,
       publishedAt: status === "published" ? new Date() : null,
     })
     .returning();

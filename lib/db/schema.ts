@@ -52,7 +52,7 @@ export const paymentTypeEnum = pgEnum("payment_type", [
   "balance",
 ]);
 
-export const blogPostStatusEnum = pgEnum("blog_post_status", ["draft", "published"]);
+export const blogPostStatusEnum = pgEnum("blog_post_status", ["draft", "scheduled", "published"]);
 
 export const coupons = pgTable("coupons", {
   id: serial("id").primaryKey(),
@@ -160,6 +160,8 @@ export const blogPosts = pgTable("blog_posts", {
   coverImageUrl: text("cover_image_url"),
   author: varchar("author", { length: 120 }),
   status: blogPostStatusEnum("status").notNull().default("draft"),
+  /** Set only while status is "scheduled" — the cron sweep (lib/blogSchedule.ts) flips the post to "published" once this time passes. */
+  scheduledAt: timestamp("scheduled_at", { withTimezone: true }),
   /** Set when a post is first published — used for public ordering and the sitemap, kept even if later unpublished and republished. */
   publishedAt: timestamp("published_at", { withTimezone: true }),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),

@@ -17,11 +17,19 @@ export type BlogPostRow = {
   contentHtml: string;
   coverImageUrl: string | null;
   author: string | null;
-  status: "draft" | "published";
+  status: "draft" | "scheduled" | "published";
+  scheduledAt: string | null;
   publishedAt: string | null;
   createdAt: string;
   updatedAt: string;
 };
+
+/** ISO string -> the local "YYYY-MM-DDTHH:mm" a <input type="datetime-local"> expects. */
+function toDatetimeLocalValue(iso: string): string {
+  const d = new Date(iso);
+  const pad = (n: number) => String(n).padStart(2, "0");
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+}
 
 export type SeriesOption = { id: number; name: string };
 
@@ -143,8 +151,11 @@ export default function BlogPostEditor(props: Props) {
   const [excerpt, setExcerpt] = useState(existing?.excerpt ?? "");
   const [author, setAuthor] = useState(existing?.author ?? "");
   const [coverImageUrl, setCoverImageUrl] = useState(existing?.coverImageUrl ?? "");
+  const [scheduledAt, setScheduledAt] = useState(
+    existing?.scheduledAt ? toDatetimeLocalValue(existing.scheduledAt) : "",
+  );
   const [error, setError] = useState<string | null>(null);
-  const [submitting, setSubmitting] = useState<"draft" | "published" | null>(null);
+  const [submitting, setSubmitting] = useState<"draft" | "scheduled" | "published" | null>(null);
   const [uploadingCover, setUploadingCover] = useState(false);
 
   const coverInputRef = useRef<HTMLInputElement>(null);
@@ -195,7 +206,7 @@ export default function BlogPostEditor(props: Props) {
     else setError("Couldn't upload that image — please try again.");
   }
 
-  async function handleSubmit(nextStatus: "draft" | "published") {
+  async function handleSubmit(nextStatus: "draft" | "scheduled" | "published") {
     if (!editor) return;
     setError(null);
 
@@ -208,6 +219,20 @@ export default function BlogPostEditor(props: Props) {
       return;
     }
 
+    let scheduledAtIso: string | null = null;
+    if (nextStatus === "scheduled") {
+      if (!scheduledAt) {
+        setError("Pick a date and time to schedule this for.");
+        return;
+      }
+      const parsed = new Date(scheduledAt);
+      if (Number.isNaN(parsed.getTime()) || parsed <= new Date()) {
+        setError("The scheduled time has to be in the future.");
+        return;
+      }
+      scheduledAtIso = parsed.toISOString();
+    }
+
     setSubmitting(nextStatus);
     const payload = {
       title: title.trim(),
@@ -218,6 +243,7 @@ export default function BlogPostEditor(props: Props) {
       coverImageUrl: coverImageUrl.trim() || null,
       author: author.trim() || null,
       status: nextStatus,
+      scheduledAt: scheduledAtIso,
     };
 
     const res = await fetch(existing ? `/api/admin/blog/${existing.id}` : "/api/admin/blog", {
@@ -384,9 +410,31 @@ export default function BlogPostEditor(props: Props) {
           />
         </div>
 
+        <div>
+          <label htmlFor="post-schedule" className="mb-1 block text-sm font-semibold">
+            Schedule for later <span className="text-xs font-normal opacity-60">(optional)</span>
+          </label>
+          <input
+            id="post-schedule"
+            type="datetime-local"
+            value={scheduledAt}
+            onChange={(e) => setScheduledAt(e.target.value)}
+            className="rounded-lg border-2 border-line bg-white px-4 py-3 text-sm outline-none focus:border-sky-400"
+          />
+          <p className="mt-1 text-xs opacity-60">
+            Set a future date and time, then click <strong>Schedule</strong> below — the post goes
+            live on its own at that moment, no need to come back and publish it.
+          </p>
+          {existing?.status === "scheduled" ? (
+            <p className="mt-1 text-xs font-semibold text-amber-700">
+              Currently scheduled for {new Date(existing.scheduledAt!).toLocaleString("en-IN")}.
+            </p>
+          ) : null}
+        </div>
+
         {error && <p className="text-sm text-red-600">{error}</p>}
 
-        <div className="mt-2 flex items-center gap-3">
+        <div className="mt-2 flex flex-wrap items-center gap-3">
           <button
             type="button"
             onClick={() => handleSubmit("draft")}
@@ -397,11 +445,20 @@ export default function BlogPostEditor(props: Props) {
           </button>
           <button
             type="button"
+            onClick={() => handleSubmit("scheduled")}
+            disabled={submitting !== null || !scheduledAt}
+            title={scheduledAt ? undefined : "Pick a date and time above first"}
+            className="rounded-lg border-2 border-amber-400 px-5 py-3 text-sm font-bold text-amber-700 transition hover:bg-amber-50 disabled:opacity-40"
+          >
+            {submitting === "scheduled" ? "Scheduling…" : "Schedule"}
+          </button>
+          <button
+            type="button"
             onClick={() => handleSubmit("published")}
             disabled={submitting !== null}
             className="rounded-lg bg-sky-400 px-5 py-3 text-sm font-bold text-slate-900 transition-transform duration-150 hover:scale-105 disabled:opacity-60"
           >
-            {submitting === "published" ? "Publishing…" : existing?.status === "published" ? "Save & keep published" : "Publish"}
+            {submitting === "published" ? "Publishing…" : existing?.status === "published" ? "Save & keep published" : "Publish now"}
           </button>
         </div>
       </div>

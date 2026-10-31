@@ -10,9 +10,22 @@ export type BlogPostRow = {
   seriesId: number | null;
   seriesName: string | null;
   seriesPart: number | null;
-  status: "draft" | "published";
+  status: "draft" | "scheduled" | "published";
+  scheduledAt: string | null;
   publishedAt: string | null;
   createdAt: string;
+};
+
+const STATUS_LABEL: Record<BlogPostRow["status"], string> = {
+  draft: "Draft",
+  scheduled: "Scheduled",
+  published: "Published",
+};
+
+const STATUS_BADGE: Record<BlogPostRow["status"], string> = {
+  draft: "bg-slate-100",
+  scheduled: "bg-amber-100 text-amber-700",
+  published: "bg-green-100 text-green-700",
 };
 
 export default function BlogClient({ initialPosts }: { initialPosts: BlogPostRow[] }) {
@@ -46,7 +59,7 @@ export default function BlogClient({ initialPosts }: { initialPosts: BlogPostRow
                 <th className="py-2 pr-4">Title</th>
                 <th className="py-2 pr-4">Series</th>
                 <th className="py-2 pr-4">Status</th>
-                <th className="py-2 pr-4">Published</th>
+                <th className="py-2 pr-4">Date</th>
                 <th className="py-2 pr-4"></th>
               </tr>
             </thead>
@@ -60,16 +73,16 @@ export default function BlogClient({ initialPosts }: { initialPosts: BlogPostRow
                       : "—"}
                   </td>
                   <td className="py-3 pr-4">
-                    <span
-                      className={`rounded-full px-3 py-1 text-xs font-bold ${
-                        post.status === "published" ? "bg-green-100 text-green-700" : "bg-slate-100"
-                      }`}
-                    >
-                      {post.status === "published" ? "Published" : "Draft"}
+                    <span className={`rounded-full px-3 py-1 text-xs font-bold ${STATUS_BADGE[post.status]}`}>
+                      {STATUS_LABEL[post.status]}
                     </span>
                   </td>
                   <td className="py-3 pr-4">
-                    {post.publishedAt ? new Date(post.publishedAt).toLocaleDateString("en-IN") : "—"}
+                    {post.status === "scheduled" && post.scheduledAt
+                      ? new Date(post.scheduledAt).toLocaleString("en-IN")
+                      : post.publishedAt
+                        ? new Date(post.publishedAt).toLocaleDateString("en-IN")
+                        : "—"}
                   </td>
                   <td className="py-3 pr-4">
                     <div className="flex gap-3">
