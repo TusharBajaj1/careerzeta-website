@@ -320,13 +320,17 @@ export default function BlogPostEditor(props: Props) {
 
         <div>
           <span className="mb-1 block text-sm font-semibold">Cover image</span>
+          <p className="mb-2 text-xs opacity-60">
+            For best results use a wide/landscape photo (around 1600×700) — a taller or
+            square image still works, it just won&apos;t fill the banner edge-to-edge.
+          </p>
           {coverImageUrl ? (
-            // eslint-disable-next-line @next/next/no-img-element -- admin-uploaded, external Blob URL; not worth next/image config here.
-            <img
-              src={coverImageUrl}
-              alt=""
-              className="mb-2 h-40 w-full rounded-lg border-2 border-line object-cover"
-            />
+            // object-contain on a dark background matches exactly how the
+            // public post page renders this image — no surprises on publish.
+            <div className="mb-2 flex aspect-[21/9] w-full items-center justify-center overflow-hidden rounded-lg border-2 border-line bg-[#0b1220]">
+              {/* eslint-disable-next-line @next/next/no-img-element -- admin-uploaded, external Blob URL; not worth next/image config here. */}
+              <img src={coverImageUrl} alt="" className="h-full w-full object-contain" />
+            </div>
           ) : null}
           <div className="flex items-center gap-3">
             <button

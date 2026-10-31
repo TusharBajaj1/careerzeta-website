@@ -102,8 +102,12 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
         </div>
 
         {post.coverImageUrl ? (
-          <div className="relative mt-8 h-[320px] w-full overflow-hidden rounded-2xl bg-slate-200 md:h-[460px]">
-            <Image src={post.coverImageUrl} alt="" fill className="object-cover" priority />
+          // object-contain + a fixed banner ratio: whatever shape the admin
+          // uploaded, the full image always shows, never zoomed or cropped.
+          // A non-wide image just letterboxes against the dark background
+          // instead of looking mangled.
+          <div className="relative mt-8 aspect-[21/9] w-full overflow-hidden rounded-2xl bg-[#0b1220]">
+            <Image src={post.coverImageUrl} alt="" fill className="object-contain" priority />
           </div>
         ) : null}
       </Reveal>

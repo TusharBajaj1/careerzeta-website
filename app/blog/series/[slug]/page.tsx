@@ -69,9 +69,9 @@ export default async function BlogSeriesPage({ params }: { params: Promise<{ slu
                 href={`/blog/${post.slug}`}
                 className="flex items-stretch gap-5 overflow-hidden rounded-3xl bg-white shadow-[0_20px_50px_-30px_rgba(17,24,39,.3)] transition-transform duration-200 hover:-translate-y-1"
               >
-                <div className="relative hidden w-[180px] shrink-0 bg-slate-200 sm:block">
+                <div className="relative hidden w-[180px] shrink-0 bg-[#0b1220] sm:block">
                   {post.coverImageUrl ? (
-                    <Image src={post.coverImageUrl} alt="" fill className="object-cover" />
+                    <Image src={post.coverImageUrl} alt="" fill className="object-contain" />
                   ) : null}
                 </div>
                 <div className="flex flex-1 flex-col justify-center p-6">

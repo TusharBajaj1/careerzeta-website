@@ -67,9 +67,11 @@ export default async function BlogIndexPage() {
                 href={`/blog/${post.slug}`}
                 className="flex flex-col overflow-hidden rounded-3xl bg-white shadow-[0_20px_50px_-30px_rgba(17,24,39,.3)] transition-transform duration-200 hover:-translate-y-1"
               >
-                <div className="relative h-[180px] bg-slate-200">
+                {/* object-contain: a thumbnail of whatever shape the cover
+                    image is, never a zoomed/cropped slice of it. */}
+                <div className="relative h-[180px] bg-[#0b1220]">
                   {post.coverImageUrl ? (
-                    <Image src={post.coverImageUrl} alt="" fill className="object-cover" />
+                    <Image src={post.coverImageUrl} alt="" fill className="object-contain" />
                   ) : null}
                 </div>
                 <div className="flex flex-1 flex-col p-6">
