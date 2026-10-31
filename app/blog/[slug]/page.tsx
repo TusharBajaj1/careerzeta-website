@@ -73,7 +73,11 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
         }}
       />
 
-      <Reveal className="mx-auto max-w-[760px] px-6 pt-16 pb-6 md:px-10 lg:px-16 lg:pt-20">
+      {/* Title, meta and cover image use the blog section's wide container
+          (same 1100px as /blog) for visual impact; the body text below
+          switches to a narrower column since a 1100px-wide paragraph is
+          uncomfortably long to read. */}
+      <Reveal className="mx-auto max-w-[1100px] px-6 pt-16 pb-6 md:px-10 lg:px-16 lg:pt-20">
         <Link href="/blog" className="text-sm font-semibold text-sky-700 hover:underline">
           ← Blog
         </Link>
@@ -88,7 +92,7 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
           </Link>
         ) : null}
 
-        <h1 className="mt-3 font-display text-3xl font-bold md:text-4xl">{post.title}</h1>
+        <h1 className="mt-3 max-w-[20ch] font-display text-4xl font-bold md:text-5xl">{post.title}</h1>
 
         <div className="mt-4 text-sm opacity-60">
           {post.author ? `${post.author} · ` : ""}
@@ -98,7 +102,7 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
         </div>
 
         {post.coverImageUrl ? (
-          <div className="relative mt-8 h-[320px] w-full overflow-hidden rounded-2xl bg-slate-200 md:h-[420px]">
+          <div className="relative mt-8 h-[320px] w-full overflow-hidden rounded-2xl bg-slate-200 md:h-[460px]">
             <Image src={post.coverImageUrl} alt="" fill className="object-cover" priority />
           </div>
         ) : null}
