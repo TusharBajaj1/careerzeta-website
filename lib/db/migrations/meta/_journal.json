@@ -43,6 +43,34 @@
       "when": 1792692644208,
       "tag": "0005_remarkable_dormammu",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1793274658158,
+      "tag": "0006_first_lilandra",
+      "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1793426203012,
+      "tag": "0007_clumsy_magik",
+      "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1793426208904,
+      "tag": "0008_chemical_retro_girl",
+      "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1793430136319,
+      "tag": "0009_high_night_nurse",
+      "breakpoints": true
     }
   ]
 }

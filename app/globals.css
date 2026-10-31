@@ -256,6 +256,59 @@ body {
   animation: cz-blob 14s ease-in-out infinite;
 }
 
+/* Shared rich-text rendering for blog posts — used both by the admin
+   editor (TipTap's output) and the public post page, so what the sales
+   team sees while writing matches what candidates see after publishing. */
+.cz-prose {
+  font-size: 1rem;
+  line-height: 1.75;
+  color: var(--foreground);
+}
+.cz-prose > * + * {
+  margin-top: 1.1em;
+}
+.cz-prose h2 {
+  font-family: var(--font-poppins), ui-sans-serif, sans-serif;
+  font-weight: 700;
+  font-size: 1.4rem;
+  margin-top: 1.6em;
+}
+.cz-prose h3 {
+  font-family: var(--font-poppins), ui-sans-serif, sans-serif;
+  font-weight: 700;
+  font-size: 1.15rem;
+  margin-top: 1.4em;
+}
+.cz-prose a {
+  color: #0369a1;
+  text-decoration: underline;
+  text-decoration-color: #7dd3fc;
+}
+.cz-prose ul,
+.cz-prose ol {
+  padding-left: 1.4em;
+}
+.cz-prose li + li {
+  margin-top: 0.4em;
+}
+.cz-prose blockquote {
+  border-left: 3px solid #38bdf8;
+  padding-left: 1em;
+  opacity: 0.85;
+  font-style: italic;
+}
+.cz-prose img {
+  border-radius: 12px;
+  max-width: 100%;
+}
+.cz-prose p.is-editor-empty:first-child::before {
+  content: attr(data-placeholder);
+  float: left;
+  color: #94a3b8;
+  pointer-events: none;
+  height: 0;
+}
+
 /* The design leans on continuous ambient motion; honour a reduced-motion
    preference by stopping it rather than shipping a second visual language. */
 @media (prefers-reduced-motion: reduce) {

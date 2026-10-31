@@ -52,6 +52,8 @@ export const paymentTypeEnum = pgEnum("payment_type", [
   "balance",
 ]);
 
+export const blogPostStatusEnum = pgEnum("blog_post_status", ["draft", "scheduled", "published"]);
+
 export const coupons = pgTable("coupons", {
   id: serial("id").primaryKey(),
   code: varchar("code", { length: 64 }).notNull().unique(),
@@ -136,6 +138,36 @@ export const demoRequests = pgTable("demo_requests", {
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 });
 
+export const blogSeries = pgTable("blog_series", {
+  id: serial("id").primaryKey(),
+  name: varchar("name", { length: 150 }).notNull(),
+  slug: varchar("slug", { length: 150 }).notNull().unique(),
+  description: text("description"),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+});
+
+export const blogPosts = pgTable("blog_posts", {
+  id: serial("id").primaryKey(),
+  title: varchar("title", { length: 200 }).notNull(),
+  slug: varchar("slug", { length: 200 }).notNull().unique(),
+  /** Groups weekly posts under a registered series — null for a standalone post. */
+  seriesId: integer("series_id").references(() => blogSeries.id),
+  /** This post's position within its series — purely for display ordering, independent of publish date. */
+  seriesPart: integer("series_part"),
+  excerpt: text("excerpt"),
+  /** Sanitized HTML from the admin rich-text editor. */
+  contentHtml: text("content_html").notNull(),
+  coverImageUrl: text("cover_image_url"),
+  author: varchar("author", { length: 120 }),
+  status: blogPostStatusEnum("status").notNull().default("draft"),
+  /** Set only while status is "scheduled" — the cron sweep (lib/blogSchedule.ts) flips the post to "published" once this time passes. */
+  scheduledAt: timestamp("scheduled_at", { withTimezone: true }),
+  /** Set when a post is first published — used for public ordering and the sitemap, kept even if later unpublished and republished. */
+  publishedAt: timestamp("published_at", { withTimezone: true }),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+});
+
 export type Coupon = typeof coupons.$inferSelect;
 export type NewCoupon = typeof coupons.$inferInsert;
 export type Enrollment = typeof enrollments.$inferSelect;
@@ -144,3 +176,7 @@ export type Payment = typeof payments.$inferSelect;
 export type NewPayment = typeof payments.$inferInsert;
 export type DemoRequest = typeof demoRequests.$inferSelect;
 export type NewDemoRequest = typeof demoRequests.$inferInsert;
+export type BlogPost = typeof blogPosts.$inferSelect;
+export type NewBlogPost = typeof blogPosts.$inferInsert;
+export type BlogSeries = typeof blogSeries.$inferSelect;
+export type NewBlogSeries = typeof blogSeries.$inferInsert;
