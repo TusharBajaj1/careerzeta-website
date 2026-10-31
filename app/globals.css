@@ -263,12 +263,6 @@ body {
   font-size: 1rem;
   line-height: 1.75;
   color: var(--foreground);
-  /* Keeps paragraph line-length readable even when the surrounding page
-     container is wide (e.g. matching a hero image's margins). No auto
-     margins — the text stays flush with the container's left edge
-     (same as the image above it), it just doesn't stretch all the way
-     across to the right. */
-  max-width: 72ch;
 }
 .cz-prose > * + * {
   margin-top: 1.1em;
