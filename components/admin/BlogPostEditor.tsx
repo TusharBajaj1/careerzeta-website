@@ -157,6 +157,13 @@ export default function BlogPostEditor(props: Props) {
         link: {
           openOnClick: false,
           HTMLAttributes: { rel: "noopener noreferrer", target: "_blank" },
+          // autolink also makes the link mark "inclusive" (tiptap's
+          // Link.inclusive() returns this.options.autolink) — with it on,
+          // once the cursor sits inside a link, every further character
+          // typed keeps inheriting the link mark, silently turning the
+          // rest of the post into one giant link. Off avoids that entirely;
+          // links are still added deliberately via the toolbar button.
+          autolink: false,
         },
       }),
       TiptapImage,
