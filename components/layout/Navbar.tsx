@@ -19,10 +19,13 @@ const links = [
 /** Pages with a dark full-bleed hero the nav floats transparently over. */
 const HERO_PAGES = ["/", "/programs", "/resources", "/about"];
 
+type LatestPost = { slug: string; title: string };
+
 export default function Navbar() {
   const pathname = usePathname();
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
+  const [latestPost, setLatestPost] = useState<LatestPost | null>(null);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 12);
@@ -31,6 +34,22 @@ export default function Navbar() {
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
+
+  // Home-only "new content" strip — fetched client-side so every other page
+  // stays fully static (no shared-layout data fetch forcing them dynamic).
+  useEffect(() => {
+    if (pathname !== "/") return;
+    let cancelled = false;
+    fetch("/api/blog/latest-post")
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => {
+        if (!cancelled) setLatestPost(data?.post ?? null);
+      })
+      .catch(() => {});
+    return () => {
+      cancelled = true;
+    };
+  }, [pathname]);
 
   // Transparent-over-hero only holds for the very top of the page — Hero's
   // own text scrolls up into the nav's band almost immediately, so this must
@@ -49,6 +68,17 @@ export default function Navbar() {
             : `border-line bg-[#fafafa] ${scrolled ? "shadow-[0_8px_24px_rgba(17,24,39,0.08)]" : ""}`
         }`}
       >
+        {latestPost ? (
+          <Link
+            href={`/blog/${latestPost.slug}`}
+            className="flex items-center justify-center gap-2 bg-sky-400 px-6 py-2 text-center text-[13px] font-bold text-[#111827] transition hover:bg-sky-300"
+          >
+            <span className="hidden sm:inline">New on the blog:</span>
+            <span className="truncate">{latestPost.title}</span>
+            <span aria-hidden="true">→</span>
+          </Link>
+        ) : null}
+
         <div className="mx-auto flex max-w-[1400px] items-center gap-9 px-6 py-4 md:px-10 lg:px-16">
           <Link href="/" className="flex shrink-0 items-center gap-3">
             <Image
