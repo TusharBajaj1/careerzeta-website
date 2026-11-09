@@ -51,5 +51,19 @@ export async function POST(request: Request) {
     replyTo: email,
   });
 
+  await sendMail({
+    to: email,
+    subject: `We've received your demo request — ${program.name}`,
+    text: [
+      `Hi ${name},`,
+      ``,
+      `Thanks for your interest in ${program.name}! We've received your request for a demo and our team will reach out to you shortly to schedule it.`,
+      ``,
+      `Questions in the meantime? Reach us at ${CONTACT.email}.`,
+      ``,
+      `— Team CareerZeta`,
+    ].join("\n"),
+  });
+
   return NextResponse.json({ ok: true });
 }

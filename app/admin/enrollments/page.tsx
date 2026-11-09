@@ -17,6 +17,7 @@ export default async function AdminEnrollmentsPage() {
   const initialEnrollments = enrollmentRows.map((enrollment) => ({
     ...enrollment,
     createdAt: enrollment.createdAt.toISOString(),
+    admissionLetterSentAt: enrollment.admissionLetterSentAt ? enrollment.admissionLetterSentAt.toISOString() : null,
     payments: paymentRows
       .filter((p) => p.enrollmentId === enrollment.id)
       .map((p) => ({

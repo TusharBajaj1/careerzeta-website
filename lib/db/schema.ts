@@ -107,6 +107,11 @@ export const enrollments = pgTable("enrollments", {
   status: enrollmentStatusEnum("status").notNull().default("pending"),
   /** Whether the 60-days-post-enrollment statement invoice has already gone out — prevents resending it on every sweep run. */
   day60InvoiceSent: boolean("day60_invoice_sent").notNull().default(false),
+  /** Whether the admission letter has already gone out — set the moment the enrollment first reaches fully_paid, so a later payment-related recompute doesn't resend it. */
+  admissionLetterSent: boolean("admission_letter_sent").notNull().default(false),
+  admissionLetterSentAt: timestamp("admission_letter_sent_at", { withTimezone: true }),
+  /** The exact PDF that was emailed, persisted so a later resend/download returns the same document. */
+  admissionLetterPdfUrl: text("admission_letter_pdf_url"),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 });
 

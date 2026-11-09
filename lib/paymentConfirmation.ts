@@ -2,6 +2,7 @@ import { and, eq } from "drizzle-orm";
 
 import { db } from "@/lib/db";
 import { coupons, enrollments, payments } from "@/lib/db/schema";
+import { sendAdmissionLetter } from "@/lib/admissionLetterEmail";
 import { sendPaymentInvoice } from "@/lib/invoiceEmail";
 
 export type ConfirmPaymentResult =
@@ -116,6 +117,21 @@ export async function confirmPaymentPaid(params: {
       .where(eq(payments.id, paymentId));
   } catch (err) {
     console.error(`Invoice email failed for payment ${paymentId}:`, err);
+  }
+
+  // Fires exactly once, the moment an enrollment first reaches fully_paid —
+  // guarded by admissionLetterSent so a later payment-related recompute on
+  // this same enrollment (e.g. a reassign) never resends it.
+  if (updatedEnrollment.status === "fully_paid" && !updatedEnrollment.admissionLetterSent) {
+    try {
+      const { sent, pdfUrl } = await sendAdmissionLetter(updatedEnrollment);
+      await db
+        .update(enrollments)
+        .set({ admissionLetterSent: sent, admissionLetterSentAt: new Date(), admissionLetterPdfUrl: pdfUrl })
+        .where(eq(enrollments.id, updatedEnrollment.id));
+    } catch (err) {
+      console.error(`Admission letter failed for enrollment ${updatedEnrollment.id}:`, err);
+    }
   }
 
   return { ok: true };

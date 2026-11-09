@@ -42,6 +42,8 @@ export type EnrollmentRow = {
   registrationFeeAmount: number | null;
   amountPaid: number;
   status: EnrollmentStatus;
+  admissionLetterSent: boolean;
+  admissionLetterSentAt: string | null;
   createdAt: string;
   payments: PaymentRow[];
 };
@@ -808,6 +810,24 @@ function EnrollmentCard({
         </div>
       </div>
 
+      {enrollment.status === "fully_paid" && (
+        <div className="mt-4 flex flex-wrap items-center gap-3 text-sm">
+          <div className="text-xs font-bold tracking-wide uppercase opacity-60">Admission Letter</div>
+          <span className={enrollment.admissionLetterSent ? "font-semibold text-green-700" : "opacity-60"}>
+            {enrollment.admissionLetterSent ? "Sent" : "Not sent"}
+          </span>
+          <AdmissionLetterControl enrollment={enrollment} onSent={onChanged} />
+          {enrollment.admissionLetterSent && (
+            <a
+              href={`/api/admin/enrollments/${enrollment.id}/download-admission-letter`}
+              className="flex items-center gap-1 text-sky-700 hover:underline"
+            >
+              <Download size={14} /> Download
+            </a>
+          )}
+        </div>
+      )}
+
       {enrollment.payments.length > 0 && (
         <div className="mt-4">
           <div className="text-xs font-bold tracking-wide uppercase opacity-60">Payments</div>
@@ -988,6 +1008,46 @@ function SendInvoiceControl({
       alert("Invoice processed, but the email couldn't be sent — check the address and try again.");
     } else {
       alert(`Sent to ${candidateEmail} (invoice ${data.invoiceNumber}).`);
+    }
+    onSent();
+  }
+
+  return (
+    <button onClick={handleSend} disabled={sending} className="text-sky-700 hover:underline disabled:opacity-50">
+      {sending ? "Sending…" : label}
+    </button>
+  );
+}
+
+/** Sends (or resends) the admission letter for a fully_paid enrollment — same resend-vs-fresh split as SendInvoiceControl, but per enrollment rather than per payment. */
+function AdmissionLetterControl({ enrollment, onSent }: { enrollment: EnrollmentRow; onSent: () => void }) {
+  const [sending, setSending] = useState(false);
+  const label = enrollment.admissionLetterSent ? "Resend" : "Send";
+
+  async function handleSend() {
+    if (
+      !confirm(
+        enrollment.admissionLetterSent
+          ? `Resend the admission letter to ${enrollment.candidateEmail}?`
+          : `Send an admission letter to ${enrollment.candidateEmail}?`,
+      )
+    ) {
+      return;
+    }
+
+    setSending(true);
+    const res = await fetch(`/api/admin/enrollments/${enrollment.id}/send-admission-letter`, { method: "POST" });
+    const data = await res.json().catch(() => ({}));
+    setSending(false);
+
+    if (!res.ok) {
+      alert("Couldn't send the admission letter — try again.");
+      return;
+    }
+    if (!data.sent) {
+      alert("Admission letter processed, but the email couldn't be sent — check the address and try again.");
+    } else {
+      alert(`Sent to ${enrollment.candidateEmail}.`);
     }
     onSent();
   }

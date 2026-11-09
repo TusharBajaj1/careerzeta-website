@@ -85,6 +85,13 @@
       "when": 1794207146194,
       "tag": "0011_solid_jamie_braddock",
       "breakpoints": true
+    },
+    {
+      "idx": 12,
+      "version": "7",
+      "when": 1794208667536,
+      "tag": "0012_supreme_johnny_storm",
+      "breakpoints": true
     }
   ]
 }
