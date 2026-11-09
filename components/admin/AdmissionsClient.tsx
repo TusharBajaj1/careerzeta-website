@@ -15,6 +15,7 @@ export type AdmissionRow = {
   totalFee: number;
   batchDetails: string | null;
   admissionLetterBody: string | null;
+  admissionNumber: string | null;
   admissionLetterSent: boolean;
   admissionLetterSentAt: string | null;
 };
@@ -111,7 +112,11 @@ function AdmissionRowItem({
     } else {
       alert(`Sent to ${admission.candidateEmail}.`);
     }
-    onUpdate({ admissionLetterSent: true, admissionLetterSentAt: new Date().toISOString() });
+    onUpdate({
+      admissionLetterSent: true,
+      admissionLetterSentAt: new Date().toISOString(),
+      admissionNumber: data.admissionNumber ?? admission.admissionNumber,
+    });
   }
 
   return (
@@ -169,6 +174,9 @@ function AdmissionRowItem({
           >
             {admission.admissionLetterSent ? "Sent" : "Not sent"}
           </span>
+          {admission.admissionNumber && (
+            <div className="mt-1 text-xs opacity-60">{admission.admissionNumber}</div>
+          )}
         </td>
         <td className="py-3 pr-4">
           <div className="flex flex-wrap items-center gap-3">

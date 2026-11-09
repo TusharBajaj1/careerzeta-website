@@ -5,7 +5,8 @@ import { formatPaiseAsInr } from "@/lib/money";
 import { BRAND_COLORS, BRAND_FONTS, drawEyebrow, drawLetterhead, registerBrandFonts } from "@/lib/pdfBrand";
 
 export type AdmissionLetterData = {
-  enrollmentId: number;
+  /** Gapless ADM/000001-style reference — from enrollments.admissionNumber (assigned once, at first actual send) or an "ADM/DRAFT" placeholder for a preview of an enrollment that hasn't been sent one yet. The caller resolves which; this module just renders it. */
+  admissionNumber: string;
   admittedAt: Date;
   candidateName: string;
   candidateEmail: string;
@@ -31,8 +32,6 @@ export function generateAdmissionLetterPdf(data: AdmissionLetterData): Promise<B
 
     registerBrandFonts(doc);
 
-    const refNumber = `ADM/${String(data.enrollmentId).padStart(6, "0")}`;
-
     const letterheadBottom = drawLetterhead(doc, {
       addressLines: COMPANY.addressLines,
       contentLeft: CONTENT_LEFT,
@@ -42,7 +41,7 @@ export function generateAdmissionLetterPdf(data: AdmissionLetterData): Promise<B
 
     doc.font(BRAND_FONTS.body).fontSize(8.5).fillColor(BRAND_COLORS.muted);
     doc.text(
-      `Ref: ${refNumber}  ·  Date: ${data.admittedAt.toLocaleDateString("en-IN", { year: "numeric", month: "long", day: "numeric" })}`,
+      `Ref: ${data.admissionNumber}  ·  Date: ${data.admittedAt.toLocaleDateString("en-IN", { year: "numeric", month: "long", day: "numeric" })}`,
       CONTENT_LEFT,
     );
     doc.moveDown(1.2);
@@ -56,7 +55,10 @@ export function generateAdmissionLetterPdf(data: AdmissionLetterData): Promise<B
 
     // Batch details — the brand's rounded tint card, shown up top so it's
     // the first thing a candidate sees once they know they're admitted.
-    if (data.batchDetails) {
+    // Still shown (with a holding message) when nothing's been set yet,
+    // so the letter never looks like it forgot to mention a batch.
+    {
+      const batchText = data.batchDetails || "We'll share your batch details with you shortly.";
       const cardX = CONTENT_LEFT;
       const cardTop = doc.y;
       const cardWidth = CONTENT_WIDTH;
@@ -65,7 +67,7 @@ export function generateAdmissionLetterPdf(data: AdmissionLetterData): Promise<B
       doc.font(BRAND_FONTS.bodyBold).fontSize(10);
       const titleHeight = doc.heightOfString("Batch details", { width: textWidth });
       doc.font(BRAND_FONTS.body).fontSize(10);
-      const bodyHeight = doc.heightOfString(data.batchDetails, { width: textWidth });
+      const bodyHeight = doc.heightOfString(batchText, { width: textWidth });
       const cardHeight = 16 + titleHeight + 6 + bodyHeight + 16;
 
       doc.roundedRect(cardX, cardTop, cardWidth, cardHeight, 14).fill(BRAND_COLORS.tintBlue);
@@ -73,7 +75,7 @@ export function generateAdmissionLetterPdf(data: AdmissionLetterData): Promise<B
       doc.font(BRAND_FONTS.bodyBold).fontSize(10).fillColor(BRAND_COLORS.deepAqua);
       doc.text("Batch details", cardX + 16, cardTop + 16, { width: textWidth });
       doc.font(BRAND_FONTS.body).fontSize(10).fillColor(BRAND_COLORS.charcoal);
-      doc.text(data.batchDetails, cardX + 16, doc.y + 4, { width: textWidth });
+      doc.text(batchText, cardX + 16, doc.y + 4, { width: textWidth });
 
       doc.y = cardTop + cardHeight + 18;
       doc.x = CONTENT_LEFT;
@@ -105,7 +107,7 @@ export function generateAdmissionLetterPdf(data: AdmissionLetterData): Promise<B
       `Phone: ${data.candidatePhone}`,
       `Program: ${data.programName}`,
       `Fee paid: ${formatPaiseAsInr(data.totalFeePaise)}`,
-      `Enrollment ref: ${refNumber}`,
+      `Admission ref: ${data.admissionNumber}`,
     ];
     doc.font(BRAND_FONTS.body).fontSize(9);
     const detailTextWidth = CONTENT_WIDTH - 32;

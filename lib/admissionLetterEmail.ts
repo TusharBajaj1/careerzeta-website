@@ -1,5 +1,6 @@
 import { put } from "@vercel/blob";
 
+import { nextAdmissionNumber } from "@/lib/admissionNumber";
 import { generateAdmissionLetterPdf } from "@/lib/admissionLetter";
 import { defaultAdmissionLetterBody } from "@/lib/admissionLetterTemplate";
 import { CONTACT, PROGRAMS } from "@/lib/content";
@@ -31,16 +32,20 @@ async function storeAdmissionLetterPdf(enrollmentId: number, pdf: Buffer): Promi
  */
 export async function sendAdmissionLetter(
   enrollment: Enrollment,
-): Promise<{ sent: boolean; pdfUrl: string | null }> {
+): Promise<{ sent: boolean; pdfUrl: string | null; admissionNumber: string }> {
   const programName = PROGRAMS.find((p) => p.slug === enrollment.programSlug)?.name ?? enrollment.programSlug;
   const bodyText =
     enrollment.admissionLetterBody?.trim() ||
     defaultAdmissionLetterBody({ candidateName: enrollment.candidateName, programName, totalFeePaise: enrollment.totalFee });
+  // A fresh send only happens once per enrollment (guarded by admissionLetterSent
+  // upstream), but reuse any already-assigned number defensively rather than
+  // ever risk burning two on the same enrollment.
+  const admissionNumber = enrollment.admissionNumber ?? (await nextAdmissionNumber());
 
   let pdf: Buffer;
   try {
     pdf = await generateAdmissionLetterPdf({
-      enrollmentId: enrollment.id,
+      admissionNumber,
       admittedAt: new Date(),
       candidateName: enrollment.candidateName,
       candidateEmail: enrollment.candidateEmail,
@@ -52,7 +57,7 @@ export async function sendAdmissionLetter(
     });
   } catch (err) {
     console.error(`Admission letter generation failed for enrollment ${enrollment.id}:`, err);
-    return { sent: false, pdfUrl: null };
+    return { sent: false, pdfUrl: null, admissionNumber };
   }
 
   const pdfUrl = await storeAdmissionLetterPdf(enrollment.id, pdf);
@@ -76,7 +81,7 @@ export async function sendAdmissionLetter(
     attachments,
   });
 
-  return { sent, pdfUrl };
+  return { sent, pdfUrl, admissionNumber };
 }
 
 /**
@@ -90,18 +95,23 @@ export async function sendAdmissionLetter(
  */
 export async function resendAdmissionLetter(
   enrollment: Enrollment,
-): Promise<{ sent: boolean; pdfUrl: string | null }> {
-  if (!enrollment.admissionLetterSent) return { sent: false, pdfUrl: null };
+): Promise<{ sent: boolean; pdfUrl: string | null; admissionNumber: string | null }> {
+  if (!enrollment.admissionLetterSent) return { sent: false, pdfUrl: null, admissionNumber: null };
 
   const programName = PROGRAMS.find((p) => p.slug === enrollment.programSlug)?.name ?? enrollment.programSlug;
   const bodyText =
     enrollment.admissionLetterBody?.trim() ||
     defaultAdmissionLetterBody({ candidateName: enrollment.candidateName, programName, totalFeePaise: enrollment.totalFee });
+  // Reuses the number assigned at first send so a resend never shows a
+  // different reference — except for a letter sent before this feature
+  // existed, which gets one assigned now (lazy backfill) rather than
+  // staying number-less forever.
+  const admissionNumber = enrollment.admissionNumber ?? (await nextAdmissionNumber());
 
   let pdf: Buffer;
   try {
     pdf = await generateAdmissionLetterPdf({
-      enrollmentId: enrollment.id,
+      admissionNumber,
       admittedAt: enrollment.admissionLetterSentAt ?? enrollment.createdAt,
       candidateName: enrollment.candidateName,
       candidateEmail: enrollment.candidateEmail,
@@ -113,7 +123,7 @@ export async function resendAdmissionLetter(
     });
   } catch (err) {
     console.error(`Regenerating admission letter PDF failed for enrollment ${enrollment.id}:`, err);
-    return { sent: false, pdfUrl: null };
+    return { sent: false, pdfUrl: null, admissionNumber };
   }
 
   const pdfUrl = await storeAdmissionLetterPdf(enrollment.id, pdf);
@@ -135,5 +145,5 @@ export async function resendAdmissionLetter(
     attachments,
   });
 
-  return { sent, pdfUrl };
+  return { sent, pdfUrl, admissionNumber };
 }

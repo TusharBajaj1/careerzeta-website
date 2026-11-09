@@ -28,17 +28,28 @@ export async function POST(_request: Request, { params }: { params: Promise<{ id
   }
 
   if (!enrollment.admissionLetterSent) {
-    const { sent, pdfUrl } = await sendAdmissionLetter(enrollment);
+    const { sent, pdfUrl, admissionNumber } = await sendAdmissionLetter(enrollment);
     await db
       .update(enrollments)
-      .set({ admissionLetterSent: sent, admissionLetterSentAt: new Date(), admissionLetterPdfUrl: pdfUrl })
+      .set({
+        admissionLetterSent: sent,
+        admissionLetterSentAt: new Date(),
+        admissionLetterPdfUrl: pdfUrl,
+        admissionNumber,
+      })
       .where(eq(enrollments.id, enrollmentId));
-    return NextResponse.json({ ok: true, sent, fresh: true });
+    return NextResponse.json({ ok: true, sent, fresh: true, admissionNumber });
   }
 
-  const { sent, pdfUrl } = await resendAdmissionLetter(enrollment);
-  if (pdfUrl) {
-    await db.update(enrollments).set({ admissionLetterPdfUrl: pdfUrl }).where(eq(enrollments.id, enrollmentId));
+  const { sent, pdfUrl, admissionNumber } = await resendAdmissionLetter(enrollment);
+  if (pdfUrl || admissionNumber) {
+    await db
+      .update(enrollments)
+      .set({
+        ...(pdfUrl ? { admissionLetterPdfUrl: pdfUrl } : {}),
+        ...(admissionNumber ? { admissionNumber } : {}),
+      })
+      .where(eq(enrollments.id, enrollmentId));
   }
-  return NextResponse.json({ ok: true, sent, fresh: false });
+  return NextResponse.json({ ok: true, sent, fresh: false, admissionNumber });
 }

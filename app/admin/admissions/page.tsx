@@ -24,6 +24,7 @@ export default async function AdminAdmissionsPage() {
     totalFee: r.totalFee,
     batchDetails: r.batchDetails,
     admissionLetterBody: r.admissionLetterBody,
+    admissionNumber: r.admissionNumber,
     admissionLetterSent: r.admissionLetterSent,
     admissionLetterSentAt: r.admissionLetterSentAt ? r.admissionLetterSentAt.toISOString() : null,
   }));

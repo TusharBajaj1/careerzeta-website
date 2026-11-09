@@ -46,6 +46,7 @@ export type EnrollmentRow = {
   batchDetails: string | null;
   admissionLetterSent: boolean;
   admissionLetterBody: string | null;
+  admissionNumber: string | null;
   admissionLetterSentAt: string | null;
   createdAt: string;
   payments: PaymentRow[];
@@ -825,6 +826,7 @@ function EnrollmentCard({
             <div className="text-xs font-bold tracking-wide uppercase opacity-60">Admission Letter</div>
             <span className={enrollment.admissionLetterSent ? "font-semibold text-green-700" : "opacity-60"}>
               {enrollment.admissionLetterSent ? "Sent" : "Not sent"}
+              {enrollment.admissionNumber ? ` (${enrollment.admissionNumber})` : ""}
             </span>
             <AdmissionLetterControl enrollment={enrollment} onSent={onChanged} />
             <a

@@ -124,10 +124,15 @@ export async function confirmPaymentPaid(params: {
   // this same enrollment (e.g. a reassign) never resends it.
   if (updatedEnrollment.status === "fully_paid" && !updatedEnrollment.admissionLetterSent) {
     try {
-      const { sent, pdfUrl } = await sendAdmissionLetter(updatedEnrollment);
+      const { sent, pdfUrl, admissionNumber } = await sendAdmissionLetter(updatedEnrollment);
       await db
         .update(enrollments)
-        .set({ admissionLetterSent: sent, admissionLetterSentAt: new Date(), admissionLetterPdfUrl: pdfUrl })
+        .set({
+          admissionLetterSent: sent,
+          admissionLetterSentAt: new Date(),
+          admissionLetterPdfUrl: pdfUrl,
+          admissionNumber,
+        })
         .where(eq(enrollments.id, updatedEnrollment.id));
     } catch (err) {
       console.error(`Admission letter failed for enrollment ${updatedEnrollment.id}:`, err);

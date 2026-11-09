@@ -22,6 +22,19 @@ export const invoiceNumberSeq = pgSequence("invoice_number_seq", {
   increment: 1,
 });
 
+/**
+ * Same reasoning as invoiceNumberSeq — enrollments.id isn't usable as the
+ * admission reference since not every enrollment row is ever actually
+ * admitted (pending, cancelled, test data). nextval() is only called at
+ * the moment an admission letter is actually first sent, so this starts
+ * at 1 for the first real admission regardless of how many unrelated
+ * enrollment rows came before it.
+ */
+export const admissionNumberSeq = pgSequence("admission_number_seq", {
+  startWith: 1,
+  increment: 1,
+});
+
 /** All money columns are in paise (smallest INR unit) — matches Razorpay's own API, avoids float rounding. */
 
 export const couponStatusEnum = pgEnum("coupon_status", [
@@ -111,6 +124,8 @@ export const enrollments = pgTable("enrollments", {
   batchDetails: text("batch_details"),
   /** The admission letter's editable body text — null means "use the default template" (lib/admissionLetterTemplate.ts). Fully admin-editable per enrollment so wording isn't fixed in code. */
   admissionLetterBody: text("admission_letter_body"),
+  /** Gapless admission reference (ADM/000001…), assigned once from admissionNumberSeq the moment the letter is first actually sent — stays the same on every resend. Null until then. */
+  admissionNumber: varchar("admission_number", { length: 64 }),
   /** Whether the admission letter has already gone out — set the moment the enrollment first reaches fully_paid, so a later payment-related recompute doesn't resend it. */
   admissionLetterSent: boolean("admission_letter_sent").notNull().default(false),
   admissionLetterSentAt: timestamp("admission_letter_sent_at", { withTimezone: true }),

@@ -30,9 +30,14 @@ export async function GET(_request: Request, { params }: { params: Promise<{ id:
   const bodyText =
     enrollment.admissionLetterBody?.trim() ||
     defaultAdmissionLetterBody({ candidateName: enrollment.candidateName, programName, totalFeePaise: enrollment.totalFee });
+  // A GET shouldn't mutate state by consuming a sequence value — an
+  // enrollment previewed-but-never-sent, or a legacy letter sent before
+  // admission numbers existed, shows a placeholder here; Send/Resend is
+  // what actually assigns and persists the real one.
+  const admissionNumber = enrollment.admissionNumber ?? "ADM/PENDING";
 
   const pdf = await generateAdmissionLetterPdf({
-    enrollmentId: enrollment.id,
+    admissionNumber,
     admittedAt: enrollment.admissionLetterSentAt ?? enrollment.createdAt,
     candidateName: enrollment.candidateName,
     candidateEmail: enrollment.candidateEmail,
