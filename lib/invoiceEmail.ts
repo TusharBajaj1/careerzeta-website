@@ -158,6 +158,7 @@ export async function resendExistingInvoice(payment: Payment, enrollment: Enroll
 
   return sendMail({
     to: enrollment.candidateEmail,
+    cc: CONTACT.email,
     subject: `Invoice ${payment.invoiceNumber} — ${programName}`,
     text: [
       `Hi ${enrollment.candidateName},`,

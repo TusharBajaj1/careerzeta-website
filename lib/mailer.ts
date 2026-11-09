@@ -17,6 +17,7 @@ function getTransporter() {
 /** Returns false (rather than throwing) on missing config or a send failure. */
 export async function sendMail(options: {
   to: string;
+  cc?: string;
   subject: string;
   text: string;
   replyTo?: string;
