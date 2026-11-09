@@ -1,6 +1,6 @@
 import { put } from "@vercel/blob";
 
-import { nextAdmissionNumber } from "@/lib/admissionNumber";
+import { ensureAdmissionNumber } from "@/lib/admissionNumber";
 import { generateAdmissionLetterPdf } from "@/lib/admissionLetter";
 import { defaultAdmissionLetterBody } from "@/lib/admissionLetterTemplate";
 import { CONTACT, PROGRAMS } from "@/lib/content";
@@ -28,7 +28,9 @@ async function storeAdmissionLetterPdf(enrollmentId: number, pdf: Buffer): Promi
  * to CONTACT.email for records), for a candidate whose enrollment has just
  * reached fully_paid. Never throws — failures are logged and reflected in
  * the returned `sent` flag rather than blocking the payment-confirmation
- * flow that calls this.
+ * flow that calls this. The admission number itself is assigned by
+ * ensureAdmissionNumber — normally already done by the time this runs
+ * (see lib/paymentConfirmation.ts), called again here defensively.
  */
 export async function sendAdmissionLetter(
   enrollment: Enrollment,
@@ -37,10 +39,7 @@ export async function sendAdmissionLetter(
   const bodyText =
     enrollment.admissionLetterBody?.trim() ||
     defaultAdmissionLetterBody({ candidateName: enrollment.candidateName, programName, totalFeePaise: enrollment.totalFee });
-  // A fresh send only happens once per enrollment (guarded by admissionLetterSent
-  // upstream), but reuse any already-assigned number defensively rather than
-  // ever risk burning two on the same enrollment.
-  const admissionNumber = enrollment.admissionNumber ?? (await nextAdmissionNumber());
+  const admissionNumber = await ensureAdmissionNumber(enrollment);
 
   let pdf: Buffer;
   try {
@@ -91,7 +90,8 @@ export async function sendAdmissionLetter(
  * the enrollment's current data (rather than re-sending the frozen
  * original) since there's no compliance reason to keep an old version
  * once the batch is known, and overwrites the stored PDF so a later
- * download reflects the same update.
+ * download reflects the same update. The admission number itself never
+ * changes between sends (see ensureAdmissionNumber).
  */
 export async function resendAdmissionLetter(
   enrollment: Enrollment,
@@ -102,11 +102,7 @@ export async function resendAdmissionLetter(
   const bodyText =
     enrollment.admissionLetterBody?.trim() ||
     defaultAdmissionLetterBody({ candidateName: enrollment.candidateName, programName, totalFeePaise: enrollment.totalFee });
-  // Reuses the number assigned at first send so a resend never shows a
-  // different reference — except for a letter sent before this feature
-  // existed, which gets one assigned now (lazy backfill) rather than
-  // staying number-less forever.
-  const admissionNumber = enrollment.admissionNumber ?? (await nextAdmissionNumber());
+  const admissionNumber = await ensureAdmissionNumber(enrollment);
 
   let pdf: Buffer;
   try {

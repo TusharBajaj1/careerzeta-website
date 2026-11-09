@@ -10,7 +10,10 @@ import { resendAdmissionLetter, sendAdmissionLetter } from "@/lib/admissionLette
  * an enrollment that somehow reached fully_paid without one going out
  * (e.g. the email failed the first time), or a candidate asking for
  * another copy. Resends the existing letter unchanged when one was
- * already sent; generates a fresh one otherwise.
+ * already sent; generates a fresh one otherwise. The admission number
+ * itself is assigned separately, the moment the enrollment reaches
+ * fully_paid (see ensureAdmissionNumber) — by the time this runs it
+ * normally already exists.
  */
 export async function POST(_request: Request, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -31,25 +34,14 @@ export async function POST(_request: Request, { params }: { params: Promise<{ id
     const { sent, pdfUrl, admissionNumber } = await sendAdmissionLetter(enrollment);
     await db
       .update(enrollments)
-      .set({
-        admissionLetterSent: sent,
-        admissionLetterSentAt: new Date(),
-        admissionLetterPdfUrl: pdfUrl,
-        admissionNumber,
-      })
+      .set({ admissionLetterSent: sent, admissionLetterSentAt: new Date(), admissionLetterPdfUrl: pdfUrl })
       .where(eq(enrollments.id, enrollmentId));
     return NextResponse.json({ ok: true, sent, fresh: true, admissionNumber });
   }
 
   const { sent, pdfUrl, admissionNumber } = await resendAdmissionLetter(enrollment);
-  if (pdfUrl || admissionNumber) {
-    await db
-      .update(enrollments)
-      .set({
-        ...(pdfUrl ? { admissionLetterPdfUrl: pdfUrl } : {}),
-        ...(admissionNumber ? { admissionNumber } : {}),
-      })
-      .where(eq(enrollments.id, enrollmentId));
+  if (pdfUrl) {
+    await db.update(enrollments).set({ admissionLetterPdfUrl: pdfUrl }).where(eq(enrollments.id, enrollmentId));
   }
   return NextResponse.json({ ok: true, sent, fresh: false, admissionNumber });
 }

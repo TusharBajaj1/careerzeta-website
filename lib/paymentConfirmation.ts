@@ -1,5 +1,6 @@
 import { and, eq } from "drizzle-orm";
 
+import { ensureAdmissionNumber } from "@/lib/admissionNumber";
 import { db } from "@/lib/db";
 import { coupons, enrollments, payments } from "@/lib/db/schema";
 import { sendAdmissionLetter } from "@/lib/admissionLetterEmail";
@@ -119,23 +120,31 @@ export async function confirmPaymentPaid(params: {
     console.error(`Invoice email failed for payment ${paymentId}:`, err);
   }
 
-  // Fires exactly once, the moment an enrollment first reaches fully_paid —
-  // guarded by admissionLetterSent so a later payment-related recompute on
-  // this same enrollment (e.g. a reassign) never resends it.
-  if (updatedEnrollment.status === "fully_paid" && !updatedEnrollment.admissionLetterSent) {
-    try {
-      const { sent, pdfUrl, admissionNumber } = await sendAdmissionLetter(updatedEnrollment);
-      await db
-        .update(enrollments)
-        .set({
-          admissionLetterSent: sent,
-          admissionLetterSentAt: new Date(),
-          admissionLetterPdfUrl: pdfUrl,
-          admissionNumber,
-        })
-        .where(eq(enrollments.id, updatedEnrollment.id));
-    } catch (err) {
-      console.error(`Admission letter failed for enrollment ${updatedEnrollment.id}:`, err);
+  if (updatedEnrollment.status === "fully_paid") {
+    // Assigned the moment admission actually happens — independent of
+    // whether the letter email below succeeds, since being admitted is
+    // the real event, not sending the letter about it.
+    if (!updatedEnrollment.admissionNumber) {
+      try {
+        updatedEnrollment.admissionNumber = await ensureAdmissionNumber(updatedEnrollment);
+      } catch (err) {
+        console.error(`Admission number assignment failed for enrollment ${updatedEnrollment.id}:`, err);
+      }
+    }
+
+    // Fires exactly once, the moment an enrollment first reaches fully_paid —
+    // guarded by admissionLetterSent so a later payment-related recompute on
+    // this same enrollment (e.g. a reassign) never resends it.
+    if (!updatedEnrollment.admissionLetterSent) {
+      try {
+        const { sent, pdfUrl } = await sendAdmissionLetter(updatedEnrollment);
+        await db
+          .update(enrollments)
+          .set({ admissionLetterSent: sent, admissionLetterSentAt: new Date(), admissionLetterPdfUrl: pdfUrl })
+          .where(eq(enrollments.id, updatedEnrollment.id));
+      } catch (err) {
+        console.error(`Admission letter failed for enrollment ${updatedEnrollment.id}:`, err);
+      }
     }
   }
 

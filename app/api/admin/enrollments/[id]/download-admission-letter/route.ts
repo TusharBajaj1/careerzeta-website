@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { eq } from "drizzle-orm";
 
+import { ensureAdmissionNumber } from "@/lib/admissionNumber";
 import { db } from "@/lib/db";
 import { enrollments } from "@/lib/db/schema";
 import { generateAdmissionLetterPdf } from "@/lib/admissionLetter";
@@ -12,7 +13,11 @@ import { PROGRAMS } from "@/lib/content";
  * always freshly regenerated from the enrollment's current data (not the
  * stored "last sent" copy), so downloading after editing the letter text
  * or batch details shows exactly what a Send/Resend would produce, for
- * proofing before it goes out.
+ * proofing before it goes out. The admission number is real here too,
+ * not a placeholder — a fully_paid enrollment is already genuinely
+ * admitted, so ensureAdmissionNumber assigns one on first view if it
+ * somehow doesn't have one yet (e.g. an enrollment that reached
+ * fully_paid before this existed).
  */
 export async function GET(_request: Request, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -30,11 +35,7 @@ export async function GET(_request: Request, { params }: { params: Promise<{ id:
   const bodyText =
     enrollment.admissionLetterBody?.trim() ||
     defaultAdmissionLetterBody({ candidateName: enrollment.candidateName, programName, totalFeePaise: enrollment.totalFee });
-  // A GET shouldn't mutate state by consuming a sequence value — an
-  // enrollment previewed-but-never-sent, or a legacy letter sent before
-  // admission numbers existed, shows a placeholder here; Send/Resend is
-  // what actually assigns and persists the real one.
-  const admissionNumber = enrollment.admissionNumber ?? "ADM/PENDING";
+  const admissionNumber = await ensureAdmissionNumber(enrollment);
 
   const pdf = await generateAdmissionLetterPdf({
     admissionNumber,
