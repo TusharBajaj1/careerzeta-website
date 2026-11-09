@@ -9,6 +9,10 @@ import { formatPaiseAsInr } from "@/lib/money";
 type EnrollButtonProps = {
   programSlug: string;
   programName: string;
+  /** Full class override for the trigger button only — replaces the default pill styling entirely instead of merging. The modal itself is unaffected. */
+  className?: string;
+  /** Defaults to "Enroll Now". */
+  label?: string;
 };
 
 type Quote = {
@@ -31,7 +35,7 @@ function errorMessage(data: ApiError): string {
 
 type Step = "choice" | "payDetails" | "pay" | "demoDetails" | "demoSuccess";
 
-export default function EnrollButton({ programSlug, programName }: EnrollButtonProps) {
+export default function EnrollButton({ programSlug, programName, className, label = "Enroll Now" }: EnrollButtonProps) {
   const [open, setOpen] = useState(false);
   const [step, setStep] = useState<Step>("choice");
 
@@ -146,9 +150,12 @@ export default function EnrollButton({ programSlug, programName }: EnrollButtonP
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className="rounded-full bg-sky-400 px-[30px] py-4 text-base font-bold text-[#111827] transition-transform duration-150 hover:scale-105"
+        className={
+          className ??
+          "rounded-full bg-sky-400 px-[30px] py-4 text-base font-bold text-[#111827] transition-transform duration-150 hover:scale-105"
+        }
       >
-        Enroll Now
+        {label}
       </button>
 
       <Modal

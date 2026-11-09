@@ -2,33 +2,38 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 
 import Footer from "@/components/layout/Footer";
-import CapstoneAndCaseStudies from "@/components/programs/landing/CapstoneAndCaseStudies";
-import CareerServices from "@/components/programs/landing/CareerServices";
-import Curriculum from "@/components/programs/landing/Curriculum";
-import HowToJoinSteps from "@/components/programs/landing/HowToJoinSteps";
-import LandingFinalCta from "@/components/programs/landing/LandingFinalCta";
-import LandingHero from "@/components/programs/landing/LandingHero";
-import Projects from "@/components/programs/landing/Projects";
-import SkillsAndTools from "@/components/programs/landing/SkillsAndTools";
-import WhoItsFor from "@/components/programs/landing/WhoItsFor";
-import WhyAndGlance from "@/components/programs/landing/WhyAndGlance";
+import {
+  AudienceSection,
+  CareerLadder,
+  CareerServices,
+  CaseStudies,
+  Capstone,
+  Curriculum,
+  FloatingEnroll,
+  JoinAndCta,
+  ProgramDetailHero,
+  Projects,
+  SkillsAndTools,
+  ToolTicker,
+  WhySection,
+} from "@/components/programs/detail/ProgramDetailSections";
 import { buildCourseJsonLd } from "@/lib/courseJsonLd";
 import { PROGRAMS } from "@/lib/content";
-import { PROGRAM_LANDING_DATA } from "@/lib/programLandingData";
+import { PROGRAM_DETAIL_PAGES } from "@/lib/programDetailPage";
 import { PROGRAM_DETAILS } from "@/lib/programsDetail";
 import { buildMetadata } from "@/lib/seo";
 
 function getPageData(slug: string) {
   const program = PROGRAMS.find((p) => p.slug === slug);
   const detail = PROGRAM_DETAILS.find((d) => d.slug === slug);
-  const landing = PROGRAM_LANDING_DATA.find((l) => l.slug === slug);
-  if (!program || !detail || !landing) return null;
-  return { program, detail, landing };
+  const page = PROGRAM_DETAIL_PAGES.find((d) => d.slug === slug);
+  if (!program || !detail || !page) return null;
+  return { program, detail, page };
 }
 
-/** Only the programs with a brochure-sourced landing page get this route; the rest fall through to notFound() and stay on /programs#slug. */
+/** Only the programs with a brochure-sourced detail page get this route; the rest fall through to notFound() and stay on /programs#slug. */
 export function generateStaticParams() {
-  return PROGRAM_LANDING_DATA.map((l) => ({ slug: l.slug }));
+  return PROGRAM_DETAIL_PAGES.map((p) => ({ slug: p.slug }));
 }
 
 export async function generateMetadata({
@@ -48,16 +53,12 @@ export async function generateMetadata({
   });
 }
 
-export default async function ProgramLandingPage({ params }: { params: Promise<{ slug: string }> }) {
+export default async function ProgramDetailPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
   const data = getPageData(slug);
   if (!data) notFound();
 
-  const { program, detail, landing } = data;
-  // LandingHero/LandingFinalCta are Client Components — Program.icon is a
-  // function and can't cross that boundary as a prop (same pitfall
-  // /programs/page.tsx strips out via its own programSummaries map).
-  const programSummary = { slug: program.slug, name: program.name };
+  const { program, detail, page } = data;
 
   return (
     <>
@@ -71,18 +72,23 @@ export default async function ProgramLandingPage({ params }: { params: Promise<{
         }}
       />
 
-      <LandingHero program={programSummary} detail={detail} landing={landing} />
-      <WhyAndGlance landing={landing} bg="white" />
-      <WhoItsFor landing={landing} bg="slate" />
-      <Curriculum landing={landing} bg="white" />
-      <SkillsAndTools landing={landing} bg="slate" />
-      <Projects landing={landing} bg="white" />
-      <CapstoneAndCaseStudies landing={landing} />
-      <CareerServices programName={program.name} bg="white" />
-      <HowToJoinSteps programName={program.name} />
-      <LandingFinalCta programSlug={program.slug} programName={program.name} detail={detail} />
+      <ProgramDetailHero p={page} />
+      <ToolTicker groups={page.toolGroups} />
+      <WhySection items={page.why} />
+      <CareerLadder rungs={page.ladder} />
+      <AudienceSection items={page.audience} />
+      <Curriculum p={page} />
+      <SkillsAndTools p={page} />
+      <Projects items={page.projects} />
+      <Capstone items={page.capstone} />
+      <CaseStudies items={page.caseStudies} />
+      <CareerServices items={page.career} />
+      <JoinAndCta p={page} />
+      <FloatingEnroll p={page} />
 
-      <Footer />
+      <div className="pb-24">
+        <Footer />
+      </div>
     </>
   );
 }
