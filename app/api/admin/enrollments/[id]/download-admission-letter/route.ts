@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { eq } from "drizzle-orm";
 
-import { ensureAdmissionNumber } from "@/lib/admissionNumber";
+import { admissionLetterFilename, ensureAdmissionNumber } from "@/lib/admissionNumber";
 import { db } from "@/lib/db";
 import { enrollments } from "@/lib/db/schema";
 import { generateAdmissionLetterPdf } from "@/lib/admissionLetter";
@@ -52,7 +52,7 @@ export async function GET(_request: Request, { params }: { params: Promise<{ id:
   return new NextResponse(new Uint8Array(pdf), {
     headers: {
       "Content-Type": "application/pdf",
-      "Content-Disposition": `attachment; filename="Admission-Letter-${enrollment.id}.pdf"`,
+      "Content-Disposition": `attachment; filename="${admissionLetterFilename(enrollment.candidateName, admissionNumber)}"`,
     },
   });
 }

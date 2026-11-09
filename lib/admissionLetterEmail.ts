@@ -1,6 +1,6 @@
 import { put } from "@vercel/blob";
 
-import { ensureAdmissionNumber } from "@/lib/admissionNumber";
+import { admissionLetterFilename, ensureAdmissionNumber } from "@/lib/admissionNumber";
 import { generateAdmissionLetterPdf } from "@/lib/admissionLetter";
 import { defaultAdmissionLetterBody } from "@/lib/admissionLetterTemplate";
 import { CONTACT, PROGRAMS } from "@/lib/content";
@@ -60,7 +60,9 @@ export async function sendAdmissionLetter(
   }
 
   const pdfUrl = await storeAdmissionLetterPdf(enrollment.id, pdf);
-  const attachments = [{ filename: `Admission-Letter-${enrollment.id}.pdf`, content: pdf, contentType: "application/pdf" }];
+  const attachments = [
+    { filename: admissionLetterFilename(enrollment.candidateName, admissionNumber), content: pdf, contentType: "application/pdf" },
+  ];
 
   const sent = await sendMail({
     to: enrollment.candidateEmail,
@@ -123,7 +125,9 @@ export async function resendAdmissionLetter(
   }
 
   const pdfUrl = await storeAdmissionLetterPdf(enrollment.id, pdf);
-  const attachments = [{ filename: `Admission-Letter-${enrollment.id}.pdf`, content: pdf, contentType: "application/pdf" }];
+  const attachments = [
+    { filename: admissionLetterFilename(enrollment.candidateName, admissionNumber), content: pdf, contentType: "application/pdf" },
+  ];
 
   const sent = await sendMail({
     to: enrollment.candidateEmail,

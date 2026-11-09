@@ -32,3 +32,10 @@ export async function ensureAdmissionNumber(enrollment: Enrollment): Promise<str
   await db.update(enrollments).set({ admissionNumber }).where(eq(enrollments.id, enrollment.id));
   return admissionNumber;
 }
+
+/** "Priya Sharma", "ADM/001001" -> "Admission Letter_Priya Sharma_ADM-001001.pdf" — strips filesystem-unsafe characters and swaps the ref's "/" for "-" (some browsers/mail clients treat a literal "/" as a path separator and silently truncate the name). */
+export function admissionLetterFilename(candidateName: string, admissionNumber: string): string {
+  const safeName = candidateName.replace(/[\\/:*?"<>|]/g, "").trim();
+  const safeRef = admissionNumber.replace(/\//g, "-");
+  return `Admission Letter_${safeName}_${safeRef}.pdf`;
+}
