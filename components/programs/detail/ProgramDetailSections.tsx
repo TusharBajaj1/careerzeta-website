@@ -158,18 +158,27 @@ export function CareerLadder({ rungs }: { rungs: string[] }) {
       <div className={`${wrap} overflow-hidden pt-[104px]`}>
         <div className={eyebrow}>A career ladder, not just a job</div>
         <h2 className={`${h2} mb-14 max-w-[20ch]`}>Where the skills take you</h2>
-        <ol className="grid grid-cols-[repeat(5,minmax(150px,1fr))] items-end gap-3 overflow-x-auto">
-          {rungs.map((r, i) => (
-            <li
-              key={r}
-              style={{ height: 150 + i * 56 }}
-              className={`flex flex-col justify-between rounded-t-[20px] p-5 ${LADDER_BG[i] ?? LADDER_BG[4]}`}
-            >
-              <span className="font-display text-sm font-semibold">{pad(i)}</span>
-              <span className="font-display text-xl leading-[1.15] font-semibold">{r}</span>
-            </li>
-          ))}
-        </ol>
+        {/* Below lg the 5-bar grid doesn't fit — snap-scroll it and hint
+            there's more with a right-edge fade, instead of letting it cut
+            off silently with no sign the Head of Data rung is off-screen. */}
+        <div className="relative -mx-6 px-6 md:-mx-10 md:px-10 lg:mx-0 lg:px-0">
+          <ol className="grid snap-x snap-mandatory grid-cols-[repeat(5,minmax(130px,1fr))] items-end gap-3 overflow-x-auto scroll-px-6 pb-1 lg:grid-cols-[repeat(5,minmax(150px,1fr))] lg:snap-none lg:overflow-visible">
+            {rungs.map((r, i) => (
+              <li
+                key={r}
+                style={{ height: 150 + i * 56 }}
+                className={`flex snap-start flex-col justify-between rounded-t-[20px] p-5 ${LADDER_BG[i] ?? LADDER_BG[4]}`}
+              >
+                <span className="font-display text-sm font-semibold">{pad(i)}</span>
+                <span className="font-display text-xl leading-[1.15] font-semibold">{r}</span>
+              </li>
+            ))}
+          </ol>
+          <div
+            aria-hidden
+            className="pointer-events-none absolute top-0 right-0 bottom-1 w-14 bg-gradient-to-l from-white to-white/0 lg:hidden"
+          />
+        </div>
       </div>
     </section>
   );
