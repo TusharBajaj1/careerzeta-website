@@ -492,11 +492,7 @@ export function JoinAndCta({ p }: { p: ProgramDetailPageData }) {
 /* 13. Floating CTA pill, fixed bottom centre on every scroll position. */
 export function FloatingEnroll({ p }: { p: ProgramDetailPageData }) {
   return (
-    <div className="fixed bottom-5 left-1/2 z-40 flex max-w-[calc(100%-24px)] -translate-x-1/2 items-center gap-5 rounded-full border border-sky-400/60 bg-white/95 py-2 pr-2 pl-6 shadow-[0_20px_50px_-10px_rgba(17,24,39,0.45)] backdrop-blur">
-      <div className="flex flex-col leading-tight">
-        <span className="text-xs text-slate-600">{p.name}</span>
-        <span className="font-display text-lg font-semibold">{p.fee}</span>
-      </div>
+    <div className="fixed bottom-5 left-1/2 z-40 -translate-x-1/2 rounded-full border border-sky-400/60 bg-white/95 p-2 shadow-[0_20px_50px_-10px_rgba(17,24,39,0.45)] backdrop-blur">
       <EnrollButton
         programSlug={p.slug}
         programName={p.name}
