@@ -85,3 +85,43 @@ export async function sendPaymentInvoice(
 
   return { invoiceNumber, sent: candidateSent };
 }
+
+/**
+ * Notifies someone that an invoice they received was issued in error and
+ * is void — for when a payment gets reassigned off their enrollment onto
+ * the correct one (see /api/admin/payments/[id]/reassign). Deliberately
+ * doesn't claim a corrected invoice is coming; whether/how to issue one
+ * (e.g. a credit note) is an accounting decision made separately.
+ */
+export async function sendInvoiceCancellationNotice(params: {
+  candidateName: string;
+  candidateEmail: string;
+  invoiceNumber: string;
+}): Promise<boolean> {
+  const { candidateName, candidateEmail, invoiceNumber } = params;
+
+  const candidateSent = await sendMail({
+    to: candidateEmail,
+    subject: `Invoice ${invoiceNumber} — Cancelled`,
+    text: [
+      `Hi ${candidateName},`,
+      ``,
+      `We're writing to let you know that invoice ${invoiceNumber}, which you received from us, was issued in error. Please consider it cancelled — no payment or action is needed from you.`,
+      ``,
+      `We're sorry for the confusion. If you have any questions, reach us at ${CONTACT.email}.`,
+      ``,
+      `— Team CareerZeta`,
+    ].join("\n"),
+  });
+
+  await sendMail({
+    to: CONTACT.email,
+    subject: `[Accounting] Invoice ${invoiceNumber} cancellation notice sent — ${candidateName}`,
+    text: [
+      `A cancellation notice for invoice ${invoiceNumber} was sent to ${candidateName} (${candidateEmail}).`,
+      `This invoice was issued against an enrollment a payment was later reassigned away from.`,
+    ].join("\n"),
+  });
+
+  return candidateSent;
+}

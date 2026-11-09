@@ -945,6 +945,7 @@ function ReassignPaymentControl({
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
   const [targetId, setTargetId] = useState<number | null>(null);
+  const [sendCancellationNotice, setSendCancellationNotice] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -965,14 +966,19 @@ function ReassignPaymentControl({
     setOpen(false);
     setQuery("");
     setTargetId(null);
+    setSendCancellationNotice(true);
     setError(null);
   }
 
   async function handleConfirm() {
     if (!target) return;
+    const noticeLine =
+      sendCancellationNotice && payment.invoiceNumber
+        ? ` An invoice-cancellation email will also go to the current candidate's address.`
+        : "";
     if (
       !confirm(
-        `Move this ${formatPaiseAsInr(payment.amount)} payment to ${target.candidateName} (${target.candidateEmail})? Both enrollments' totals will be recalculated. This does NOT send a new invoice — the original was already sent to the wrong enrollment's email.`,
+        `Move this ${formatPaiseAsInr(payment.amount)} payment to ${target.candidateName} (${target.candidateEmail})? Both enrollments' totals will be recalculated.${noticeLine}`,
       )
     ) {
       return;
@@ -983,7 +989,10 @@ function ReassignPaymentControl({
     const res = await fetch(`/api/admin/payments/${payment.id}/reassign`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ targetEnrollmentId: target.id }),
+      body: JSON.stringify({
+        targetEnrollmentId: target.id,
+        sendCancellationNotice: sendCancellationNotice && !!payment.invoiceNumber,
+      }),
     });
 
     if (!res.ok) {
@@ -992,9 +1001,13 @@ function ReassignPaymentControl({
       return;
     }
 
+    const data = await res.json().catch(() => ({}));
     setSubmitting(false);
     reset();
     onReassigned();
+    if (sendCancellationNotice && payment.invoiceNumber && !data.cancellationNoticeSent) {
+      alert("Payment reassigned, but the cancellation notice email couldn't be sent — you may want to follow up manually.");
+    }
   }
 
   if (!open) {
@@ -1008,7 +1021,7 @@ function ReassignPaymentControl({
   return (
     <div className="mt-2 w-full rounded-lg border-2 border-amber-300 bg-amber-50 p-3">
       <p className="text-xs font-semibold text-amber-800">
-        Move this payment — won&apos;t resend an invoice.
+        Move this payment — won&apos;t send a new invoice to the correct candidate.
       </p>
 
       {!target ? (
@@ -1049,6 +1062,22 @@ function ReassignPaymentControl({
           </button>
         </div>
       )}
+
+      {target && payment.invoiceNumber ? (
+        <label className="mt-2 flex items-start gap-2 text-xs text-amber-800">
+          <input
+            type="checkbox"
+            checked={sendCancellationNotice}
+            onChange={(e) => setSendCancellationNotice(e.target.checked)}
+            className="mt-0.5"
+          />
+          <span>
+            Also email an invoice-cancellation notice to the current candidate
+            (whoever this payment is on right now) — their invoice{" "}
+            <strong>{payment.invoiceNumber}</strong> was issued to them by mistake.
+          </span>
+        </label>
+      ) : null}
 
       {error && <p className="mt-2 text-xs text-red-600">{error}</p>}
 

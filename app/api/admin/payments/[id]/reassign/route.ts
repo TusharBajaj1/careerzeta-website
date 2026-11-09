@@ -3,6 +3,7 @@ import { eq } from "drizzle-orm";
 
 import { db } from "@/lib/db";
 import { enrollments, payments } from "@/lib/db/schema";
+import { sendInvoiceCancellationNotice } from "@/lib/invoiceEmail";
 import { recomputeEnrollmentTotals } from "@/lib/paymentConfirmation";
 
 /**
@@ -16,6 +17,10 @@ import { recomputeEnrollmentTotals } from "@/lib/paymentConfirmation";
  * original invoice was already issued (to the wrong enrollment's details)
  * and GST rules mean fixing that is a credit-note-plus-fresh-invoice
  * question for accounting to decide, not something to silently automate.
+ * It can, optionally, email the wrong enrollment's candidate a notice that
+ * their invoice was cancelled — using that enrollment's details as they
+ * stand right now, looked up server-side before anything moves, rather
+ * than trusting client-supplied recipient details for an email send.
  */
 export async function PATCH(request: Request, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -26,6 +31,7 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
 
   const body = await request.json().catch(() => null);
   const targetEnrollmentId = body?.targetEnrollmentId;
+  const sendCancellationNotice = body?.sendCancellationNotice === true;
   if (!Number.isInteger(targetEnrollmentId)) {
     return NextResponse.json({ error: "invalid_payload" }, { status: 400 });
   }
@@ -47,10 +53,24 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
   }
 
   const previousEnrollmentId = payment.enrollmentId;
+  const [previousEnrollment] = await db
+    .select()
+    .from(enrollments)
+    .where(eq(enrollments.id, previousEnrollmentId))
+    .limit(1);
 
   await db.update(payments).set({ enrollmentId: targetEnrollmentId }).where(eq(payments.id, paymentId));
   await recomputeEnrollmentTotals(previousEnrollmentId);
   await recomputeEnrollmentTotals(targetEnrollmentId);
 
-  return NextResponse.json({ ok: true });
+  let cancellationNoticeSent = false;
+  if (sendCancellationNotice && previousEnrollment && payment.invoiceNumber) {
+    cancellationNoticeSent = await sendInvoiceCancellationNotice({
+      candidateName: previousEnrollment.candidateName,
+      candidateEmail: previousEnrollment.candidateEmail,
+      invoiceNumber: payment.invoiceNumber,
+    });
+  }
+
+  return NextResponse.json({ ok: true, cancellationNoticeSent });
 }
