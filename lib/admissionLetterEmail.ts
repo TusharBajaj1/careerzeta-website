@@ -5,22 +5,26 @@ import { generateAdmissionLetterPdf } from "@/lib/admissionLetter";
 import { defaultAdmissionLetterBody } from "@/lib/admissionLetterTemplate";
 import { CONTACT, PROGRAMS } from "@/lib/content";
 import type { Enrollment } from "@/lib/db/schema";
+import { uploadToDrive } from "@/lib/googleDrive";
 import { formatPaiseAsInr } from "@/lib/money";
 import { sendMail } from "@/lib/mailer";
 
-/** Persists the exact PDF that was emailed, so a later resend/download returns the same document. Never throws. */
-async function storeAdmissionLetterPdf(enrollmentId: number, pdf: Buffer): Promise<string | null> {
-  try {
-    const blob = await put(`admission-letters/ADM-${enrollmentId}.pdf`, pdf, {
-      access: "public",
-      contentType: "application/pdf",
-      addRandomSuffix: false,
-    });
-    return blob.url;
-  } catch (err) {
-    console.error(`Storing admission letter PDF failed for enrollment ${enrollmentId}:`, err);
-    return null;
-  }
+/** Persists the exact PDF that was emailed, so a later resend/download returns the same document. Never throws. Also mirrors it into Google Drive for accounting, best-effort (no-ops silently if Drive sync isn't configured). */
+async function storeAdmissionLetterPdf(enrollmentId: number, driveFilename: string, pdf: Buffer): Promise<string | null> {
+  // Run in parallel, not sequentially — but still awaited (not fire-and-forget),
+  // since Vercel can tear down the function as soon as it returns, which
+  // would silently drop an un-awaited upload.
+  const [blobResult] = await Promise.all([
+    put(`admission-letters/ADM-${enrollmentId}.pdf`, pdf, { access: "public", contentType: "application/pdf", addRandomSuffix: false }).catch(
+      (err) => {
+        console.error(`Storing admission letter PDF failed for enrollment ${enrollmentId}:`, err);
+        return null;
+      },
+    ),
+    uploadToDrive("Admission Letters", driveFilename, pdf),
+  ]);
+
+  return blobResult?.url ?? null;
 }
 
 /**
@@ -59,7 +63,7 @@ export async function sendAdmissionLetter(
     return { sent: false, pdfUrl: null, admissionNumber };
   }
 
-  const pdfUrl = await storeAdmissionLetterPdf(enrollment.id, pdf);
+  const pdfUrl = await storeAdmissionLetterPdf(enrollment.id, admissionLetterFilename(enrollment.candidateName, admissionNumber), pdf);
   const attachments = [
     { filename: admissionLetterFilename(enrollment.candidateName, admissionNumber), content: pdf, contentType: "application/pdf" },
   ];
@@ -124,7 +128,7 @@ export async function resendAdmissionLetter(
     return { sent: false, pdfUrl: null, admissionNumber };
   }
 
-  const pdfUrl = await storeAdmissionLetterPdf(enrollment.id, pdf);
+  const pdfUrl = await storeAdmissionLetterPdf(enrollment.id, admissionLetterFilename(enrollment.candidateName, admissionNumber), pdf);
   const attachments = [
     { filename: admissionLetterFilename(enrollment.candidateName, admissionNumber), content: pdf, contentType: "application/pdf" },
   ];

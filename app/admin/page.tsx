@@ -1,5 +1,7 @@
 import Link from "next/link";
 
+import DriveBackfillButton from "@/components/admin/DriveBackfillButton";
+
 export default function AdminHomePage() {
   return (
     <div className="mx-auto max-w-[800px] px-6 py-16">
@@ -29,6 +31,11 @@ export default function AdminHomePage() {
         >
           Invoices
         </Link>
+      </div>
+
+      <h2 className="mt-12 font-display text-xl font-bold">Tools</h2>
+      <div className="mt-4">
+        <DriveBackfillButton />
       </div>
     </div>
   );

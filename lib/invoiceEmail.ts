@@ -2,25 +2,30 @@ import { put } from "@vercel/blob";
 
 import { CONTACT, PROGRAMS } from "@/lib/content";
 import type { Enrollment, Payment } from "@/lib/db/schema";
+import { uploadToDrive } from "@/lib/googleDrive";
 import { generateInvoicePdf, invoiceLineLabel } from "@/lib/invoice";
 import { nextInvoiceNumber } from "@/lib/invoiceNumber";
 import { sendMail } from "@/lib/mailer";
 import { formatPaiseAsInr } from "@/lib/money";
 
-/** Persists the exact PDF that was emailed, so a later resend/download returns the same document instead of a live-regenerated one. Never throws — a storage failure shouldn't block the email that already went out. */
+/** Persists the exact PDF that was emailed, so a later resend/download returns the same document instead of a live-regenerated one. Never throws — a storage failure shouldn't block the email that already went out. Also mirrors it into Google Drive for accounting, best-effort (no-ops silently if Drive sync isn't configured). */
 async function storeInvoicePdf(invoiceNumber: string, pdf: Buffer): Promise<string | null> {
-  try {
-    const safeName = invoiceNumber.replace(/[^a-zA-Z0-9_-]/g, "-");
-    const blob = await put(`invoices/${safeName}.pdf`, pdf, {
-      access: "public",
-      contentType: "application/pdf",
-      addRandomSuffix: false,
-    });
-    return blob.url;
-  } catch (err) {
-    console.error(`Storing invoice PDF failed for ${invoiceNumber}:`, err);
-    return null;
-  }
+  const safeName = invoiceNumber.replace(/[^a-zA-Z0-9_-]/g, "-");
+
+  // Run in parallel, not sequentially — but still awaited (not fire-and-forget),
+  // since Vercel can tear down the function as soon as it returns, which
+  // would silently drop an un-awaited upload.
+  const [blobResult] = await Promise.all([
+    put(`invoices/${safeName}.pdf`, pdf, { access: "public", contentType: "application/pdf", addRandomSuffix: false }).catch(
+      (err) => {
+        console.error(`Storing invoice PDF failed for ${invoiceNumber}:`, err);
+        return null;
+      },
+    ),
+    uploadToDrive("Invoices", `${safeName}.pdf`, pdf),
+  ]);
+
+  return blobResult?.url ?? null;
 }
 
 /**
