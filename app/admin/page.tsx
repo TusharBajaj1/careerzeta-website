@@ -12,6 +12,12 @@ export default function AdminHomePage() {
           Enrollments
         </Link>
         <Link
+          href="/admin/admissions"
+          className="rounded-lg border-2 border-line bg-white px-5 py-4 font-semibold transition hover:border-sky-400"
+        >
+          Admissions
+        </Link>
+        <Link
           href="/admin/blog"
           className="rounded-lg border-2 border-line bg-white px-5 py-4 font-semibold transition hover:border-sky-400"
         >
