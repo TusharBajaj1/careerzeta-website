@@ -2,7 +2,7 @@ import { put } from "@vercel/blob";
 
 import { CONTACT, PROGRAMS } from "@/lib/content";
 import type { Enrollment, Payment } from "@/lib/db/schema";
-import { generateInvoicePdf } from "@/lib/invoice";
+import { generateInvoicePdf, invoiceLineLabel } from "@/lib/invoice";
 import { nextInvoiceNumber } from "@/lib/invoiceNumber";
 import { sendMail } from "@/lib/mailer";
 import { formatPaiseAsInr } from "@/lib/money";
@@ -22,12 +22,6 @@ async function storeInvoicePdf(invoiceNumber: string, pdf: Buffer): Promise<stri
     return null;
   }
 }
-
-const PAYMENT_TYPE_LABEL: Record<Payment["type"], string> = {
-  full: "Course Fee",
-  registration: "Registration Fee",
-  balance: "Balance Payment",
-};
 
 /**
  * Generates the invoice PDF and emails it to the candidate and to
@@ -67,7 +61,7 @@ export async function sendPaymentInvoice(
 
   const pdfUrl = await storeInvoicePdf(invoiceNumber, pdf);
   const attachments = [{ filename: `${invoiceNumber}.pdf`, content: pdf, contentType: "application/pdf" }];
-  const label = PAYMENT_TYPE_LABEL[payment.type];
+  const label = invoiceLineLabel(payment.type, payment.amount, enrollment.amountPaid, enrollment.totalFee);
   const remaining = enrollment.totalFee - enrollment.amountPaid;
 
   const candidateSent = await sendMail({
@@ -152,7 +146,7 @@ export async function resendExistingInvoice(payment: Payment, enrollment: Enroll
     }
   }
 
-  const label = PAYMENT_TYPE_LABEL[payment.type];
+  const label = invoiceLineLabel(payment.type, payment.amount, enrollment.amountPaid, enrollment.totalFee);
   const remaining = enrollment.totalFee - enrollment.amountPaid;
   const attachments = [{ filename: `${payment.invoiceNumber}.pdf`, content: pdf, contentType: "application/pdf" }];
 

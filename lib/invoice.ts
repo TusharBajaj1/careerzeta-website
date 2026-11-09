@@ -28,6 +28,28 @@ const PAYMENT_TYPE_LABEL: Record<InvoiceData["paymentType"], string> = {
 };
 
 /**
+ * The stored `type` on a payment is just whichever option the admin picked
+ * when creating its link (case-by-case, not derived) — so it can say
+ * "Balance Payment" or "Registration Fee" even when this one transaction,
+ * by itself, took the candidate from nothing paid to fully paid (e.g. the
+ * registration-fee split was never actually used for them). Whenever that's
+ * what actually happened, the invoice should say "Course Fee" regardless of
+ * what the link was labeled internally.
+ */
+export function invoiceLineLabel(
+  paymentType: InvoiceData["paymentType"],
+  amountPaidNowPaise: number,
+  amountPaidTotalPaise: number,
+  totalFeePaise: number,
+): string {
+  const amountBeforeThisPayment = amountPaidTotalPaise - amountPaidNowPaise;
+  if (amountBeforeThisPayment <= 0 && amountPaidNowPaise >= totalFeePaise) {
+    return PAYMENT_TYPE_LABEL.full;
+  }
+  return PAYMENT_TYPE_LABEL[paymentType];
+}
+
+/**
  * PDFKit's standard fonts (Helvetica etc.) only cover WinAnsi/Latin-1, which
  * excludes the ₹ glyph (U+20B9) — it renders as a stray superscript "1"
  * without embedding a custom Unicode font. "Rs." avoids that entirely.
@@ -67,7 +89,12 @@ export function generateInvoicePdf(data: InvoiceData): Promise<Buffer> {
 
     const gst = computeGst(data.amountPaidNowPaise, data.candidateState);
     const candidateStateCode = data.candidateState ? stateCodeFor(data.candidateState) : null;
-    const label = PAYMENT_TYPE_LABEL[data.paymentType];
+    const label = invoiceLineLabel(
+      data.paymentType,
+      data.amountPaidNowPaise,
+      data.amountPaidTotalPaise,
+      data.totalFeePaise,
+    );
     const remaining = data.totalFeePaise - data.amountPaidTotalPaise;
 
     // Header
