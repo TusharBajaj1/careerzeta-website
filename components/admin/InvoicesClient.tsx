@@ -11,6 +11,7 @@ export type InvoiceRow = {
   type: "full" | "registration" | "balance";
   amount: number;
   invoiceNumber: string;
+  invoicePdfUrl: string | null;
   invoiceCancelled: boolean;
   invoiceCancelledAt: string | null;
   paidAt: string | null;
@@ -28,6 +29,36 @@ const PAYMENT_TYPE_LABEL: Record<InvoiceRow["type"], string> = {
 export default function InvoicesClient({ initialInvoices }: { initialInvoices: InvoiceRow[] }) {
   const [invoices, setInvoices] = useState<InvoiceRow[]>(initialInvoices);
   const [busyId, setBusyId] = useState<number | null>(null);
+  const [sendingId, setSendingId] = useState<number | null>(null);
+
+  async function handleSend(invoice: InvoiceRow) {
+    const verb = invoice.invoiceCancelled ? "issue a new invoice to" : "resend the invoice to";
+    if (!confirm(`${invoice.invoiceCancelled ? "Issue a new invoice" : "Resend this invoice"} to ${invoice.candidateName} (${invoice.candidateEmail})? This will ${verb} their current email.`)) {
+      return;
+    }
+
+    setSendingId(invoice.id);
+    const res = await fetch(`/api/admin/payments/${invoice.id}/send-invoice`, { method: "POST" });
+    const data = await res.json().catch(() => ({}));
+    setSendingId(null);
+
+    if (!res.ok) {
+      alert("Couldn't send the invoice — try again.");
+      return;
+    }
+    if (!data.sent) {
+      alert("Invoice processed, but the email couldn't be sent — check the address and try again.");
+    }
+    if (data.fresh) {
+      setInvoices((prev) =>
+        prev.map((inv) =>
+          inv.id === invoice.id
+            ? { ...inv, invoiceNumber: data.invoiceNumber, invoiceCancelled: false, invoiceCancelledAt: null }
+            : inv,
+        ),
+      );
+    }
+  }
 
   async function handleCancel(invoice: InvoiceRow) {
     if (
@@ -112,15 +143,30 @@ export default function InvoicesClient({ initialInvoices }: { initialInvoices: I
                     </span>
                   </td>
                   <td className="py-3 pr-4">
-                    {!inv.invoiceCancelled && (
+                    <div className="flex flex-wrap items-center gap-3">
                       <button
-                        onClick={() => handleCancel(inv)}
-                        disabled={busyId === inv.id}
-                        className="text-xs font-semibold text-red-600 hover:underline disabled:opacity-50"
+                        onClick={() => handleSend(inv)}
+                        disabled={sendingId === inv.id}
+                        className="text-xs font-semibold text-sky-700 hover:underline disabled:opacity-50"
                       >
-                        {busyId === inv.id ? "Cancelling…" : "Cancel invoice"}
+                        {sendingId === inv.id ? "Sending…" : inv.invoiceCancelled ? "Issue new invoice" : "Resend"}
                       </button>
-                    )}
+                      <a
+                        href={`/api/admin/payments/${inv.id}/download-invoice`}
+                        className="text-xs font-semibold text-sky-700 hover:underline"
+                      >
+                        Download
+                      </a>
+                      {!inv.invoiceCancelled && (
+                        <button
+                          onClick={() => handleCancel(inv)}
+                          disabled={busyId === inv.id}
+                          className="text-xs font-semibold text-red-600 hover:underline disabled:opacity-50"
+                        >
+                          {busyId === inv.id ? "Cancelling…" : "Cancel invoice"}
+                        </button>
+                      )}
+                    </div>
                   </td>
                 </tr>
               ))}

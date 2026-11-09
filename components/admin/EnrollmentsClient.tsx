@@ -842,12 +842,21 @@ function EnrollmentCard({
                     <MarkPaidControl payment={p} onConfirmed={onChanged} />
                   </div>
                 ) : (
-                  <ReassignPaymentControl
-                    payment={p}
-                    currentEnrollmentId={enrollment.id}
-                    allEnrollments={allEnrollments}
-                    onReassigned={onChanged}
-                  />
+                  <div className="flex flex-wrap items-center gap-3">
+                    <SendInvoiceControl payment={p} onSent={onChanged} />
+                    <a
+                      href={`/api/admin/payments/${p.id}/download-invoice`}
+                      className="flex items-center gap-1 text-sky-700 hover:underline"
+                    >
+                      <Download size={14} /> Download
+                    </a>
+                    <ReassignPaymentControl
+                      payment={p}
+                      currentEnrollmentId={enrollment.id}
+                      allEnrollments={allEnrollments}
+                      onReassigned={onChanged}
+                    />
+                  </div>
                 )}
               </li>
             ))}
@@ -929,6 +938,50 @@ function MarkPaidControl({ payment, onConfirmed }: { payment: PaymentRow; onConf
       </button>
       {error && <span className="text-xs text-red-600">{error}</span>}
     </form>
+  );
+}
+
+/**
+ * Sends the invoice email again — for a candidate asking for another
+ * copy, or a payment that never got one sent the first time. Resends the
+ * existing invoice unchanged when there's a valid one on file; issues a
+ * fresh invoice number when there isn't (no invoice yet, or the only one
+ * was cancelled) — the admin doesn't need to know which case applies.
+ */
+function SendInvoiceControl({ payment, onSent }: { payment: PaymentRow; onSent: () => void }) {
+  const [sending, setSending] = useState(false);
+  const label = !payment.invoiceNumber || payment.invoiceCancelled ? "Send new invoice" : "Resend invoice";
+
+  async function handleSend() {
+    if (
+      !confirm(
+        payment.invoiceNumber && !payment.invoiceCancelled
+          ? "Resend this invoice to the candidate's current email?"
+          : "Send a new invoice to the candidate's current email?",
+      )
+    ) {
+      return;
+    }
+
+    setSending(true);
+    const res = await fetch(`/api/admin/payments/${payment.id}/send-invoice`, { method: "POST" });
+    const data = await res.json().catch(() => ({}));
+    setSending(false);
+
+    if (!res.ok) {
+      alert("Couldn't send the invoice — try again.");
+      return;
+    }
+    if (!data.sent) {
+      alert("Invoice processed, but the email couldn't be sent — check the address and try again.");
+    }
+    onSent();
+  }
+
+  return (
+    <button onClick={handleSend} disabled={sending} className="text-sky-700 hover:underline disabled:opacity-50">
+      {sending ? "Sending…" : label}
+    </button>
   );
 }
 

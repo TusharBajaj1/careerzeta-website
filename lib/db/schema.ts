@@ -125,6 +125,8 @@ export const payments = pgTable("payments", {
   paidAt: timestamp("paid_at", { withTimezone: true }),
   invoiceSent: boolean("invoice_sent").notNull().default(false),
   invoiceNumber: varchar("invoice_number", { length: 64 }),
+  /** The exact PDF that was actually emailed, persisted so a later resend/download returns the same document rather than a live-regenerated one. Null for invoices issued before this existed. */
+  invoicePdfUrl: text("invoice_pdf_url"),
   /** Internal record that this invoice number is void (no credit note needed if it was never recorded/reported) — see /api/admin/payments/[id]/cancel-invoice. */
   invoiceCancelled: boolean("invoice_cancelled").notNull().default(false),
   invoiceCancelledAt: timestamp("invoice_cancelled_at", { withTimezone: true }),

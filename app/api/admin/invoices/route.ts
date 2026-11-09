@@ -13,6 +13,7 @@ export async function GET() {
       type: payments.type,
       amount: payments.amount,
       invoiceNumber: payments.invoiceNumber,
+      invoicePdfUrl: payments.invoicePdfUrl,
       invoiceCancelled: payments.invoiceCancelled,
       invoiceCancelledAt: payments.invoiceCancelledAt,
       paidAt: payments.paidAt,

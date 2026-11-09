@@ -109,8 +109,11 @@ export async function confirmPaymentPaid(params: {
     .returning();
 
   try {
-    const { invoiceNumber, sent } = await sendPaymentInvoice(updatedPayment, updatedEnrollment);
-    await db.update(payments).set({ invoiceSent: sent, invoiceNumber }).where(eq(payments.id, paymentId));
+    const { invoiceNumber, sent, pdfUrl } = await sendPaymentInvoice(updatedPayment, updatedEnrollment);
+    await db
+      .update(payments)
+      .set({ invoiceSent: sent, invoiceNumber, invoicePdfUrl: pdfUrl })
+      .where(eq(payments.id, paymentId));
   } catch (err) {
     console.error(`Invoice email failed for payment ${paymentId}:`, err);
   }
