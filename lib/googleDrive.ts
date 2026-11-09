@@ -77,12 +77,16 @@ async function ensureSubfolder(name: string): Promise<string | null> {
  * creating duplicates. Never throws; logs and returns false on any
  * failure, including simply not being configured yet.
  */
-export async function uploadToDrive(subfolder: "Invoices" | "Admission Letters", filename: string, pdf: Buffer): Promise<boolean> {
-  if (!isConfigured()) return false;
+export async function uploadToDrive(
+  subfolder: "Invoices" | "Admission Letters",
+  filename: string,
+  pdf: Buffer,
+): Promise<{ ok: boolean; error?: string }> {
+  if (!isConfigured()) return { ok: false, error: "not_configured" };
 
   try {
     const folderId = await ensureSubfolder(subfolder);
-    if (!folderId) return false;
+    if (!folderId) return { ok: false, error: "subfolder_lookup_failed" };
 
     const drive = getDriveClient();
 
@@ -93,7 +97,7 @@ export async function uploadToDrive(subfolder: "Invoices" | "Admission Letters",
       spaces: "drive",
     });
     if (existing.data.files && existing.data.files.length > 0) {
-      return true; // already there
+      return { ok: true }; // already there
     }
 
     await drive.files.create({
@@ -101,10 +105,11 @@ export async function uploadToDrive(subfolder: "Invoices" | "Admission Letters",
       media: { mimeType: "application/pdf", body: bufferToStream(pdf) },
       fields: "id",
     });
-    return true;
+    return { ok: true };
   } catch (err) {
+    const message = err instanceof Error ? err.message : String(err);
     console.error(`Google Drive upload failed for ${filename}:`, err);
-    return false;
+    return { ok: false, error: message };
   }
 }
 

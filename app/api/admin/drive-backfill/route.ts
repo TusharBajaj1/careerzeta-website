@@ -15,7 +15,7 @@ import { uploadToDrive } from "@/lib/googleDrive";
  */
 export async function POST() {
   let invoicesUploaded = 0;
-  let invoicesFailed = 0;
+  const invoiceErrors: string[] = [];
 
   const invoiceRows = await db
     .select({ invoiceNumber: payments.invoiceNumber, invoicePdfUrl: payments.invoicePdfUrl })
@@ -29,17 +29,18 @@ export async function POST() {
       if (!res.ok) throw new Error(`fetch failed: ${res.status}`);
       const pdf = Buffer.from(await res.arrayBuffer());
       const safeName = row.invoiceNumber.replace(/[^a-zA-Z0-9_-]/g, "-");
-      const ok = await uploadToDrive("Invoices", `${safeName}.pdf`, pdf);
-      if (ok) invoicesUploaded++;
-      else invoicesFailed++;
+      const result = await uploadToDrive("Invoices", `${safeName}.pdf`, pdf);
+      if (result.ok) invoicesUploaded++;
+      else invoiceErrors.push(`${row.invoiceNumber}: ${result.error}`);
     } catch (err) {
+      const message = err instanceof Error ? err.message : String(err);
       console.error(`Drive backfill failed for invoice ${row.invoiceNumber}:`, err);
-      invoicesFailed++;
+      invoiceErrors.push(`${row.invoiceNumber}: ${message}`);
     }
   }
 
   let lettersUploaded = 0;
-  let lettersFailed = 0;
+  const letterErrors: string[] = [];
 
   const letterRows = await db
     .select({
@@ -57,18 +58,19 @@ export async function POST() {
       if (!res.ok) throw new Error(`fetch failed: ${res.status}`);
       const pdf = Buffer.from(await res.arrayBuffer());
       const filename = admissionLetterFilename(row.candidateName, row.admissionNumber);
-      const ok = await uploadToDrive("Admission Letters", filename, pdf);
-      if (ok) lettersUploaded++;
-      else lettersFailed++;
+      const result = await uploadToDrive("Admission Letters", filename, pdf);
+      if (result.ok) lettersUploaded++;
+      else letterErrors.push(`${row.admissionNumber}: ${result.error}`);
     } catch (err) {
+      const message = err instanceof Error ? err.message : String(err);
       console.error(`Drive backfill failed for admission letter ${row.admissionNumber}:`, err);
-      lettersFailed++;
+      letterErrors.push(`${row.admissionNumber}: ${message}`);
     }
   }
 
   return NextResponse.json({
     ok: true,
-    invoices: { uploaded: invoicesUploaded, failed: invoicesFailed, total: invoiceRows.length },
-    letters: { uploaded: lettersUploaded, failed: lettersFailed, total: letterRows.length },
+    invoices: { uploaded: invoicesUploaded, failed: invoiceErrors.length, total: invoiceRows.length, errors: invoiceErrors },
+    letters: { uploaded: lettersUploaded, failed: letterErrors.length, total: letterRows.length, errors: letterErrors },
   });
 }

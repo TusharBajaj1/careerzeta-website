@@ -2,6 +2,8 @@
 
 import { useState } from "react";
 
+type SyncGroupResult = { uploaded: number; failed: number; total: number; errors: string[] };
+
 /**
  * One-time (re-runnable) action to push every invoice/admission letter PDF
  * already generated before Drive sync existed into the configured Drive
@@ -10,7 +12,8 @@ import { useState } from "react";
  */
 export default function DriveBackfillButton() {
   const [running, setRunning] = useState(false);
-  const [result, setResult] = useState<string | null>(null);
+  const [summary, setSummary] = useState<string | null>(null);
+  const [errors, setErrors] = useState<string[]>([]);
 
   async function handleRun() {
     if (!confirm("Push every existing invoice and admission letter PDF to Google Drive? Safe to run more than once.")) {
@@ -18,20 +21,25 @@ export default function DriveBackfillButton() {
     }
 
     setRunning(true);
-    setResult(null);
+    setSummary(null);
+    setErrors([]);
     const res = await fetch("/api/admin/drive-backfill", { method: "POST" });
     const data = await res.json().catch(() => null);
     setRunning(false);
 
     if (!res.ok || !data) {
-      setResult("Couldn't run the sync — check that Drive is configured and try again.");
+      setSummary("Couldn't run the sync — check that Drive is configured and try again.");
       return;
     }
 
-    setResult(
-      `Invoices: ${data.invoices.uploaded}/${data.invoices.total} synced${data.invoices.failed ? `, ${data.invoices.failed} failed` : ""}. ` +
-        `Admission letters: ${data.letters.uploaded}/${data.letters.total} synced${data.letters.failed ? `, ${data.letters.failed} failed` : ""}.`,
+    const invoices: SyncGroupResult = data.invoices;
+    const letters: SyncGroupResult = data.letters;
+
+    setSummary(
+      `Invoices: ${invoices.uploaded}/${invoices.total} synced${invoices.failed ? `, ${invoices.failed} failed` : ""}. ` +
+        `Admission letters: ${letters.uploaded}/${letters.total} synced${letters.failed ? `, ${letters.failed} failed` : ""}.`,
     );
+    setErrors([...invoices.errors, ...letters.errors]);
   }
 
   return (
@@ -52,7 +60,14 @@ export default function DriveBackfillButton() {
           {running ? "Syncing…" : "Run sync"}
         </button>
       </div>
-      {result && <p className="mt-3 text-xs">{result}</p>}
+      {summary && <p className="mt-3 text-xs">{summary}</p>}
+      {errors.length > 0 && (
+        <ul className="mt-2 flex flex-col gap-1 rounded-lg bg-red-50 p-3 text-xs text-red-700">
+          {errors.map((e, i) => (
+            <li key={i}>{e}</li>
+          ))}
+        </ul>
+      )}
     </div>
   );
 }
