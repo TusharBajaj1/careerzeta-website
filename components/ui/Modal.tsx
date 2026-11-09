@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, type ReactNode } from "react";
+import { createPortal } from "react-dom";
 import { X } from "lucide-react";
 
 type ModalProps = {
@@ -29,7 +30,14 @@ export default function Modal({ open, onClose, title, children }: ModalProps) {
 
   if (!open) return null;
 
-  return (
+  // Rendered via a portal straight onto <body> — not just inline where
+  // the trigger button happens to live. A `fixed` element positions
+  // relative to the nearest ancestor with a transform/filter/perspective
+  // (e.g. the floating enroll pill's -translate-x-1/2, or a Framer Motion
+  // animation mid-transform) instead of the viewport, which otherwise
+  // squeezes this modal into that ancestor's small box instead of
+  // covering the screen.
+  return createPortal(
     <div
       className="fixed inset-0 z-[100] flex items-center justify-center bg-gray-900/60 p-4 backdrop-blur-sm"
       role="dialog"
@@ -56,6 +64,7 @@ export default function Modal({ open, onClose, title, children }: ModalProps) {
 
         <div className={title ? "mt-5" : ""}>{children}</div>
       </div>
-    </div>
+    </div>,
+    document.body,
   );
 }
