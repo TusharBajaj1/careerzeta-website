@@ -87,7 +87,13 @@ export default function ProgramSection({
                   {num}
                 </span>
                 <h2 className="font-display text-[clamp(30px,4vw,52px)] leading-[1.05] font-semibold tracking-[-0.03em]">
-                  {program.name}
+                  {hasLandingPage ? (
+                    <Link href={`/programs/${program.slug}`} className="hover:text-sky-400">
+                      {program.name}
+                    </Link>
+                  ) : (
+                    program.name
+                  )}
                 </h2>
               </div>
               <div className="flex flex-wrap gap-2.5">
@@ -136,14 +142,6 @@ export default function ProgramSection({
                 <span className="text-sm font-bold text-slate-800">
                   Brochure — coming soon
                 </span>
-              )}
-              {hasLandingPage && (
-                <Link
-                  href={`/programs/${program.slug}`}
-                  className="text-sm font-bold text-sky-700 hover:underline"
-                >
-                  Full program details →
-                </Link>
               )}
             </div>
           </Reveal>
