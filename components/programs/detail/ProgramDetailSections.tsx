@@ -121,7 +121,7 @@ export function ToolTicker({ groups }: { groups: ProgramDetailPageData["toolGrou
 /* 3. Why. sky-100 ground, white and aqua cards (every third card aqua, starting at the third). */
 export function WhySection({ items }: { items: ProgramDetailPageData["why"] }) {
   return (
-    <section id="why" className="scroll-mt-5 bg-sky-100">
+    <section id="why" className="scroll-mt-24 bg-sky-100">
       <div className={`${wrap} py-[104px]`}>
         <div className={eyebrow}>Why this program</div>
         <h2 className={`${h2} mb-12 max-w-[18ch]`}>Built for where you want to go next</h2>
@@ -215,7 +215,7 @@ export function Curriculum({ p }: { p: ProgramDetailPageData }) {
   const cur = p.phases[open];
   const total = p.phases.length;
   return (
-    <section id="curriculum" className="scroll-mt-5 bg-white">
+    <section id="curriculum" className="scroll-mt-24 bg-white">
       <div className={`${wrap} py-[104px]`}>
         <div className={eyebrow}>Curriculum</div>
         <h2 className={`${h2} mb-11 max-w-[22ch]`}>Phase by phase, from fundamentals to agentic AI</h2>
@@ -274,7 +274,7 @@ export function Curriculum({ p }: { p: ProgramDetailPageData }) {
 /* 7. Skills and grouped tools. */
 export function SkillsAndTools({ p }: { p: ProgramDetailPageData }) {
   return (
-    <section id="tools" className="scroll-mt-5 bg-sky-100">
+    <section id="tools" className="scroll-mt-24 bg-sky-100">
       <div className={`${wrap} py-[104px]`}>
         <div className={eyebrow}>Skills you&apos;ll master</div>
         <h2 className={`${h2} mb-7 max-w-[20ch]`}>What you&apos;ll walk away able to do</h2>
@@ -311,7 +311,7 @@ export function Projects({ items }: { items: ProgramDetailPageData["projects"] }
   const [f, setF] = useState<"All" | ProjectLevel>("All");
   const list = items.map((x, i) => ({ ...x, n: pad(i) })).filter((x) => f === "All" || x.level === f);
   return (
-    <section id="projects" className="scroll-mt-5 bg-white">
+    <section id="projects" className="scroll-mt-24 bg-white">
       <div className={`${wrap} py-[104px]`}>
         <div className="mb-10 flex flex-wrap items-end justify-between gap-6">
           <div>
@@ -386,7 +386,7 @@ export function CaseStudies({ items }: { items: ProgramDetailPageData["caseStudi
   const [i, setI] = useState(0);
   const c = items[i];
   return (
-    <section id="cases" className="scroll-mt-5 bg-white">
+    <section id="cases" className="scroll-mt-24 bg-white">
       <div className={`${wrap} py-[104px]`}>
         <div className={eyebrow}>Industry case studies</div>
         <h2 className={`${h2} mb-10`}>Real problems, across real industries</h2>
@@ -415,7 +415,7 @@ export function CaseStudies({ items }: { items: ProgramDetailPageData["caseStudi
 /* 11. Career services */
 export function CareerServices({ items }: { items: string[] }) {
   return (
-    <section id="careers" className="scroll-mt-5 bg-sky-100">
+    <section id="careers" className="scroll-mt-24 bg-sky-100">
       <div className={`${wrap} py-[104px]`}>
         <div className={eyebrow}>Career services</div>
         <h2 className={`${h2} mb-11`}>What we offer beyond the classroom</h2>
@@ -435,7 +435,7 @@ export function CareerServices({ items }: { items: string[] }) {
 /* 12. How to join + closing CTA. Step 1 node is aqua, others white. Closing band is sky-100 with a charcoal fee card. */
 export function JoinAndCta({ p }: { p: ProgramDetailPageData }) {
   return (
-    <section id="join" className="scroll-mt-5 bg-white">
+    <section id="join" className="scroll-mt-24 bg-white">
       <div className={`${wrap} pt-[104px] pb-12`}>
         <div className={eyebrow}>How to join</div>
         <h2 className={h2}>Four steps to your first class</h2>
