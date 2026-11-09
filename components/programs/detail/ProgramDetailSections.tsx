@@ -497,9 +497,11 @@ export function FloatingEnroll({ p }: { p: ProgramDetailPageData }) {
         <span className="text-xs text-slate-600">{p.name}</span>
         <span className="font-display text-lg font-semibold">{p.fee}</span>
       </div>
-      <Link href="#enroll" className="rounded-full bg-sky-400 px-[26px] py-[13px] text-[15px] font-bold whitespace-nowrap text-gray-900 transition-transform hover:scale-105">
-        Enroll Now
-      </Link>
+      <EnrollButton
+        programSlug={p.slug}
+        programName={p.name}
+        className="rounded-full bg-sky-400 px-[26px] py-[13px] text-[15px] font-bold whitespace-nowrap text-gray-900 transition-transform hover:scale-105"
+      />
     </div>
   );
 }
