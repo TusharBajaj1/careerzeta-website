@@ -26,12 +26,13 @@ export const invoiceNumberSeq = pgSequence("invoice_number_seq", {
  * Same reasoning as invoiceNumberSeq — enrollments.id isn't usable as the
  * admission reference since not every enrollment row is ever actually
  * admitted (pending, cancelled, test data). nextval() is only called at
- * the moment an admission letter is actually first sent, so this starts
- * at 1 for the first real admission regardless of how many unrelated
- * enrollment rows came before it.
+ * the moment an admission letter is actually first sent, so this is
+ * gapless for real admissions regardless of how many unrelated enrollment
+ * rows came before one. Starts at 1001 (rather than 1) purely so the ref
+ * never reads as "our very first candidate" to whoever receives it.
  */
 export const admissionNumberSeq = pgSequence("admission_number_seq", {
-  startWith: 1,
+  startWith: 1001,
   increment: 1,
 });
 
