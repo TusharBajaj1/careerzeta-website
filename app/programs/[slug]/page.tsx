@@ -65,10 +65,9 @@ export default async function ProgramDetailPage({ params }: { params: Promise<{ 
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
-          __html: JSON.stringify({
-            ...buildCourseJsonLd(program, detail),
-            url: `https://www.careerzeta.com/programs/${program.slug}`,
-          }),
+          __html: JSON.stringify(
+            buildCourseJsonLd(program, detail, `https://www.careerzeta.com/programs/${program.slug}`),
+          ),
         }}
       />
 

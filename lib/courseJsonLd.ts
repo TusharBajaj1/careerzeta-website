@@ -10,17 +10,24 @@ function toIsoDuration(duration: string | null): string | undefined {
   return match ? `P${match[1]}M` : undefined;
 }
 
-/** Builds a schema.org/Course entry so each program is eligible for Google's Course rich result. */
-export function buildCourseJsonLd(program: Program, detail: ProgramDetail) {
+/**
+ * Builds a schema.org/Course entry so each program is eligible for Google's
+ * Course rich result. `pageUrl` defaults to the overview page's anchor —
+ * pass the dedicated /programs/[slug] URL from pages that have one, so the
+ * top-level `url` and the nested `offers.url` both point at the canonical
+ * page instead of the overview anchor.
+ */
+export function buildCourseJsonLd(program: Program, detail: ProgramDetail, pageUrl?: string) {
   const rupees = parseFeeStringToRupees(detail.fee);
   const price = rupees ? String(rupees) : undefined;
+  const url = pageUrl ?? `${SITE_URL}/programs#${program.slug}`;
 
   return {
     "@context": "https://schema.org",
     "@type": "Course",
     name: program.name,
     description: program.desc,
-    url: `${SITE_URL}/programs#${program.slug}`,
+    url,
     provider: {
       "@type": "EducationalOrganization",
       name: "CareerZeta",
@@ -39,7 +46,7 @@ export function buildCourseJsonLd(program: Program, detail: ProgramDetail) {
         priceCurrency: "INR",
         category: "Paid",
         availability: "https://schema.org/InStock",
-        url: `${SITE_URL}/programs#${program.slug}`,
+        url,
       },
     }),
   };
