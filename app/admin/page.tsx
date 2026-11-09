@@ -1,13 +1,7 @@
 import Link from "next/link";
-import { count, eq, inArray, isNotNull, and } from "drizzle-orm";
 import { BadgePercent, FileText, GraduationCap, Newspaper, Users, type LucideIcon } from "lucide-react";
 
 import DriveBackfillButton from "@/components/admin/DriveBackfillButton";
-import { db } from "@/lib/db";
-import { enrollments, payments } from "@/lib/db/schema";
-
-/** Admin pages read live data on every request — never statically prerendered/cached. */
-export const dynamic = "force-dynamic";
 
 const CATEGORY_ACCENT: Record<string, string> = {
   Candidates: "bg-sky-100 text-sky-700",
@@ -41,40 +35,13 @@ const SECTIONS: { title: string; items: { href: string; label: string; descripti
   },
 ];
 
-export default async function AdminHomePage() {
-  const [[{ pipeline }], [{ admitted }], [{ invoiced }]] = await Promise.all([
-    db
-      .select({ pipeline: count() })
-      .from(enrollments)
-      .where(inArray(enrollments.status, ["pending", "registration_paid"])),
-    db.select({ admitted: count() }).from(enrollments).where(eq(enrollments.status, "fully_paid")),
-    db
-      .select({ invoiced: count() })
-      .from(payments)
-      .where(and(isNotNull(payments.invoiceNumber), eq(payments.invoiceCancelled, false))),
-  ]);
-
-  const stats = [
-    { label: "In pipeline", value: pipeline },
-    { label: "Admitted", value: admitted },
-    { label: "Invoices issued", value: invoiced },
-  ];
-
+export default function AdminHomePage() {
   return (
     <div className="mx-auto max-w-[960px] px-6 py-16">
       <h1 className="font-display text-3xl font-bold">Admin</h1>
       <p className="mt-1 text-sm opacity-60">Everything for running CareerZeta day to day.</p>
 
-      <div className="mt-6 grid grid-cols-3 gap-3">
-        {stats.map((s) => (
-          <div key={s.label} className="rounded-xl border-2 border-line bg-white px-4 py-3 text-center sm:text-left">
-            <div className="font-display text-2xl font-bold">{s.value}</div>
-            <div className="text-xs opacity-60">{s.label}</div>
-          </div>
-        ))}
-      </div>
-
-      <div className="mt-12 flex flex-col gap-10">
+      <div className="mt-10 flex flex-col gap-10">
         {SECTIONS.map((section) => (
           <div key={section.title}>
             <h2 className="text-xs font-bold tracking-wide uppercase opacity-60">{section.title}</h2>
