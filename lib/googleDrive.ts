@@ -46,6 +46,12 @@ async function ensureSubfolder(name: string): Promise<string | null> {
     q: `'${PARENT_FOLDER_ID}' in parents and name = '${escaped}' and mimeType = 'application/vnd.google-apps.folder' and trashed = false`,
     fields: "files(id, name)",
     spaces: "drive",
+    // Required for the parent to be (or live inside) a Shared Drive — a
+    // service account has no storage quota of its own, so a Shared Drive
+    // is the only place it can actually create files (see uploadToDrive).
+    supportsAllDrives: true,
+    includeItemsFromAllDrives: true,
+    corpora: "allDrives",
   });
 
   const found = existing.data.files?.[0]?.id;
@@ -61,6 +67,7 @@ async function ensureSubfolder(name: string): Promise<string | null> {
       parents: [PARENT_FOLDER_ID!],
     },
     fields: "id",
+    supportsAllDrives: true,
   });
 
   const id = created.data.id;
@@ -95,6 +102,9 @@ export async function uploadToDrive(
       q: `'${folderId}' in parents and name = '${escaped}' and trashed = false`,
       fields: "files(id)",
       spaces: "drive",
+      supportsAllDrives: true,
+      includeItemsFromAllDrives: true,
+      corpora: "allDrives",
     });
     if (existing.data.files && existing.data.files.length > 0) {
       return { ok: true }; // already there
@@ -104,6 +114,7 @@ export async function uploadToDrive(
       requestBody: { name: filename, parents: [folderId] },
       media: { mimeType: "application/pdf", body: bufferToStream(pdf) },
       fields: "id",
+      supportsAllDrives: true,
     });
     return { ok: true };
   } catch (err) {
