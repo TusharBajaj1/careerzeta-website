@@ -61,6 +61,18 @@ export async function PATCH(
     return NextResponse.json({ enrollment: updated });
   }
 
+  // Batch/cohort info — unlike the candidate/fee details below, this is set
+  // (and often changed) after a payment exists, since the batch is usually
+  // assigned around the time of admission rather than at signup.
+  if (typeof body.batchDetails === "string" && Object.keys(body).length === 1) {
+    const [updated] = await db
+      .update(enrollments)
+      .set({ batchDetails: body.batchDetails.trim() || null })
+      .where(eq(enrollments.id, enrollmentId))
+      .returning();
+    return NextResponse.json({ enrollment: updated });
+  }
+
   // Otherwise: an edit to candidate/fee details.
   if (existing.amountPaid > 0) {
     return NextResponse.json({ error: "enrollment_already_paid" }, { status: 400 });

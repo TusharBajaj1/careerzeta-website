@@ -36,6 +36,7 @@ export async function GET(_request: Request, { params }: { params: Promise<{ id:
       candidatePhone: enrollment.candidatePhone,
       programName,
       totalFeePaise: enrollment.totalFee,
+      batchDetails: enrollment.batchDetails,
     });
   }
 

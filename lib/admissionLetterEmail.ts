@@ -43,6 +43,7 @@ export async function sendAdmissionLetter(
       candidatePhone: enrollment.candidatePhone,
       programName,
       totalFeePaise: enrollment.totalFee,
+      batchDetails: enrollment.batchDetails,
     });
   } catch (err) {
     console.error(`Admission letter generation failed for enrollment ${enrollment.id}:`, err);
@@ -74,46 +75,42 @@ export async function sendAdmissionLetter(
 }
 
 /**
- * Re-sends the exact admission letter already on file for this enrollment
- * — for when a candidate asks for another copy. Prefers the stored PDF;
- * falls back to regenerating for a letter issued before PDFs were
- * persisted.
+ * Re-sends the admission letter for this enrollment — for when a
+ * candidate asks for another copy, or batch details get added/changed
+ * after the first send. Unlike invoices, this always regenerates from
+ * the enrollment's current data (rather than re-sending the frozen
+ * original) since there's no compliance reason to keep an old version
+ * once the batch is known, and overwrites the stored PDF so a later
+ * download reflects the same update.
  */
-export async function resendAdmissionLetter(enrollment: Enrollment): Promise<boolean> {
-  if (!enrollment.admissionLetterSent) return false;
+export async function resendAdmissionLetter(
+  enrollment: Enrollment,
+): Promise<{ sent: boolean; pdfUrl: string | null }> {
+  if (!enrollment.admissionLetterSent) return { sent: false, pdfUrl: null };
 
   const programName = PROGRAMS.find((p) => p.slug === enrollment.programSlug)?.name ?? enrollment.programSlug;
 
   let pdf: Buffer;
-  if (enrollment.admissionLetterPdfUrl) {
-    try {
-      const res = await fetch(enrollment.admissionLetterPdfUrl);
-      if (!res.ok) throw new Error(`fetch failed: ${res.status}`);
-      pdf = Buffer.from(await res.arrayBuffer());
-    } catch (err) {
-      console.error(`Fetching stored admission letter PDF failed for enrollment ${enrollment.id}:`, err);
-      return false;
-    }
-  } else {
-    try {
-      pdf = await generateAdmissionLetterPdf({
-        enrollmentId: enrollment.id,
-        admittedAt: enrollment.admissionLetterSentAt ?? enrollment.createdAt,
-        candidateName: enrollment.candidateName,
-        candidateEmail: enrollment.candidateEmail,
-        candidatePhone: enrollment.candidatePhone,
-        programName,
-        totalFeePaise: enrollment.totalFee,
-      });
-    } catch (err) {
-      console.error(`Regenerating legacy admission letter PDF failed for enrollment ${enrollment.id}:`, err);
-      return false;
-    }
+  try {
+    pdf = await generateAdmissionLetterPdf({
+      enrollmentId: enrollment.id,
+      admittedAt: enrollment.admissionLetterSentAt ?? enrollment.createdAt,
+      candidateName: enrollment.candidateName,
+      candidateEmail: enrollment.candidateEmail,
+      candidatePhone: enrollment.candidatePhone,
+      programName,
+      totalFeePaise: enrollment.totalFee,
+      batchDetails: enrollment.batchDetails,
+    });
+  } catch (err) {
+    console.error(`Regenerating admission letter PDF failed for enrollment ${enrollment.id}:`, err);
+    return { sent: false, pdfUrl: null };
   }
 
+  const pdfUrl = await storeAdmissionLetterPdf(enrollment.id, pdf);
   const attachments = [{ filename: `Admission-Letter-${enrollment.id}.pdf`, content: pdf, contentType: "application/pdf" }];
 
-  return sendMail({
+  const sent = await sendMail({
     to: enrollment.candidateEmail,
     cc: CONTACT.email,
     subject: `Your Admission Letter — ${programName}`,
@@ -128,4 +125,6 @@ export async function resendAdmissionLetter(enrollment: Enrollment): Promise<boo
     ].join("\n"),
     attachments,
   });
+
+  return { sent, pdfUrl };
 }

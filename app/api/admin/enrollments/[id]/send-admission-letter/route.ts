@@ -36,6 +36,9 @@ export async function POST(_request: Request, { params }: { params: Promise<{ id
     return NextResponse.json({ ok: true, sent, fresh: true });
   }
 
-  const sent = await resendAdmissionLetter(enrollment);
+  const { sent, pdfUrl } = await resendAdmissionLetter(enrollment);
+  if (pdfUrl) {
+    await db.update(enrollments).set({ admissionLetterPdfUrl: pdfUrl }).where(eq(enrollments.id, enrollmentId));
+  }
   return NextResponse.json({ ok: true, sent, fresh: false });
 }

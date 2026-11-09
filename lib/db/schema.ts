@@ -107,6 +107,8 @@ export const enrollments = pgTable("enrollments", {
   status: enrollmentStatusEnum("status").notNull().default("pending"),
   /** Whether the 60-days-post-enrollment statement invoice has already gone out — prevents resending it on every sweep run. */
   day60InvoiceSent: boolean("day60_invoice_sent").notNull().default(false),
+  /** Free-text batch/cohort info (name, start date, schedule — however the sales/admissions team wants to phrase it), set from the admin panel and included on the admission letter once set. Settable at any time, including after payment — not covered by the candidate/fee-details edit lock below. */
+  batchDetails: text("batch_details"),
   /** Whether the admission letter has already gone out — set the moment the enrollment first reaches fully_paid, so a later payment-related recompute doesn't resend it. */
   admissionLetterSent: boolean("admission_letter_sent").notNull().default(false),
   admissionLetterSentAt: timestamp("admission_letter_sent_at", { withTimezone: true }),

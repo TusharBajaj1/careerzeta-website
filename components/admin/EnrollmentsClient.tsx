@@ -42,6 +42,7 @@ export type EnrollmentRow = {
   registrationFeeAmount: number | null;
   amountPaid: number;
   status: EnrollmentStatus;
+  batchDetails: string | null;
   admissionLetterSent: boolean;
   admissionLetterSentAt: string | null;
   createdAt: string;
@@ -810,6 +811,11 @@ function EnrollmentCard({
         </div>
       </div>
 
+      <div className="mt-4 flex flex-wrap items-center gap-3 text-sm">
+        <div className="text-xs font-bold tracking-wide uppercase opacity-60">Batch Details</div>
+        <BatchDetailsControl enrollment={enrollment} onSaved={onChanged} />
+      </div>
+
       {enrollment.status === "fully_paid" && (
         <div className="mt-4 flex flex-wrap items-center gap-3 text-sm">
           <div className="text-xs font-bold tracking-wide uppercase opacity-60">Admission Letter</div>
@@ -1016,6 +1022,75 @@ function SendInvoiceControl({
     <button onClick={handleSend} disabled={sending} className="text-sky-700 hover:underline disabled:opacity-50">
       {sending ? "Sending…" : label}
     </button>
+  );
+}
+
+/**
+ * Batch/cohort info, editable at any time (before or after payment) —
+ * unlike the candidate/fee-details edit form, this isn't locked once
+ * amountPaid > 0, since the batch is usually only known/assigned around
+ * admission time. Included on the admission letter once set; resending
+ * the letter after changing this picks up the new value.
+ */
+function BatchDetailsControl({ enrollment, onSaved }: { enrollment: EnrollmentRow; onSaved: () => void }) {
+  const [editing, setEditing] = useState(false);
+  const [value, setValue] = useState(enrollment.batchDetails ?? "");
+  const [saving, setSaving] = useState(false);
+
+  async function handleSave() {
+    setSaving(true);
+    const res = await fetch(`/api/admin/enrollments/${enrollment.id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ batchDetails: value }),
+    });
+    setSaving(false);
+
+    if (!res.ok) {
+      alert("Couldn't save batch details — try again.");
+      return;
+    }
+    setEditing(false);
+    onSaved();
+  }
+
+  if (!editing) {
+    return (
+      <div className="flex flex-wrap items-center gap-3">
+        <span className={enrollment.batchDetails ? "" : "opacity-60"}>{enrollment.batchDetails || "Not set"}</span>
+        <button
+          onClick={() => {
+            setValue(enrollment.batchDetails ?? "");
+            setEditing(true);
+          }}
+          className="text-sky-700 hover:underline"
+        >
+          {enrollment.batchDetails ? "Edit" : "Set"}
+        </button>
+      </div>
+    );
+  }
+
+  return (
+    <div className="flex flex-1 flex-wrap items-center gap-2">
+      <input
+        aria-label="Batch details"
+        value={value}
+        onChange={(e) => setValue(e.target.value)}
+        placeholder="e.g. Batch 14 — starts 15 Jan 2027, weekday evenings"
+        className="min-w-[260px] flex-1 rounded-lg border-2 border-line px-3 py-1.5 text-sm outline-none focus:border-sky-400"
+      />
+      <button
+        onClick={handleSave}
+        disabled={saving}
+        className="rounded-lg bg-sky-700 px-3 py-1.5 text-xs font-bold text-white disabled:opacity-60"
+      >
+        {saving ? "Saving…" : "Save"}
+      </button>
+      <button onClick={() => setEditing(false)} className="text-xs opacity-60 hover:underline">
+        Cancel
+      </button>
+    </div>
   );
 }
 

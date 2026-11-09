@@ -1,0 +1,1 @@
+ALTER TABLE "enrollments" ADD COLUMN "batch_details" text;

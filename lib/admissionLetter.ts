@@ -11,6 +11,7 @@ export type AdmissionLetterData = {
   candidatePhone: string;
   programName: string;
   totalFeePaise: number;
+  batchDetails?: string | null;
 };
 
 /** Matches lib/invoice.ts's reasoning — pdfkit's standard fonts don't cover the ₹ glyph. */
@@ -64,10 +65,19 @@ export function generateAdmissionLetterPdf(data: AdmissionLetterData): Promise<B
     );
     doc.moveDown(0.8);
 
-    doc.text(
-      "Our team will reach out to you shortly with details of your batch schedule and onboarding. If you have any questions in the meantime, please write to us at hello@careerzeta.com.",
-      { align: "justify" },
-    );
+    if (data.batchDetails) {
+      doc.text(`Batch details: ${data.batchDetails}`, { align: "justify" });
+    } else {
+      doc.text(
+        "Our team will reach out to you shortly with details of your batch schedule and onboarding.",
+        { align: "justify" },
+      );
+    }
+    doc.moveDown(0.8);
+
+    doc.text("If you have any questions in the meantime, please write to us at hello@careerzeta.com.", {
+      align: "justify",
+    });
     doc.moveDown(0.8);
 
     doc.text("We look forward to supporting you through your learning journey and wish you great success.", {
