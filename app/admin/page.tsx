@@ -17,6 +17,12 @@ export default function AdminHomePage() {
         >
           Blog
         </Link>
+        <Link
+          href="/admin/invoices"
+          className="rounded-lg border-2 border-line bg-white px-5 py-4 font-semibold transition hover:border-sky-400"
+        >
+          Invoices
+        </Link>
       </div>
     </div>
   );

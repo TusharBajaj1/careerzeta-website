@@ -22,6 +22,7 @@ export default async function AdminEnrollmentsPage() {
       .map((p) => ({
         ...p,
         paidAt: p.paidAt ? p.paidAt.toISOString() : null,
+        invoiceCancelledAt: p.invoiceCancelledAt ? p.invoiceCancelledAt.toISOString() : null,
         createdAt: p.createdAt.toISOString(),
       })),
   }));

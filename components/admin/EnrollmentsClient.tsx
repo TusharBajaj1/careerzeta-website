@@ -20,6 +20,8 @@ export type PaymentRow = {
   paidAt: string | null;
   invoiceSent: boolean;
   invoiceNumber: string | null;
+  invoiceCancelled: boolean;
+  invoiceCancelledAt: string | null;
   createdAt: string;
 };
 
@@ -817,7 +819,13 @@ function EnrollmentCard({
                   <span className={p.status === "paid" ? "font-bold text-green-700" : "opacity-70"}>
                     {p.status}
                   </span>
-                  {p.invoiceNumber && <span className="opacity-60"> ({p.invoiceNumber})</span>}
+                  {p.invoiceNumber && (
+                    <span className="opacity-60">
+                      {" "}
+                      ({p.invoiceNumber}
+                      {p.invoiceCancelled ? ", cancelled" : ""})
+                    </span>
+                  )}
                 </span>
                 {p.status !== "paid" ? (
                   <div className="flex items-center gap-3">
@@ -970,12 +978,13 @@ function ReassignPaymentControl({
     setError(null);
   }
 
+  const willSendCancellationNotice = sendCancellationNotice && !!payment.invoiceNumber && !payment.invoiceCancelled;
+
   async function handleConfirm() {
     if (!target) return;
-    const noticeLine =
-      sendCancellationNotice && payment.invoiceNumber
-        ? ` An invoice-cancellation email will also go to the current candidate's address.`
-        : "";
+    const noticeLine = willSendCancellationNotice
+      ? ` An invoice-cancellation email will also go to the current candidate's address.`
+      : "";
     if (
       !confirm(
         `Move this ${formatPaiseAsInr(payment.amount)} payment to ${target.candidateName} (${target.candidateEmail})? Both enrollments' totals will be recalculated.${noticeLine}`,
@@ -991,7 +1000,7 @@ function ReassignPaymentControl({
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         targetEnrollmentId: target.id,
-        sendCancellationNotice: sendCancellationNotice && !!payment.invoiceNumber,
+        sendCancellationNotice: willSendCancellationNotice,
       }),
     });
 
@@ -1005,7 +1014,7 @@ function ReassignPaymentControl({
     setSubmitting(false);
     reset();
     onReassigned();
-    if (sendCancellationNotice && payment.invoiceNumber && !data.cancellationNoticeSent) {
+    if (willSendCancellationNotice && !data.cancellationNoticeSent) {
       alert("Payment reassigned, but the cancellation notice email couldn't be sent — you may want to follow up manually.");
     }
   }
@@ -1063,7 +1072,7 @@ function ReassignPaymentControl({
         </div>
       )}
 
-      {target && payment.invoiceNumber ? (
+      {target && payment.invoiceNumber && !payment.invoiceCancelled ? (
         <label className="mt-2 flex items-start gap-2 text-xs text-amber-800">
           <input
             type="checkbox"

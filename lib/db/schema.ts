@@ -125,6 +125,9 @@ export const payments = pgTable("payments", {
   paidAt: timestamp("paid_at", { withTimezone: true }),
   invoiceSent: boolean("invoice_sent").notNull().default(false),
   invoiceNumber: varchar("invoice_number", { length: 64 }),
+  /** Internal record that this invoice number is void (no credit note needed if it was never recorded/reported) — see /api/admin/payments/[id]/cancel-invoice. */
+  invoiceCancelled: boolean("invoice_cancelled").notNull().default(false),
+  invoiceCancelledAt: timestamp("invoice_cancelled_at", { withTimezone: true }),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 });
 
