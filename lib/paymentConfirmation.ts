@@ -1,4 +1,4 @@
-import { eq } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 
 import { db } from "@/lib/db";
 import { coupons, enrollments, payments } from "@/lib/db/schema";
@@ -7,6 +7,43 @@ import { sendPaymentInvoice } from "@/lib/invoiceEmail";
 export type ConfirmPaymentResult =
   | { ok: true }
   | { ok: false; reason: "already_paid" | "payment_not_found" };
+
+/** The status implied by payment progress alone — what "undo refund request" reverts to, and what a recompute lands on. */
+export function paymentDerivedStatus(
+  amountPaid: number,
+  totalFee: number,
+): "pending" | "registration_paid" | "fully_paid" {
+  if (amountPaid >= totalFee) return "fully_paid";
+  if (amountPaid > 0) return "registration_paid";
+  return "pending";
+}
+
+/**
+ * Recomputes an enrollment's amountPaid from its actual paid payment rows,
+ * rather than incrementing/decrementing a running total — used after a
+ * payment moves to a different enrollment (see /api/admin/payments/[id]/reassign),
+ * so both enrollments end up exactly consistent with their real payment
+ * history instead of relying on arithmetic that could drift. Leaves a
+ * cancelled/refund_requested status alone — those are manual states, not
+ * ones payment progress should silently overwrite.
+ */
+export async function recomputeEnrollmentTotals(enrollmentId: number): Promise<void> {
+  const [enrollment] = await db.select().from(enrollments).where(eq(enrollments.id, enrollmentId)).limit(1);
+  if (!enrollment) return;
+
+  const paidPayments = await db
+    .select()
+    .from(payments)
+    .where(and(eq(payments.enrollmentId, enrollmentId), eq(payments.status, "paid")));
+  const amountPaid = paidPayments.reduce((sum, p) => sum + p.amount, 0);
+
+  const status =
+    enrollment.status === "cancelled" || enrollment.status === "refund_requested"
+      ? enrollment.status
+      : paymentDerivedStatus(amountPaid, enrollment.totalFee);
+
+  await db.update(enrollments).set({ amountPaid, status }).where(eq(enrollments.id, enrollmentId));
+}
 
 /**
  * Marks a payment row paid, rolls the amount into its enrollment, bumps

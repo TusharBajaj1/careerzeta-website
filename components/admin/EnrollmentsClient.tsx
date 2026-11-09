@@ -138,7 +138,12 @@ export default function EnrollmentsClient({
           <p className="text-sm opacity-60">No enrollments yet.</p>
         ) : (
           enrollments.map((enrollment) => (
-            <EnrollmentCard key={enrollment.id} enrollment={enrollment} onChanged={refresh} />
+            <EnrollmentCard
+              key={enrollment.id}
+              enrollment={enrollment}
+              allEnrollments={enrollments}
+              onChanged={refresh}
+            />
           ))
         )}
       </div>
@@ -670,9 +675,11 @@ function EditEnrollmentForm({
 
 function EnrollmentCard({
   enrollment,
+  allEnrollments,
   onChanged,
 }: {
   enrollment: EnrollmentRow;
+  allEnrollments: EnrollmentRow[];
   onChanged: () => void;
 }) {
   const [editing, setEditing] = useState(false);
@@ -812,7 +819,7 @@ function EnrollmentCard({
                   </span>
                   {p.invoiceNumber && <span className="opacity-60"> ({p.invoiceNumber})</span>}
                 </span>
-                {p.status !== "paid" && (
+                {p.status !== "paid" ? (
                   <div className="flex items-center gap-3">
                     {p.paymentLinkUrl && (
                       <a
@@ -826,6 +833,13 @@ function EnrollmentCard({
                     )}
                     <MarkPaidControl payment={p} onConfirmed={onChanged} />
                   </div>
+                ) : (
+                  <ReassignPaymentControl
+                    payment={p}
+                    currentEnrollmentId={enrollment.id}
+                    allEnrollments={allEnrollments}
+                    onReassigned={onChanged}
+                  />
                 )}
               </li>
             ))}
@@ -907,6 +921,151 @@ function MarkPaidControl({ payment, onConfirmed }: { payment: PaymentRow; onConf
       </button>
       {error && <span className="text-xs text-red-600">{error}</span>}
     </form>
+  );
+}
+
+/**
+ * For the "money was recorded against the wrong candidate" case — moves a
+ * paid payment onto a different enrollment and lets both sides' totals
+ * recompute from their actual payment rows. Does not resend an invoice;
+ * the original one already went to the wrong enrollment's email, and
+ * whether/how to correct that is an accounting call, not an automatic one.
+ */
+function ReassignPaymentControl({
+  payment,
+  currentEnrollmentId,
+  allEnrollments,
+  onReassigned,
+}: {
+  payment: PaymentRow;
+  currentEnrollmentId: number;
+  allEnrollments: EnrollmentRow[];
+  onReassigned: () => void;
+}) {
+  const [open, setOpen] = useState(false);
+  const [query, setQuery] = useState("");
+  const [targetId, setTargetId] = useState<number | null>(null);
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const matches = useMemo(() => {
+    const q = query.trim().toLowerCase();
+    if (!q) return [];
+    return allEnrollments
+      .filter((e) => e.id !== currentEnrollmentId)
+      .filter(
+        (e) => e.candidateName.toLowerCase().includes(q) || e.candidateEmail.toLowerCase().includes(q),
+      )
+      .slice(0, 6);
+  }, [query, allEnrollments, currentEnrollmentId]);
+
+  const target = allEnrollments.find((e) => e.id === targetId) ?? null;
+
+  function reset() {
+    setOpen(false);
+    setQuery("");
+    setTargetId(null);
+    setError(null);
+  }
+
+  async function handleConfirm() {
+    if (!target) return;
+    if (
+      !confirm(
+        `Move this ${formatPaiseAsInr(payment.amount)} payment to ${target.candidateName} (${target.candidateEmail})? Both enrollments' totals will be recalculated. This does NOT send a new invoice — the original was already sent to the wrong enrollment's email.`,
+      )
+    ) {
+      return;
+    }
+
+    setSubmitting(true);
+    setError(null);
+    const res = await fetch(`/api/admin/payments/${payment.id}/reassign`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ targetEnrollmentId: target.id }),
+    });
+
+    if (!res.ok) {
+      setError("Couldn't reassign this payment — try again.");
+      setSubmitting(false);
+      return;
+    }
+
+    setSubmitting(false);
+    reset();
+    onReassigned();
+  }
+
+  if (!open) {
+    return (
+      <button onClick={() => setOpen(true)} className="text-xs font-semibold text-amber-700 hover:underline">
+        Reassign to a different enrollment
+      </button>
+    );
+  }
+
+  return (
+    <div className="mt-2 w-full rounded-lg border-2 border-amber-300 bg-amber-50 p-3">
+      <p className="text-xs font-semibold text-amber-800">
+        Move this payment — won&apos;t resend an invoice.
+      </p>
+
+      {!target ? (
+        <>
+          <input
+            type="text"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder="Search candidate name or email…"
+            aria-label="Search for the correct enrollment"
+            autoFocus
+            className="mt-2 w-full rounded-lg border-2 border-line bg-white px-3 py-2 text-sm outline-none focus:border-sky-400"
+          />
+          {matches.length > 0 && (
+            <ul className="mt-2 flex flex-col gap-1">
+              {matches.map((e) => (
+                <li key={e.id}>
+                  <button
+                    type="button"
+                    onClick={() => setTargetId(e.id)}
+                    className="w-full rounded-lg px-3 py-2 text-left text-sm hover:bg-white"
+                  >
+                    <span className="font-semibold">{e.candidateName}</span>{" "}
+                    <span className="opacity-60">— {e.candidateEmail}</span>
+                  </button>
+                </li>
+              ))}
+            </ul>
+          )}
+        </>
+      ) : (
+        <div className="mt-2 flex flex-wrap items-center justify-between gap-2 rounded-lg bg-white px-3 py-2 text-sm">
+          <span>
+            Moving to <strong>{target.candidateName}</strong> ({target.candidateEmail})
+          </span>
+          <button type="button" onClick={() => setTargetId(null)} className="text-xs text-sky-700 hover:underline">
+            Change
+          </button>
+        </div>
+      )}
+
+      {error && <p className="mt-2 text-xs text-red-600">{error}</p>}
+
+      <div className="mt-3 flex items-center gap-3">
+        <button
+          type="button"
+          onClick={handleConfirm}
+          disabled={!target || submitting}
+          className="rounded-lg bg-amber-500 px-4 py-2 text-xs font-bold text-white disabled:opacity-50"
+        >
+          {submitting ? "Moving…" : "Confirm reassign"}
+        </button>
+        <button type="button" onClick={reset} className="text-xs font-semibold opacity-70 hover:underline">
+          Cancel
+        </button>
+      </div>
+    </div>
   );
 }
 

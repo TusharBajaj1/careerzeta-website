@@ -6,17 +6,11 @@ import { enrollments, payments } from "@/lib/db/schema";
 import { isValidEmail, isValidGstin, isValidMobile } from "@/lib/forms";
 import { INDIAN_STATE_NAMES } from "@/lib/indianStates";
 import { rupeesToPaise } from "@/lib/money";
+import { paymentDerivedStatus } from "@/lib/paymentConfirmation";
 import { PROGRAMS } from "@/lib/content";
 
 const PROGRAM_SLUGS = new Set(PROGRAMS.map((p) => p.slug));
 const STATE_SET = new Set(INDIAN_STATE_NAMES);
-
-/** The status implied by payment progress alone — what "undo refund request" reverts to. */
-function paymentDerivedStatus(amountPaid: number, totalFee: number): "pending" | "registration_paid" | "fully_paid" {
-  if (amountPaid >= totalFee) return "fully_paid";
-  if (amountPaid > 0) return "registration_paid";
-  return "pending";
-}
 
 /**
  * Two unrelated kinds of update, told apart by payload shape:
