@@ -3,6 +3,7 @@ import PDFDocument from "pdfkit";
 import { COMPANY, GST_RATE_PERCENT, SERVICE_SAC_CODE } from "@/lib/company";
 import { stateCodeFor } from "@/lib/indianStates";
 import { paiseToRupees } from "@/lib/money";
+import { BRAND_COLORS, BRAND_FONTS, drawEyebrow, drawLetterhead, registerBrandFonts } from "@/lib/pdfBrand";
 
 export type InvoiceData = {
   invoiceNumber: string;
@@ -87,6 +88,8 @@ export function generateInvoicePdf(data: InvoiceData): Promise<Buffer> {
     doc.on("end", () => resolve(Buffer.concat(chunks)));
     doc.on("error", reject);
 
+    registerBrandFonts(doc);
+
     const gst = computeGst(data.amountPaidNowPaise, data.candidateState);
     const candidateStateCode = data.candidateState ? stateCodeFor(data.candidateState) : null;
     const label = invoiceLineLabel(
@@ -96,75 +99,71 @@ export function generateInvoicePdf(data: InvoiceData): Promise<Buffer> {
       data.totalFeePaise,
     );
     const remaining = data.totalFeePaise - data.amountPaidTotalPaise;
+    const tableRight = 545;
 
-    // Header
-    doc.fontSize(18).font("Helvetica-Bold").fillColor("#111827").text(COMPANY.legalName);
-    doc.fontSize(9).font("Helvetica").fillColor("#555555");
-    for (const line of COMPANY.addressLines) doc.text(line);
-    doc.text(`GSTIN: ${COMPANY.gstin}  |  State: ${COMPANY.state} (Code ${COMPANY.stateCode})`);
-    doc.moveDown(1);
+    const letterheadBottom = drawLetterhead(doc, {
+      addressLines: COMPANY.addressLines,
+      extraLine: `GSTIN: ${COMPANY.gstin} · State: ${COMPANY.state} (Code ${COMPANY.stateCode})`,
+      contentLeft: 50,
+      contentRight: tableRight,
+    });
+    doc.y = letterheadBottom;
 
-    doc
-      .fontSize(14)
-      .font("Helvetica-Bold")
-      .fillColor("#111827")
-      .text("TAX INVOICE", { align: "center" });
-    doc.moveDown(0.8);
+    drawEyebrow(doc, "Tax Invoice", 50, doc.y);
+    doc.moveDown(1.1);
 
     // Invoice meta + bill-to, side by side
-    const colLeftX = doc.x;
+    const colLeftX = 50;
     const colRightX = 320;
     const metaTop = doc.y;
 
-    doc.fontSize(9).font("Helvetica-Bold").fillColor("#111827").text("Invoice Details", colLeftX, metaTop);
-    doc.font("Helvetica");
-    doc.text(`Invoice #: ${data.invoiceNumber}`, colLeftX);
+    drawEyebrow(doc, "Invoice Details", colLeftX, metaTop);
+    doc.font(BRAND_FONTS.body).fontSize(9).fillColor(BRAND_COLORS.charcoal);
+    doc.text(`Invoice #: ${data.invoiceNumber}`, colLeftX, metaTop + 14);
     doc.text(
       `Date: ${data.issuedAt.toLocaleDateString("en-IN", { year: "numeric", month: "long", day: "numeric" })}`,
       colLeftX,
     );
-    doc.text(`Place of Supply: ${data.candidateState ?? "—"}${candidateStateCode ? ` (${candidateStateCode})` : ""}`, colLeftX);
+    doc.text(`Place of supply: ${data.candidateState ?? "—"}${candidateStateCode ? ` (${candidateStateCode})` : ""}`, colLeftX);
 
-    doc.fontSize(9).font("Helvetica-Bold").text("Billed To", colRightX, metaTop);
-    doc.font("Helvetica");
-    doc.text(data.candidateName, colRightX);
+    drawEyebrow(doc, "Billed To", colRightX, metaTop);
+    doc.font(BRAND_FONTS.body).fontSize(9).fillColor(BRAND_COLORS.charcoal);
+    doc.text(data.candidateName, colRightX, metaTop + 14);
     doc.text(data.candidateEmail, colRightX);
     doc.text(data.candidatePhone, colRightX);
     if (data.candidateAddress) {
-      doc.text(data.candidateAddress, colRightX, undefined, { width: 200 });
+      doc.text(data.candidateAddress, colRightX, undefined, { width: tableRight - colRightX });
     }
     if (data.candidateState) doc.text(data.candidateState, colRightX);
     if (data.candidateGstin) doc.text(`GSTIN: ${data.candidateGstin}`, colRightX);
 
     doc.x = colLeftX;
-    doc.moveDown(1.5);
+    doc.y = Math.max(doc.y, metaTop + 14 + 5 * 12) + 18;
 
-    // Line-item table
+    // Line-item table — header band in the brand's rounded-tint treatment.
     const tableTop = doc.y;
     const col = { desc: 50, sac: 300, taxable: 345, tax: 430, total: 475 };
-    const tableRight = 545;
     const descWidth = col.sac - col.desc - 8;
+    const headerHeight = 22;
 
-    doc.fontSize(9).font("Helvetica-Bold");
-    doc.text("Description", col.desc, tableTop, { width: descWidth });
-    doc.text("SAC", col.sac, tableTop, { width: col.taxable - col.sac - 5 });
-    doc.text("Taxable Value", col.taxable, tableTop, { width: col.tax - col.taxable - 5 });
-    doc.text("GST", col.tax, tableTop, { width: col.total - col.tax - 5 });
-    doc.text("Total", col.total, tableTop, { width: tableRight - col.total });
+    doc.roundedRect(colLeftX, tableTop, tableRight - colLeftX, headerHeight, 6).fill(BRAND_COLORS.tintBlue);
+    doc.font(BRAND_FONTS.bodyBold).fontSize(8.5).fillColor(BRAND_COLORS.deepAqua);
+    const headerTextY = tableTop + 7;
+    doc.text("DESCRIPTION", col.desc + 8, headerTextY, { width: descWidth - 8 });
+    doc.text("SAC", col.sac, headerTextY, { width: col.taxable - col.sac - 5 });
+    doc.text("TAXABLE VALUE", col.taxable, headerTextY, { width: col.tax - col.taxable - 5 });
+    doc.text("GST", col.tax, headerTextY, { width: col.total - col.tax - 5 });
+    doc.text("TOTAL", col.total, headerTextY, { width: tableRight - 8 - col.total });
 
-    doc
-      .moveTo(col.desc, tableTop + 14)
-      .lineTo(tableRight, tableTop + 14)
-      .strokeColor("#cccccc")
-      .stroke();
-
-    const rowY = tableTop + 20;
+    const rowY = tableTop + headerHeight + 8;
     const description = `${label} — ${data.programName}`;
     // Row height follows however many lines the (potentially long) program
     // name wraps to, so the divider below never overlaps the text.
-    const descHeight = doc.font("Helvetica").fontSize(9).heightOfString(description, { width: descWidth });
+    doc.font(BRAND_FONTS.body).fontSize(9);
+    const descHeight = doc.heightOfString(description, { width: descWidth });
     const rowHeight = Math.max(descHeight, 11);
 
+    doc.fillColor(BRAND_COLORS.charcoal);
     doc.text(description, col.desc, rowY, { width: descWidth });
     doc.text(SERVICE_SAC_CODE, col.sac, rowY, { width: col.taxable - col.sac - 5 });
     doc.text(formatInr(gst.taxableValuePaise), col.taxable, rowY, { width: col.tax - col.taxable - 5 });
@@ -172,21 +171,17 @@ export function generateInvoicePdf(data: InvoiceData): Promise<Buffer> {
     doc.text(formatInr(data.amountPaidNowPaise), col.total, rowY, { width: tableRight - col.total });
 
     const dividerY = rowY + rowHeight + 6;
-    doc
-      .moveTo(col.desc, dividerY)
-      .lineTo(tableRight, dividerY)
-      .strokeColor("#cccccc")
-      .stroke();
+    doc.moveTo(col.desc, dividerY).lineTo(tableRight, dividerY).strokeColor("#cbd5e1").stroke();
 
     // Tax breakdown
     let y = dividerY + 10;
-    doc.fontSize(9);
+    doc.font(BRAND_FONTS.body).fontSize(9).fillColor(BRAND_COLORS.charcoal);
     const taxLine = (textLabel: string, amountPaise: number) => {
       doc.text(textLabel, 350, y, { width: 100 });
       doc.text(formatInr(amountPaise), col.total, y, { width: tableRight - col.total });
       y += 14;
     };
-    doc.text("Taxable Value", 350, y, { width: 100 });
+    doc.text("Taxable value", 350, y, { width: 100 });
     doc.text(formatInr(gst.taxableValuePaise), col.total, y, { width: tableRight - col.total });
     y += 14;
     if (gst.isIntraState) {
@@ -195,28 +190,28 @@ export function generateInvoicePdf(data: InvoiceData): Promise<Buffer> {
     } else {
       taxLine(`IGST @ ${GST_RATE_PERCENT}%`, gst.igstPaise);
     }
-    doc.font("Helvetica-Bold");
-    doc.text("Total Invoice Value", 350, y, { width: 100 });
+    doc.font(BRAND_FONTS.bodyBold).fillColor(BRAND_COLORS.deepAqua);
+    doc.text("Total invoice value", 350, y, { width: 100 });
     doc.text(formatInr(data.amountPaidNowPaise), col.total, y, { width: tableRight - col.total });
-    y += 24;
+    y += 26;
 
     // Payment status summary
-    doc.font("Helvetica").fontSize(9).fillColor("#111827");
-    doc.text(`Total Program Fee: ${formatInr(data.totalFeePaise)}`, 50, y);
+    doc.font(BRAND_FONTS.body).fontSize(9).fillColor(BRAND_COLORS.charcoal);
+    doc.text(`Total program fee: ${formatInr(data.totalFeePaise)}`, 50, y);
     y += 14;
-    doc.text(`Total Paid to Date: ${formatInr(data.amountPaidTotalPaise)}`, 50, y);
+    doc.text(`Total paid to date: ${formatInr(data.amountPaidTotalPaise)}`, 50, y);
     y += 14;
     if (remaining > 0) {
-      doc.text(`Balance Remaining: ${formatInr(remaining)}`, 50, y);
+      doc.text(`Balance remaining: ${formatInr(remaining)}`, 50, y);
     } else {
-      doc.font("Helvetica-Bold").fillColor("#0a7a0a").text("Status: Paid in Full", 50, y);
+      doc.font(BRAND_FONTS.bodyBold).fillColor("#166534").text("Status: Paid in full", 50, y);
     }
 
     doc.moveDown(3);
     doc
       .fontSize(8)
-      .fillColor("#888888")
-      .font("Helvetica")
+      .fillColor(BRAND_COLORS.muted)
+      .font(BRAND_FONTS.body)
       .text(
         "This is a system-generated tax invoice and does not require a physical signature. For queries, contact hello@careerzeta.com.",
         50,
