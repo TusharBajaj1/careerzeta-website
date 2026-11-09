@@ -9,6 +9,7 @@ import EnrollButton from "@/components/programs/EnrollButton";
 import Reveal from "@/components/ui/Reveal";
 import { useReducedMotion } from "@/lib/useReducedMotion";
 import type { ProgramSummary } from "@/lib/content";
+import { PROGRAM_LANDING_DATA } from "@/lib/programLandingData";
 import type { ProgramDetail } from "@/lib/programsDetail";
 
 /** Reused from the Home v2 handoff — byte-identical files already in /public/home/, same mapping as Home's program tabs. */
@@ -50,6 +51,7 @@ export default function ProgramSection({
   const reducedMotion = useReducedMotion();
   const num = String(index + 1).padStart(2, "0");
   const steps = detail.whatYoullDo;
+  const hasLandingPage = PROGRAM_LANDING_DATA.some((l) => l.slug === program.slug);
 
   return (
     <section
@@ -134,6 +136,14 @@ export default function ProgramSection({
                 <span className="text-sm font-bold text-slate-800">
                   Brochure — coming soon
                 </span>
+              )}
+              {hasLandingPage && (
+                <Link
+                  href={`/programs/${program.slug}`}
+                  className="text-sm font-bold text-sky-700 hover:underline"
+                >
+                  Full program details →
+                </Link>
               )}
             </div>
           </Reveal>

@@ -3,6 +3,7 @@ import { and, desc, eq } from "drizzle-orm";
 
 import { db } from "@/lib/db";
 import { blogPosts, blogSeries } from "@/lib/db/schema";
+import { PROGRAM_LANDING_DATA } from "@/lib/programLandingData";
 
 const BASE_URL = "https://www.careerzeta.com";
 
@@ -10,6 +11,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const routes = [
     "",
     "/programs",
+    ...PROGRAM_LANDING_DATA.map((l) => `/programs/${l.slug}`),
     "/resources",
     "/blog",
     "/blog/series",
