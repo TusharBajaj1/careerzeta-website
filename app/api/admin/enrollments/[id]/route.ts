@@ -73,6 +73,19 @@ export async function PATCH(
     return NextResponse.json({ enrollment: updated });
   }
 
+  // The admission letter's editable message — same reasoning as batch
+  // details: always settable, since the wording is meant to be tweaked
+  // freely rather than fixed in code. An empty string clears the override
+  // and reverts to the default template.
+  if (typeof body.admissionLetterBody === "string" && Object.keys(body).length === 1) {
+    const [updated] = await db
+      .update(enrollments)
+      .set({ admissionLetterBody: body.admissionLetterBody.trim() || null })
+      .where(eq(enrollments.id, enrollmentId))
+      .returning();
+    return NextResponse.json({ enrollment: updated });
+  }
+
   // Otherwise: an edit to candidate/fee details.
   if (existing.amountPaid > 0) {
     return NextResponse.json({ error: "enrollment_already_paid" }, { status: 400 });

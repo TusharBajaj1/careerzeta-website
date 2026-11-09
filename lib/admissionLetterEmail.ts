@@ -1,6 +1,7 @@
 import { put } from "@vercel/blob";
 
 import { generateAdmissionLetterPdf } from "@/lib/admissionLetter";
+import { defaultAdmissionLetterBody } from "@/lib/admissionLetterTemplate";
 import { CONTACT, PROGRAMS } from "@/lib/content";
 import type { Enrollment } from "@/lib/db/schema";
 import { formatPaiseAsInr } from "@/lib/money";
@@ -32,6 +33,9 @@ export async function sendAdmissionLetter(
   enrollment: Enrollment,
 ): Promise<{ sent: boolean; pdfUrl: string | null }> {
   const programName = PROGRAMS.find((p) => p.slug === enrollment.programSlug)?.name ?? enrollment.programSlug;
+  const bodyText =
+    enrollment.admissionLetterBody?.trim() ||
+    defaultAdmissionLetterBody({ candidateName: enrollment.candidateName, programName, totalFeePaise: enrollment.totalFee });
 
   let pdf: Buffer;
   try {
@@ -44,6 +48,7 @@ export async function sendAdmissionLetter(
       programName,
       totalFeePaise: enrollment.totalFee,
       batchDetails: enrollment.batchDetails,
+      bodyText,
     });
   } catch (err) {
     console.error(`Admission letter generation failed for enrollment ${enrollment.id}:`, err);
@@ -89,6 +94,9 @@ export async function resendAdmissionLetter(
   if (!enrollment.admissionLetterSent) return { sent: false, pdfUrl: null };
 
   const programName = PROGRAMS.find((p) => p.slug === enrollment.programSlug)?.name ?? enrollment.programSlug;
+  const bodyText =
+    enrollment.admissionLetterBody?.trim() ||
+    defaultAdmissionLetterBody({ candidateName: enrollment.candidateName, programName, totalFeePaise: enrollment.totalFee });
 
   let pdf: Buffer;
   try {
@@ -101,6 +109,7 @@ export async function resendAdmissionLetter(
       programName,
       totalFeePaise: enrollment.totalFee,
       batchDetails: enrollment.batchDetails,
+      bodyText,
     });
   } catch (err) {
     console.error(`Regenerating admission letter PDF failed for enrollment ${enrollment.id}:`, err);

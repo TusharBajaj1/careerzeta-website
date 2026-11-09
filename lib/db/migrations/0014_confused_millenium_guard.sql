@@ -1,0 +1,1 @@
+ALTER TABLE "enrollments" ADD COLUMN "admission_letter_body" text;

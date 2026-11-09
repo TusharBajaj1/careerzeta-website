@@ -4,6 +4,7 @@ import { useMemo, useState, type FormEvent } from "react";
 import Link from "next/link";
 import { Download, Plus } from "lucide-react";
 
+import { defaultAdmissionLetterBody } from "@/lib/admissionLetterTemplate";
 import { PROGRAMS } from "@/lib/content";
 import { INDIAN_STATE_NAMES } from "@/lib/indianStates";
 import { formatPaiseAsInr, paiseToRupees } from "@/lib/money";
@@ -44,6 +45,7 @@ export type EnrollmentRow = {
   status: EnrollmentStatus;
   batchDetails: string | null;
   admissionLetterSent: boolean;
+  admissionLetterBody: string | null;
   admissionLetterSentAt: string | null;
   createdAt: string;
   payments: PaymentRow[];
@@ -688,6 +690,7 @@ function EnrollmentCard({
   onChanged: () => void;
 }) {
   const [editing, setEditing] = useState(false);
+  const [editingLetter, setEditingLetter] = useState(false);
   const programName = PROGRAMS.find((p) => p.slug === enrollment.programSlug)?.name ?? enrollment.programSlug;
   const remaining = enrollment.totalFee - enrollment.amountPaid;
   const canEdit = enrollment.amountPaid === 0 && enrollment.status !== "cancelled";
@@ -817,19 +820,35 @@ function EnrollmentCard({
       </div>
 
       {enrollment.status === "fully_paid" && (
-        <div className="mt-4 flex flex-wrap items-center gap-3 text-sm">
-          <div className="text-xs font-bold tracking-wide uppercase opacity-60">Admission Letter</div>
-          <span className={enrollment.admissionLetterSent ? "font-semibold text-green-700" : "opacity-60"}>
-            {enrollment.admissionLetterSent ? "Sent" : "Not sent"}
-          </span>
-          <AdmissionLetterControl enrollment={enrollment} onSent={onChanged} />
-          {enrollment.admissionLetterSent && (
+        <div className="mt-4">
+          <div className="flex flex-wrap items-center gap-3 text-sm">
+            <div className="text-xs font-bold tracking-wide uppercase opacity-60">Admission Letter</div>
+            <span className={enrollment.admissionLetterSent ? "font-semibold text-green-700" : "opacity-60"}>
+              {enrollment.admissionLetterSent ? "Sent" : "Not sent"}
+            </span>
+            <AdmissionLetterControl enrollment={enrollment} onSent={onChanged} />
             <a
               href={`/api/admin/enrollments/${enrollment.id}/download-admission-letter`}
               className="flex items-center gap-1 text-sky-700 hover:underline"
             >
               <Download size={14} /> Download
             </a>
+            <button
+              onClick={() => setEditingLetter((v) => !v)}
+              className="text-sky-700 hover:underline"
+            >
+              {editingLetter ? "Close" : "Edit letter"}
+            </button>
+          </div>
+          {editingLetter && (
+            <div className="mt-3 rounded-xl border-2 border-line bg-slate-50 p-4">
+              <LetterBodyEditor
+                enrollment={enrollment}
+                programName={programName}
+                onSaved={onChanged}
+                onDone={() => setEditingLetter(false)}
+              />
+            </div>
           )}
         </div>
       )}
@@ -1131,6 +1150,95 @@ function AdmissionLetterControl({ enrollment, onSent }: { enrollment: Enrollment
     <button onClick={handleSend} disabled={sending} className="text-sky-700 hover:underline disabled:opacity-50">
       {sending ? "Sending…" : label}
     </button>
+  );
+}
+
+/**
+ * The admission letter's editable message — fully admin-controlled per
+ * enrollment rather than fixed in code, since wording is expected to
+ * change as the business does. The letterhead, batch card, candidate
+ * details card and footer stay fixed; this textarea is everything else.
+ */
+function LetterBodyEditor({
+  enrollment,
+  programName,
+  onSaved,
+  onDone,
+}: {
+  enrollment: EnrollmentRow;
+  programName: string;
+  onSaved: () => void;
+  onDone: () => void;
+}) {
+  const defaultText = defaultAdmissionLetterBody({
+    candidateName: enrollment.candidateName,
+    programName,
+    totalFeePaise: enrollment.totalFee,
+  });
+  const [text, setText] = useState(enrollment.admissionLetterBody ?? defaultText);
+  const [saving, setSaving] = useState(false);
+  const isCustom = !!enrollment.admissionLetterBody;
+
+  async function save(value: string) {
+    setSaving(true);
+    const res = await fetch(`/api/admin/enrollments/${enrollment.id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ admissionLetterBody: value }),
+    });
+    setSaving(false);
+
+    if (!res.ok) {
+      alert("Couldn't save the letter text — try again.");
+      return false;
+    }
+    onSaved();
+    return true;
+  }
+
+  async function handleSave() {
+    if (await save(text)) onDone();
+  }
+
+  async function handleResetToDefault() {
+    if (!confirm("Clear your custom wording and revert to the default letter text?")) return;
+    if (await save("")) setText(defaultText);
+  }
+
+  return (
+    <div className="flex flex-col gap-2">
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <p className="text-xs font-bold tracking-wide uppercase opacity-60">
+          Letter text {isCustom ? "(customized)" : "(default)"}
+        </p>
+        <p className="text-xs opacity-50">
+          The letterhead, batch card, candidate details and footer stay fixed — this is the message in between.
+        </p>
+      </div>
+      <textarea
+        value={text}
+        onChange={(e) => setText(e.target.value)}
+        rows={10}
+        className="w-full rounded-lg border-2 border-line bg-white px-4 py-3 font-mono text-sm outline-none focus:border-sky-400"
+      />
+      <div className="flex items-center gap-3">
+        <button
+          onClick={handleSave}
+          disabled={saving}
+          className="rounded-lg bg-sky-700 px-4 py-2 text-xs font-bold text-white disabled:opacity-60"
+        >
+          {saving ? "Saving…" : "Save"}
+        </button>
+        {isCustom && (
+          <button onClick={handleResetToDefault} className="text-xs font-semibold text-red-600 hover:underline">
+            Reset to default
+          </button>
+        )}
+        <button onClick={onDone} className="text-xs opacity-60 hover:underline">
+          Cancel
+        </button>
+      </div>
+    </div>
   );
 }
 

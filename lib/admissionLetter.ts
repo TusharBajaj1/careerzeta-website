@@ -1,7 +1,7 @@
 import PDFDocument from "pdfkit";
 
 import { COMPANY } from "@/lib/company";
-import { paiseToRupees } from "@/lib/money";
+import { formatPaiseAsInr } from "@/lib/money";
 import { BRAND_COLORS, BRAND_FONTS, drawEyebrow, drawLetterhead, registerBrandFonts } from "@/lib/pdfBrand";
 
 export type AdmissionLetterData = {
@@ -13,12 +13,9 @@ export type AdmissionLetterData = {
   programName: string;
   totalFeePaise: number;
   batchDetails?: string | null;
+  /** The letter's editable message — from enrollments.admissionLetterBody, or lib/admissionLetterTemplate.ts's default when nothing's been customized. The caller resolves which, so this module stays pure rendering. */
+  bodyText: string;
 };
-
-/** Matches lib/invoice.ts's reasoning — pdfkit's standard fonts don't cover the ₹ glyph. */
-function formatInr(paise: number): string {
-  return `Rs. ${paiseToRupees(paise).toLocaleString("en-IN")}`;
-}
 
 const CONTENT_LEFT = 50;
 const CONTENT_RIGHT = 545;
@@ -57,20 +54,8 @@ export function generateAdmissionLetterPdf(data: AdmissionLetterData): Promise<B
     doc.text("Admission confirmed", CONTENT_LEFT);
     doc.moveDown(1);
 
-    doc.font(BRAND_FONTS.body).fontSize(11).fillColor(BRAND_COLORS.charcoal);
-    doc.text(`Dear ${data.candidateName},`, CONTENT_LEFT, doc.y, { width: CONTENT_WIDTH });
-    doc.moveDown(0.8);
-
-    doc.text(
-      `We're pleased to confirm your admission to ${data.programName} at ${COMPANY.legalName}. Your fee payment of ${formatInr(data.totalFeePaise)} has been received in full, and your enrollment now stands fully confirmed.`,
-      CONTENT_LEFT,
-      doc.y,
-      { width: CONTENT_WIDTH, align: "justify" },
-    );
-    doc.moveDown(1.2);
-
-    // Batch details — the brand's rounded tint card, icon-less key line
-    // since there's no icon library embedded in the PDF.
+    // Batch details — the brand's rounded tint card, shown up top so it's
+    // the first thing a candidate sees once they know they're admitted.
     if (data.batchDetails) {
       const cardX = CONTENT_LEFT;
       const cardTop = doc.y;
@@ -92,25 +77,18 @@ export function generateAdmissionLetterPdf(data: AdmissionLetterData): Promise<B
 
       doc.y = cardTop + cardHeight + 18;
       doc.x = CONTENT_LEFT;
-    } else {
-      doc.font(BRAND_FONTS.body).fontSize(11).fillColor(BRAND_COLORS.charcoal);
-      doc.text(
-        "Our team will reach out to you shortly with details of your batch schedule and onboarding.",
-        CONTENT_LEFT,
-        doc.y,
-        { width: CONTENT_WIDTH, align: "justify" },
-      );
-      doc.moveDown(1.2);
     }
 
+    // The editable message — fully admin-controlled per enrollment (see
+    // AdmissionLetterData.bodyText), rendered as plain paragraphs split on
+    // blank lines.
     doc.font(BRAND_FONTS.body).fontSize(11).fillColor(BRAND_COLORS.charcoal);
-    doc.text(
-      "If you have any questions in the meantime, please write to us at hello@careerzeta.com. We look forward to supporting you through your learning journey and wish you great success.",
-      CONTENT_LEFT,
-      doc.y,
-      { width: CONTENT_WIDTH, align: "justify" },
-    );
-    doc.moveDown(1.5);
+    const paragraphs = data.bodyText.split(/\n\s*\n/).map((p) => p.trim()).filter(Boolean);
+    for (const paragraph of paragraphs) {
+      doc.text(paragraph, CONTENT_LEFT, doc.y, { width: CONTENT_WIDTH, align: "justify" });
+      doc.moveDown(0.8);
+    }
+    doc.moveDown(0.4);
 
     doc.font(BRAND_FONTS.body).fontSize(11).fillColor(BRAND_COLORS.charcoal).text("Warm regards,", CONTENT_LEFT);
     doc.moveDown(0.3);
@@ -126,6 +104,7 @@ export function generateAdmissionLetterPdf(data: AdmissionLetterData): Promise<B
       `Email: ${data.candidateEmail}`,
       `Phone: ${data.candidatePhone}`,
       `Program: ${data.programName}`,
+      `Fee paid: ${formatPaiseAsInr(data.totalFeePaise)}`,
       `Enrollment ref: ${refNumber}`,
     ];
     doc.font(BRAND_FONTS.body).fontSize(9);

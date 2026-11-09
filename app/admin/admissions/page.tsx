@@ -23,6 +23,7 @@ export default async function AdminAdmissionsPage() {
     programSlug: r.programSlug,
     totalFee: r.totalFee,
     batchDetails: r.batchDetails,
+    admissionLetterBody: r.admissionLetterBody,
     admissionLetterSent: r.admissionLetterSent,
     admissionLetterSentAt: r.admissionLetterSentAt ? r.admissionLetterSentAt.toISOString() : null,
   }));
