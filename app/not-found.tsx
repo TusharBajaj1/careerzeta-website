@@ -3,6 +3,7 @@ import Link from "next/link";
 
 import Footer from "@/components/layout/Footer";
 import { PROGRAMS } from "@/lib/content";
+import { PROGRAM_DETAIL_PAGES } from "@/lib/programDetailPage";
 
 export const metadata: Metadata = {
   title: "Page Not Found — CareerZeta",
@@ -50,15 +51,18 @@ export default function NotFound() {
           </div>
 
           <div className="mt-12 flex flex-wrap items-center justify-center gap-x-6 gap-y-3 border-t border-white/15 pt-8">
-            {PROGRAMS.map((program) => (
-              <Link
-                key={program.slug}
-                href={`/programs#${program.slug}`}
-                className="text-sm text-white opacity-70 transition hover:text-sky-400 hover:opacity-100"
-              >
-                {program.name}
-              </Link>
-            ))}
+            {PROGRAMS.map((program) => {
+              const hasDetailPage = PROGRAM_DETAIL_PAGES.some((p) => p.slug === program.slug);
+              return (
+                <Link
+                  key={program.slug}
+                  href={hasDetailPage ? `/programs/${program.slug}` : `/programs#${program.slug}`}
+                  className="text-sm text-white opacity-70 transition hover:text-sky-400 hover:opacity-100"
+                >
+                  {program.name}
+                </Link>
+              );
+            })}
           </div>
         </div>
       </section>

@@ -4,6 +4,7 @@ import { Mail } from "lucide-react";
 import { FaFacebook, FaInstagram, FaLinkedin, FaYoutube } from "react-icons/fa";
 
 import { CONTACT, PROGRAMS } from "@/lib/content";
+import { PROGRAM_DETAIL_PAGES } from "@/lib/programDetailPage";
 
 const navigation = [
   { label: "Home", href: "/" },
@@ -114,15 +115,18 @@ export default function Footer() {
               Programs
             </div>
             <div className="mt-4 flex flex-col gap-2.5">
-              {PROGRAMS.map((program) => (
-                <Link
-                  key={program.slug}
-                  href={`/programs#${program.slug}`}
-                  className="text-[15px] text-white opacity-75 transition hover:text-sky-400 hover:opacity-100"
-                >
-                  {program.name}
-                </Link>
-              ))}
+              {PROGRAMS.map((program) => {
+                const hasDetailPage = PROGRAM_DETAIL_PAGES.some((p) => p.slug === program.slug);
+                return (
+                  <Link
+                    key={program.slug}
+                    href={hasDetailPage ? `/programs/${program.slug}` : `/programs#${program.slug}`}
+                    className="text-[15px] text-white opacity-75 transition hover:text-sky-400 hover:opacity-100"
+                  >
+                    {program.name}
+                  </Link>
+                );
+              })}
             </div>
           </div>
 

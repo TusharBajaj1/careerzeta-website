@@ -6,6 +6,7 @@ import { useState } from "react";
 
 import Reveal from "@/components/ui/Reveal";
 import { PROGRAMS } from "@/lib/content";
+import { PROGRAM_DETAIL_PAGES } from "@/lib/programDetailPage";
 
 /** One representative photo per program, from the Home v2 handoff. */
 const PHOTOS: Record<string, string> = {
@@ -70,7 +71,11 @@ export default function ProgramExplorer() {
               {program.desc}
             </p>
             <Link
-              href={`/programs#${program.slug}`}
+              href={
+                PROGRAM_DETAIL_PAGES.some((p) => p.slug === program.slug)
+                  ? `/programs/${program.slug}`
+                  : `/programs#${program.slug}`
+              }
               className="rounded-full bg-[#111827] px-[26px] py-[15px] text-[15px] font-bold text-white transition-transform duration-150 hover:scale-105"
             >
               View full program details →
