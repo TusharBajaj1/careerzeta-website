@@ -48,6 +48,8 @@ export default function InvoicesClient({ initialInvoices }: { initialInvoices: I
     }
     if (!data.sent) {
       alert("Invoice processed, but the email couldn't be sent — check the address and try again.");
+    } else {
+      alert(`Sent to ${invoice.candidateEmail} (invoice ${data.invoiceNumber}).`);
     }
     if (data.fresh) {
       setInvoices((prev) =>

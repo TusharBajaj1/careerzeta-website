@@ -843,7 +843,11 @@ function EnrollmentCard({
                   </div>
                 ) : (
                   <div className="flex flex-wrap items-center gap-3">
-                    <SendInvoiceControl payment={p} onSent={onChanged} />
+                    <SendInvoiceControl
+                      payment={p}
+                      candidateEmail={enrollment.candidateEmail}
+                      onSent={onChanged}
+                    />
                     <a
                       href={`/api/admin/payments/${p.id}/download-invoice`}
                       className="flex items-center gap-1 text-sky-700 hover:underline"
@@ -948,7 +952,15 @@ function MarkPaidControl({ payment, onConfirmed }: { payment: PaymentRow; onConf
  * fresh invoice number when there isn't (no invoice yet, or the only one
  * was cancelled) — the admin doesn't need to know which case applies.
  */
-function SendInvoiceControl({ payment, onSent }: { payment: PaymentRow; onSent: () => void }) {
+function SendInvoiceControl({
+  payment,
+  candidateEmail,
+  onSent,
+}: {
+  payment: PaymentRow;
+  candidateEmail: string;
+  onSent: () => void;
+}) {
   const [sending, setSending] = useState(false);
   const label = !payment.invoiceNumber || payment.invoiceCancelled ? "Send new invoice" : "Resend invoice";
 
@@ -974,6 +986,8 @@ function SendInvoiceControl({ payment, onSent }: { payment: PaymentRow; onSent: 
     }
     if (!data.sent) {
       alert("Invoice processed, but the email couldn't be sent — check the address and try again.");
+    } else {
+      alert(`Sent to ${candidateEmail} (invoice ${data.invoiceNumber}).`);
     }
     onSent();
   }
