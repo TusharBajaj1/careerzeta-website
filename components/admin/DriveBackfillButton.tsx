@@ -5,10 +5,10 @@ import { useState } from "react";
 type SyncGroupResult = { uploaded: number; failed: number; total: number; errors: string[] };
 
 /**
- * One-time (re-runnable) action to push every invoice/admission letter PDF
- * already generated before Drive sync existed into the configured Drive
- * folder. Everything generated from now on syncs automatically — this is
- * only for catching up on the backlog.
+ * New invoices/admission letters sync to Drive automatically — this is
+ * just a manual catch-up for anything that was missed (a transient Drive
+ * outage, or documents generated before Drive sync existed). Deliberately
+ * low-key: not something anyone needs to look at day to day.
  */
 export default function DriveBackfillButton() {
   const [running, setRunning] = useState(false);
@@ -28,45 +28,32 @@ export default function DriveBackfillButton() {
     setRunning(false);
 
     if (!res.ok || !data) {
-      setSummary("Couldn't run the sync — check that Drive is configured and try again.");
+      setSummary("Couldn't run the sync.");
       return;
     }
 
     const invoices: SyncGroupResult = data.invoices;
     const letters: SyncGroupResult = data.letters;
-
-    setSummary(
-      `Invoices: ${invoices.uploaded}/${invoices.total} synced${invoices.failed ? `, ${invoices.failed} failed` : ""}. ` +
-        `Admission letters: ${letters.uploaded}/${letters.total} synced${letters.failed ? `, ${letters.failed} failed` : ""}.`,
-    );
+    setSummary(`Invoices ${invoices.uploaded}/${invoices.total}, letters ${letters.uploaded}/${letters.total} synced.`);
     setErrors([...invoices.errors, ...letters.errors]);
   }
 
   return (
-    <div className="rounded-lg border-2 border-line bg-white px-5 py-4">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <div>
-          <div className="font-semibold">Sync existing PDFs to Google Drive</div>
-          <p className="mt-1 text-xs opacity-60">
-            New invoices and admission letters sync automatically. Run this once to back-fill everything
-            generated before Drive sync was set up.
-          </p>
-        </div>
-        <button
-          onClick={handleRun}
-          disabled={running}
-          className="rounded-lg bg-sky-700 px-4 py-2 text-sm font-bold text-white disabled:opacity-60"
-        >
-          {running ? "Syncing…" : "Run sync"}
-        </button>
-      </div>
-      {summary && <p className="mt-3 text-xs">{summary}</p>}
+    <div className="text-xs opacity-70">
+      <span>Invoices and admission letters sync to Google Drive automatically. </span>
+      <button onClick={handleRun} disabled={running} className="font-semibold text-sky-700 hover:underline disabled:opacity-50">
+        {running ? "Syncing…" : "Re-sync existing PDFs"}
+      </button>
+      {summary && <span> — {summary}</span>}
       {errors.length > 0 && (
-        <ul className="mt-2 flex flex-col gap-1 rounded-lg bg-red-50 p-3 text-xs text-red-700">
-          {errors.map((e, i) => (
-            <li key={i}>{e}</li>
-          ))}
-        </ul>
+        <details className="mt-1">
+          <summary className="cursor-pointer text-red-600">{errors.length} error(s)</summary>
+          <ul className="mt-1 flex flex-col gap-1 text-red-600">
+            {errors.map((e, i) => (
+              <li key={i}>{e}</li>
+            ))}
+          </ul>
+        </details>
       )}
     </div>
   );
