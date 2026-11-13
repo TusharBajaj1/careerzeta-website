@@ -40,13 +40,13 @@ export default function Hero() {
       id="home"
       className="relative min-h-[680px] overflow-hidden bg-[#0b1220] text-white"
     >
-      <div aria-hidden className="absolute inset-0 overflow-hidden lg:inset-y-0 lg:left-auto lg:right-0 lg:w-[58%]">
+      <div aria-hidden className="absolute inset-y-0 right-0 w-[58%] overflow-hidden">
         <Image
           src="/home/pexels-cottonbro-5473956.png"
           alt=""
           fill
           priority
-          sizes="(min-width:1024px) 58vw, 100vw"
+          sizes="58vw"
           className="object-cover"
           style={{
             objectPosition: "45% 22%",
@@ -54,13 +54,9 @@ export default function Hero() {
           }}
         />
       </div>
-      {/* Below lg the image is full-bleed behind the text rather than a
-          side column, so the left-to-right fade (tuned for that column)
-          would cut a diagonal band across the photo right where the text
-          sits — a flat scrim keeps every line legible instead. */}
       <div
         aria-hidden
-        className="absolute inset-0 bg-[#0b1220]/75 lg:bg-gradient-to-r lg:from-[#0b1220] lg:from-45% lg:via-[#0b1220]/80 lg:via-60% lg:to-transparent lg:to-85%"
+        className="absolute inset-0 bg-gradient-to-r from-[#0b1220] from-45% via-[#0b1220]/80 via-60% to-transparent to-85%"
       />
       <div
         aria-hidden
