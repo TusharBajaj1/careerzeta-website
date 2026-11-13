@@ -15,10 +15,21 @@
   --font-display: var(--font-poppins);
 }
 
+/* Safety net: a marquee/ticker or any future full-bleed element that
+   slightly miscalculates its width can push the document wider than the
+   viewport, which on touch devices feels like the page is "stuck" (a
+   stray sideways rubber-band on every scroll). Nothing on the site is
+   meant to scroll horizontally, so clip it at the root instead of
+   relying on every component getting overflow-hidden right. */
+html {
+  overflow-x: hidden;
+}
+
 body {
   background: var(--background);
   color: var(--foreground);
   font-family: var(--font-manrope), ui-sans-serif, system-ui, sans-serif;
+  overflow-x: hidden;
 }
 
 @keyframes cz-fade-in-up {
