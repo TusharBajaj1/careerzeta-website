@@ -5,10 +5,18 @@ import { db } from "@/lib/db";
 import { enrollments, payments } from "@/lib/db/schema";
 import { rupeesToPaise } from "@/lib/money";
 import { getRazorpayClient } from "@/lib/razorpay";
+import {
+  createEasebuzzPaymentLink,
+  generateEasebuzzTxnId,
+  isEasebuzzConfigured,
+  sanitizeEasebuzzPhone,
+  sanitizeEasebuzzProductInfo,
+} from "@/lib/easebuzz";
 import { PROGRAMS } from "@/lib/content";
 
 const SITE_URL = "https://www.careerzeta.com";
 const PAYMENT_TYPES = new Set(["registration", "balance", "full"]);
+const GATEWAYS = new Set(["razorpay", "easebuzz"]);
 
 /**
  * Manually triggers a Razorpay payment link for an existing enrollment —
@@ -29,8 +37,14 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
     return NextResponse.json({ error: "invalid_payload" }, { status: 400 });
   }
 
-  const { amount, type } = body;
-  if (typeof amount !== "number" || amount <= 0 || typeof type !== "string" || !PAYMENT_TYPES.has(type)) {
+  const { amount, type, gateway = "razorpay" } = body;
+  if (
+    typeof amount !== "number" ||
+    amount <= 0 ||
+    typeof type !== "string" ||
+    !PAYMENT_TYPES.has(type) ||
+    !GATEWAYS.has(gateway)
+  ) {
     return NextResponse.json({ error: "invalid_payload" }, { status: 400 });
   }
 
@@ -45,8 +59,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
     return NextResponse.json({ error: "amount_exceeds_balance", remaining }, { status: 400 });
   }
 
-  const razorpay = getRazorpayClient();
-  if (!razorpay) {
+  if (gateway === "easebuzz" ? !isEasebuzzConfigured() : !getRazorpayClient()) {
     return NextResponse.json({ error: "not_configured" }, { status: 501 });
   }
 
@@ -57,11 +70,43 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
       type: type as "registration" | "balance" | "full",
       amount: amountPaise,
       status: "created",
+      gateway,
     })
     .returning();
 
   const programName = PROGRAMS.find((p) => p.slug === enrollment.programSlug)?.name ?? enrollment.programSlug;
+  const description = `${programName} — ${type === "registration" ? "Registration Fee" : type === "balance" ? "Balance Payment" : "Course Fee"} — CareerZeta`;
 
+  if (gateway === "easebuzz") {
+    const txnid = generateEasebuzzTxnId(payment.id);
+    try {
+      const link = await createEasebuzzPaymentLink({
+        txnid,
+        amountPaise,
+        productInfo: sanitizeEasebuzzProductInfo(description),
+        firstName: enrollment.candidateName,
+        email: enrollment.candidateEmail,
+        phone: sanitizeEasebuzzPhone(enrollment.candidatePhone),
+        successUrl: `${SITE_URL}/enroll/thank-you`,
+        failureUrl: `${SITE_URL}/enroll/thank-you`,
+        udf1: String(enrollment.id),
+        udf2: String(payment.id),
+      });
+
+      const [updatedPayment] = await db
+        .update(payments)
+        .set({ easebuzzTxnId: link.txnid, paymentLinkUrl: link.paymentLinkUrl })
+        .where(eq(payments.id, payment.id))
+        .returning();
+
+      return NextResponse.json({ payment: updatedPayment });
+    } catch (err) {
+      console.error("Easebuzz payment link creation failed:", err);
+      return NextResponse.json({ error: "payment_link_failed" }, { status: 502 });
+    }
+  }
+
+  const razorpay = getRazorpayClient()!;
   try {
     const link = await razorpay.paymentLink.create({
       amount: amountPaise,
@@ -75,7 +120,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
       notify: { email: true, sms: true },
       reference_id: `enrollment-${enrollment.id}-payment-${payment.id}`,
       notes: { enrollmentId: String(enrollment.id), paymentId: String(payment.id) },
-      description: `${programName} — ${type === "registration" ? "Registration Fee" : type === "balance" ? "Balance Payment" : "Course Fee"} — CareerZeta`,
+      description,
       callback_url: `${SITE_URL}/enroll/thank-you`,
       callback_method: "get",
     });

@@ -58,9 +58,10 @@ export async function recomputeEnrollmentTotals(enrollmentId: number): Promise<v
 export async function confirmPaymentPaid(params: {
   paymentId: number;
   capturedAmountPaise: number;
-  razorpayPaymentId?: string | null;
+  /** The gateway's own id for the completed transaction — written to razorpayPaymentId or easebuzzPaymentId depending on this payment row's own `gateway`, not on which webhook called this. */
+  gatewayPaymentId?: string | null;
 }): Promise<ConfirmPaymentResult> {
-  const { paymentId, capturedAmountPaise, razorpayPaymentId } = params;
+  const { paymentId, capturedAmountPaise, gatewayPaymentId } = params;
 
   const [payment] = await db.select().from(payments).where(eq(payments.id, paymentId)).limit(1);
   if (!payment) {
@@ -71,13 +72,17 @@ export async function confirmPaymentPaid(params: {
   }
 
   const paidAt = new Date();
+  const gatewayIdColumn =
+    payment.gateway === "easebuzz"
+      ? { easebuzzPaymentId: gatewayPaymentId ?? null }
+      : { razorpayPaymentId: gatewayPaymentId ?? null };
   const [updatedPayment] = await db
     .update(payments)
     // amount is overwritten to what was actually received — may differ from
     // the amount the payment link/row was originally created for (e.g. a
     // manual confirm where the candidate paid a different amount outside
-    // Razorpay), so the stored record and invoice reflect reality.
-    .set({ status: "paid", amount: capturedAmountPaise, razorpayPaymentId: razorpayPaymentId ?? null, paidAt })
+    // the gateway), so the stored record and invoice reflect reality.
+    .set({ status: "paid", amount: capturedAmountPaise, ...gatewayIdColumn, paidAt })
     .where(eq(payments.id, paymentId))
     .returning();
 

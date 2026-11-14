@@ -52,7 +52,7 @@ export async function POST(request: Request) {
 
   // confirmPaymentPaid no-ops if already paid — makes both Razorpay's own
   // webhook retries and a prior manual "Mark as Paid" override harmless.
-  await confirmPaymentPaid({ paymentId: payment.id, capturedAmountPaise: capturedAmount, razorpayPaymentId });
+  await confirmPaymentPaid({ paymentId: payment.id, capturedAmountPaise: capturedAmount, gatewayPaymentId: razorpayPaymentId });
 
   return NextResponse.json({ received: true });
 }

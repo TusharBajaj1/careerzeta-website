@@ -66,6 +66,11 @@ export const paymentTypeEnum = pgEnum("payment_type", [
   "balance",
 ]);
 
+export const paymentGatewayEnum = pgEnum("payment_gateway", [
+  "razorpay",
+  "easebuzz",
+]);
+
 export const blogPostStatusEnum = pgEnum("blog_post_status", ["draft", "scheduled", "published"]);
 
 export const coupons = pgTable("coupons", {
@@ -144,8 +149,14 @@ export const payments = pgTable("payments", {
   /** Amount for this specific transaction, in paise. */
   amount: integer("amount").notNull(),
   status: paymentStatusEnum("status").notNull().default("created"),
+  /** Which gateway this payment's link was created on — picked by the candidate at checkout, or by the admin on a manually-triggered link. Existing rows all predate Easebuzz, hence the Razorpay default. */
+  gateway: paymentGatewayEnum("gateway").notNull().default("razorpay"),
   razorpayPaymentLinkId: varchar("razorpay_payment_link_id", { length: 128 }),
   razorpayPaymentId: varchar("razorpay_payment_id", { length: 128 }),
+  /** Our own generated transaction id, sent to Easebuzz's initiateLink call — Easebuzz (unlike Razorpay) doesn't mint its own link id, so this is what the webhook/callback is matched back on. */
+  easebuzzTxnId: varchar("easebuzz_txn_id", { length: 128 }),
+  /** Easebuzz's own id for the completed transaction (easepayid), set once paid. */
+  easebuzzPaymentId: varchar("easebuzz_payment_id", { length: 128 }),
   paymentLinkUrl: text("payment_link_url"),
   paidAt: timestamp("paid_at", { withTimezone: true }),
   invoiceSent: boolean("invoice_sent").notNull().default(false),

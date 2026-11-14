@@ -1429,6 +1429,7 @@ function AddPaymentForm({
   const hasPaid = enrollment.payments.some((p) => p.status === "paid");
   const [amount, setAmount] = useState("");
   const [type, setType] = useState<"registration" | "balance" | "full">(hasPaid ? "balance" : "registration");
+  const [gateway, setGateway] = useState<"razorpay" | "easebuzz">("razorpay");
   const [link, setLink] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
@@ -1442,7 +1443,7 @@ function AddPaymentForm({
     const res = await fetch(`/api/admin/enrollments/${enrollment.id}/payments`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ amount: Number(amount), type }),
+      body: JSON.stringify({ amount: Number(amount), type, gateway }),
     });
 
     const data = await res.json().catch(() => ({}));
@@ -1452,7 +1453,7 @@ function AddPaymentForm({
         data.error === "amount_exceeds_balance"
           ? "That amount is more than the remaining balance."
           : data.error === "not_configured"
-            ? "Razorpay isn't configured yet."
+            ? `${gateway === "easebuzz" ? "Easebuzz" : "Razorpay"} isn't configured yet.`
             : "Couldn't create the payment link — try again.",
       );
       setSubmitting(false);
@@ -1490,6 +1491,15 @@ function AddPaymentForm({
         onChange={(e) => setAmount(e.target.value)}
         className="w-40 rounded-lg border-2 border-line px-3 py-2.5 text-sm outline-none focus:border-sky-400"
       />
+      <select
+        aria-label="Payment gateway"
+        value={gateway}
+        onChange={(e) => setGateway(e.target.value as typeof gateway)}
+        className="rounded-lg border-2 border-line px-3 py-2.5 text-sm outline-none focus:border-sky-400"
+      >
+        <option value="razorpay">Razorpay</option>
+        <option value="easebuzz">Easebuzz</option>
+      </select>
       <button
         type="submit"
         disabled={submitting}

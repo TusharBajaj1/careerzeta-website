@@ -45,6 +45,7 @@ export default function EnrollButton({ programSlug, programName, className, labe
   const [state, setState] = useState("");
   const [quote, setQuote] = useState<Quote | null>(null);
   const [paymentType, setPaymentType] = useState<"full" | "registration">("full");
+  const [gateway, setGateway] = useState<"razorpay" | "easebuzz">("razorpay");
 
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
@@ -57,6 +58,7 @@ export default function EnrollButton({ programSlug, programName, className, labe
     setState("");
     setQuote(null);
     setPaymentType("full");
+    setGateway("razorpay");
     setError(null);
     setSubmitting(false);
   }
@@ -99,7 +101,7 @@ export default function EnrollButton({ programSlug, programName, className, labe
       const res = await fetch("/api/enroll", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ enrollmentId: quote.enrollmentId, paymentType, email, phone }),
+        body: JSON.stringify({ enrollmentId: quote.enrollmentId, paymentType, email, phone, gateway }),
       });
       const data = await res.json().catch(() => ({}));
 
@@ -313,6 +315,23 @@ export default function EnrollButton({ programSlug, programName, className, labe
                       </span>
                     </label>
                   )}
+                </div>
+
+                <div className="flex gap-2.5">
+                  {(["razorpay", "easebuzz"] as const).map((g) => (
+                    <label
+                      key={g}
+                      className="flex flex-1 cursor-pointer items-center justify-center gap-2 rounded-lg border-2 border-line px-4 py-2.5 text-sm font-bold capitalize has-[:checked]:border-sky-400"
+                    >
+                      <input
+                        type="radio"
+                        name="gateway"
+                        checked={gateway === g}
+                        onChange={() => setGateway(g)}
+                      />
+                      {g}
+                    </label>
+                  ))}
                 </div>
 
                 {error && <p className="text-sm text-red-600">{error}</p>}
