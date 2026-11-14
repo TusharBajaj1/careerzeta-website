@@ -60,7 +60,7 @@ export default function Hero() {
           sits — a flat scrim keeps every line legible instead. */}
       <div
         aria-hidden
-        className="absolute inset-0 bg-[#0b1220]/75 lg:bg-gradient-to-r lg:from-[#0b1220] lg:from-45% lg:via-[#0b1220]/80 lg:via-60% lg:to-transparent lg:to-85%"
+        className="absolute inset-0 bg-[#0b1220]/75 lg:bg-transparent lg:bg-gradient-to-r lg:from-[#0b1220] lg:from-45% lg:via-[#0b1220]/80 lg:via-60% lg:to-transparent lg:to-85%"
       />
       <div
         aria-hidden
