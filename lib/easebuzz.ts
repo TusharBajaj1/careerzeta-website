@@ -53,9 +53,10 @@ export type EasebuzzLinkParams = {
  * Endpoint, request fields, hash sequence, and response shape are all
  * confirmed directly against docs.easebuzz.in's "Initiate Payment API"
  * reference page (its Pay by Link flow — generate a link once, candidate
- * pays whenever). Only the webhook's reverse-hash field order (below)
- * isn't spelled out on a page there; it's taken from Easebuzz's own
- * open-source PHP integration kit instead, which documents it explicitly.
+ * pays whenever). The webhook's reverse-hash field order (below) is
+ * confirmed against Easebuzz's own official NodeJS integration kit
+ * (github.com/easebuzz/paywitheasebuzz-nodejs-lib, easebuzz-lib/utils.js
+ * _getReverseHashKey) — byte-for-byte the same sequence implemented here.
  */
 export async function createEasebuzzPaymentLink(
   params: EasebuzzLinkParams,
@@ -104,12 +105,13 @@ export async function createEasebuzzPaymentLink(
 }
 
 /**
- * Verifies a webhook/callback's reverse hash against the posted fields —
- * same field set Easebuzz's PHP kit documents for its browser-redirect
- * callback (salt|status|udf10..udf1|email|firstname|productinfo|amount|txnid|key),
- * which their Transaction Webhook reuses. Pass the raw posted fields
- * (form-decoded, not JSON — Easebuzz posts these as a form body) straight
- * through; don't re-derive or reformat any of them first.
+ * Verifies a webhook/callback's reverse hash against the posted fields:
+ * salt|status|udf10..udf1|email|firstname|productinfo|amount|txnid|key,
+ * matching Easebuzz's official NodeJS kit's _getReverseHashKey exactly
+ * (same sequence their Transaction Webhook and surl/furl callback both
+ * use). Pass the raw posted fields (form-decoded, not JSON — Easebuzz
+ * posts these as a form body) straight through; don't re-derive or
+ * reformat any of them first.
  */
 export function verifyEasebuzzWebhookSignature(fields: Record<string, string>): boolean {
   const config = getConfig();
