@@ -1312,7 +1312,7 @@ function ReassignPaymentControl({
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
   const [targetId, setTargetId] = useState<number | null>(null);
-  const [sendCancellationNotice, setSendCancellationNotice] = useState(true);
+  const [sendCancellationNotice, setSendCancellationNotice] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -1333,7 +1333,7 @@ function ReassignPaymentControl({
     setOpen(false);
     setQuery("");
     setTargetId(null);
-    setSendCancellationNotice(true);
+    setSendCancellationNotice(false);
     setError(null);
   }
 

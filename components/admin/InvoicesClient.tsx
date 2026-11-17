@@ -63,11 +63,7 @@ export default function InvoicesClient({ initialInvoices }: { initialInvoices: I
   }
 
   async function handleCancel(invoice: InvoiceRow) {
-    if (
-      !confirm(
-        `Cancel invoice ${invoice.invoiceNumber}? This emails ${invoice.candidateName} (${invoice.candidateEmail}) — the enrollment this payment is currently on — asking them to disregard it. Make sure that's who the invoice actually needs to go to before confirming.`,
-      )
-    ) {
+    if (!confirm(`Cancel invoice ${invoice.invoiceNumber}? No email is sent — this just marks it void.`)) {
       return;
     }
 
@@ -80,7 +76,6 @@ export default function InvoicesClient({ initialInvoices }: { initialInvoices: I
       return;
     }
 
-    const data = await res.json().catch(() => ({}));
     setInvoices((prev) =>
       prev.map((inv) =>
         inv.id === invoice.id
@@ -88,9 +83,6 @@ export default function InvoicesClient({ initialInvoices }: { initialInvoices: I
           : inv,
       ),
     );
-    if (!data.noticeSent) {
-      alert("Invoice marked cancelled, but the notice email couldn't be sent — you may want to follow up manually.");
-    }
   }
 
   return (
