@@ -823,6 +823,12 @@ function EnrollmentCard({
       {enrollment.status === "registration_paid" && (
         <div className="mt-4 flex flex-wrap items-center gap-3 text-sm">
           <div className="text-xs font-bold tracking-wide uppercase opacity-60">Registration Letter</div>
+          <a
+            href={`/api/admin/enrollments/${enrollment.id}/download-registration-confirmation`}
+            className="flex items-center gap-1 text-sky-700 hover:underline"
+          >
+            <Download size={14} /> Download
+          </a>
           <RegistrationLetterControl enrollment={enrollment} />
         </div>
       )}
