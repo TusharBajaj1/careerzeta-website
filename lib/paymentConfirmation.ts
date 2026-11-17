@@ -3,9 +3,6 @@ import { and, eq } from "drizzle-orm";
 import { ensureAdmissionNumber } from "@/lib/admissionNumber";
 import { db } from "@/lib/db";
 import { coupons, enrollments, payments } from "@/lib/db/schema";
-import { sendAdmissionLetter } from "@/lib/admissionLetterEmail";
-import { sendPaymentInvoice } from "@/lib/invoiceEmail";
-import { sendRegistrationConfirmation } from "@/lib/registrationLetterEmail";
 
 export type ConfirmPaymentResult =
   | { ok: true }
@@ -49,12 +46,19 @@ export async function recomputeEnrollmentTotals(enrollmentId: number): Promise<v
 }
 
 /**
- * Marks a payment row paid, rolls the amount into its enrollment, bumps
- * coupon usage on the enrollment's first successful payment, and emails
- * the invoice — the one place this happens, shared by the Razorpay
- * webhook (automatic) and the admin's manual "Mark as Paid" override
- * (for a payment link shared directly over email/WhatsApp rather than
- * through the website, or money collected outside Razorpay entirely).
+ * Marks a payment row paid, rolls the amount into its enrollment, and
+ * bumps coupon usage on the enrollment's first successful payment —
+ * shared by the Razorpay/Easebuzz webhooks (automatic) and the admin's
+ * manual "Mark as Paid" override (for a payment link shared directly
+ * over email/WhatsApp rather than through the website, or money
+ * collected outside the gateway entirely).
+ *
+ * Does NOT send the invoice, registration-confirmation, or admission
+ * letter emails — those are deliberately manual-only (team request, to
+ * stop mistaken auto-sends); trigger them from the admin panel's
+ * Send/Resend controls instead. Admission numbers still get assigned
+ * automatically below, since that's a real data event (this candidate
+ * is admitted), not an email.
  */
 export async function confirmPaymentPaid(params: {
   paymentId: number;
@@ -77,15 +81,14 @@ export async function confirmPaymentPaid(params: {
     payment.gateway === "easebuzz"
       ? { easebuzzPaymentId: gatewayPaymentId ?? null }
       : { razorpayPaymentId: gatewayPaymentId ?? null };
-  const [updatedPayment] = await db
+  await db
     .update(payments)
     // amount is overwritten to what was actually received — may differ from
     // the amount the payment link/row was originally created for (e.g. a
     // manual confirm where the candidate paid a different amount outside
     // the gateway), so the stored record and invoice reflect reality.
     .set({ status: "paid", amount: capturedAmountPaise, ...gatewayIdColumn, paidAt })
-    .where(eq(payments.id, paymentId))
-    .returning();
+    .where(eq(payments.id, paymentId));
 
   const [enrollment] = await db
     .select()
@@ -117,53 +120,19 @@ export async function confirmPaymentPaid(params: {
     .where(eq(enrollments.id, enrollment.id))
     .returning();
 
-  try {
-    const { invoiceNumber, sent, pdfUrl } = await sendPaymentInvoice(updatedPayment, updatedEnrollment);
-    await db
-      .update(payments)
-      .set({ invoiceSent: sent, invoiceNumber, invoicePdfUrl: pdfUrl })
-      .where(eq(payments.id, paymentId));
-  } catch (err) {
-    console.error(`Invoice email failed for payment ${paymentId}:`, err);
-  }
+  // Invoice, registration-confirmation, and admission-letter emails are
+  // intentionally NOT sent from here — send them manually from the admin
+  // panel (Enrollments: Send invoice / Send registration letter / Send
+  // admission letter).
 
-  // Fires once — the first payment that lands an enrollment on
-  // registration_paid rather than straight to fully_paid. A later balance
-  // payment that completes the enrollment goes to the admission-letter
-  // branch below instead, not this one again.
-  if (updatedEnrollment.status === "registration_paid" && isFirstPaymentOnEnrollment) {
-    try {
-      await sendRegistrationConfirmation(updatedEnrollment);
-    } catch (err) {
-      console.error(`Registration confirmation email failed for enrollment ${updatedEnrollment.id}:`, err);
-    }
-  }
-
-  if (updatedEnrollment.status === "fully_paid") {
+  if (updatedEnrollment.status === "fully_paid" && !updatedEnrollment.admissionNumber) {
     // Assigned the moment admission actually happens — independent of
-    // whether the letter email below succeeds, since being admitted is
-    // the real event, not sending the letter about it.
-    if (!updatedEnrollment.admissionNumber) {
-      try {
-        updatedEnrollment.admissionNumber = await ensureAdmissionNumber(updatedEnrollment);
-      } catch (err) {
-        console.error(`Admission number assignment failed for enrollment ${updatedEnrollment.id}:`, err);
-      }
-    }
-
-    // Fires exactly once, the moment an enrollment first reaches fully_paid —
-    // guarded by admissionLetterSent so a later payment-related recompute on
-    // this same enrollment (e.g. a reassign) never resends it.
-    if (!updatedEnrollment.admissionLetterSent) {
-      try {
-        const { sent, pdfUrl } = await sendAdmissionLetter(updatedEnrollment);
-        await db
-          .update(enrollments)
-          .set({ admissionLetterSent: sent, admissionLetterSentAt: new Date(), admissionLetterPdfUrl: pdfUrl })
-          .where(eq(enrollments.id, updatedEnrollment.id));
-      } catch (err) {
-        console.error(`Admission letter failed for enrollment ${updatedEnrollment.id}:`, err);
-      }
+    // whether/when the letter is sent, since being admitted is the real,
+    // already-irreversible event, not an email about it.
+    try {
+      await ensureAdmissionNumber(updatedEnrollment);
+    } catch (err) {
+      console.error(`Admission number assignment failed for enrollment ${updatedEnrollment.id}:`, err);
     }
   }
 
