@@ -85,7 +85,7 @@ async function ensureSubfolder(name: string): Promise<string | null> {
  * failure, including simply not being configured yet.
  */
 export async function uploadToDrive(
-  subfolder: "Invoices" | "Admission Letters",
+  subfolder: "Invoices" | "Admission Letters" | "Registration Letters",
   filename: string,
   pdf: Buffer,
 ): Promise<{ ok: boolean; error?: string }> {

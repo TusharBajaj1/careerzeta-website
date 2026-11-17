@@ -5,6 +5,7 @@ import { db } from "@/lib/db";
 import { coupons, enrollments, payments } from "@/lib/db/schema";
 import { sendAdmissionLetter } from "@/lib/admissionLetterEmail";
 import { sendPaymentInvoice } from "@/lib/invoiceEmail";
+import { sendRegistrationConfirmation } from "@/lib/registrationLetterEmail";
 
 export type ConfirmPaymentResult =
   | { ok: true }
@@ -99,7 +100,8 @@ export async function confirmPaymentPaid(params: {
   // A coupon is "used" once its enrollment makes its first successful
   // payment — not per-payment, since one coupon covers the whole
   // enrollment even when it's paid in a registration-fee + balance split.
-  if (enrollment.couponId && enrollment.amountPaid === 0) {
+  const isFirstPaymentOnEnrollment = enrollment.amountPaid === 0;
+  if (enrollment.couponId && isFirstPaymentOnEnrollment) {
     const [coupon] = await db.select().from(coupons).where(eq(coupons.id, enrollment.couponId)).limit(1);
     if (coupon) {
       await db.update(coupons).set({ usedCount: coupon.usedCount + 1 }).where(eq(coupons.id, coupon.id));
@@ -123,6 +125,18 @@ export async function confirmPaymentPaid(params: {
       .where(eq(payments.id, paymentId));
   } catch (err) {
     console.error(`Invoice email failed for payment ${paymentId}:`, err);
+  }
+
+  // Fires once — the first payment that lands an enrollment on
+  // registration_paid rather than straight to fully_paid. A later balance
+  // payment that completes the enrollment goes to the admission-letter
+  // branch below instead, not this one again.
+  if (updatedEnrollment.status === "registration_paid" && isFirstPaymentOnEnrollment) {
+    try {
+      await sendRegistrationConfirmation(updatedEnrollment);
+    } catch (err) {
+      console.error(`Registration confirmation email failed for enrollment ${updatedEnrollment.id}:`, err);
+    }
   }
 
   if (updatedEnrollment.status === "fully_paid") {
