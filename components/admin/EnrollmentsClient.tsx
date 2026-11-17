@@ -883,7 +883,7 @@ function EnrollmentCard({
                     <span className="opacity-60">
                       {" "}
                       ({p.invoiceNumber}
-                      {p.invoiceCancelled ? ", cancelled" : ""})
+                      {p.invoiceCancelled ? ", cancelled" : !p.invoiceSent ? ", not sent" : ""})
                     </span>
                   )}
                 </span>
@@ -903,17 +903,15 @@ function EnrollmentCard({
                   </div>
                 ) : (
                   <div className="flex flex-wrap items-center gap-3">
-                    <SendInvoiceControl
-                      payment={p}
-                      candidateEmail={enrollment.candidateEmail}
-                      onSent={onChanged}
-                    />
-                    <a
-                      href={`/api/admin/payments/${p.id}/download-invoice`}
-                      className="flex items-center gap-1 text-sky-700 hover:underline"
-                    >
-                      <Download size={14} /> Download
-                    </a>
+                    <InvoiceControl payment={p} onChanged={onChanged} />
+                    {p.invoiceNumber && (
+                      <a
+                        href={`/api/admin/payments/${p.id}/download-invoice`}
+                        className="flex items-center gap-1 text-sky-700 hover:underline"
+                      >
+                        <Download size={14} /> Download
+                      </a>
+                    )}
                     <ReassignPaymentControl
                       payment={p}
                       currentEnrollmentId={enrollment.id}
@@ -1012,49 +1010,81 @@ function MarkPaidControl({ payment, onConfirmed }: { payment: PaymentRow; onConf
  * fresh invoice number when there isn't (no invoice yet, or the only one
  * was cancelled) — the admin doesn't need to know which case applies.
  */
-function SendInvoiceControl({
-  payment,
-  candidateEmail,
-  onSent,
-}: {
-  payment: PaymentRow;
-  candidateEmail: string;
-  onSent: () => void;
-}) {
-  const [sending, setSending] = useState(false);
-  const label = !payment.invoiceNumber || payment.invoiceCancelled ? "Send new invoice" : "Resend invoice";
+/**
+ * Invoice lifecycle for a paid payment, as two deliberately separate
+ * manual steps: Generate (builds and stores the PDF, never emails
+ * anything — safe to click any number of times to review via Download
+ * first) and Send (the only action that actually emails it). Once an
+ * invoice has been sent, Generate is no longer offered — fixing a real,
+ * already-issued invoice is a cancel-then-generate-fresh question, not
+ * something to silently overwrite in place.
+ */
+function InvoiceControl({ payment, onChanged }: { payment: PaymentRow; onChanged: () => void }) {
+  const [busy, setBusy] = useState(false);
+  const hasUsableInvoice = !!payment.invoiceNumber && !payment.invoiceCancelled;
+
+  async function handleGenerate() {
+    setBusy(true);
+    const res = await fetch(`/api/admin/payments/${payment.id}/generate-invoice`, { method: "POST" });
+    setBusy(false);
+
+    if (!res.ok) {
+      alert("Couldn't generate the invoice — try again.");
+      return;
+    }
+    onChanged();
+  }
 
   async function handleSend() {
     if (
       !confirm(
-        payment.invoiceNumber && !payment.invoiceCancelled
+        payment.invoiceSent
           ? "Resend this invoice to the candidate's current email?"
-          : "Send a new invoice to the candidate's current email?",
+          : "Send this invoice to the candidate's current email?",
       )
     ) {
       return;
     }
 
-    setSending(true);
+    setBusy(true);
     const res = await fetch(`/api/admin/payments/${payment.id}/send-invoice`, { method: "POST" });
     const data = await res.json().catch(() => ({}));
-    setSending(false);
+    setBusy(false);
 
     if (!res.ok) {
       alert("Couldn't send the invoice — try again.");
       return;
     }
     if (!data.sent) {
-      alert("Invoice processed, but the email couldn't be sent — check the address and try again.");
-    } else {
-      alert(`Sent to ${candidateEmail} (invoice ${data.invoiceNumber}).`);
+      alert("Couldn't send the email — check the address and try again.");
     }
-    onSent();
+    onChanged();
+  }
+
+  if (!hasUsableInvoice) {
+    return (
+      <button onClick={handleGenerate} disabled={busy} className="text-sky-700 hover:underline disabled:opacity-50">
+        {busy ? "Generating…" : "Generate invoice"}
+      </button>
+    );
+  }
+
+  if (!payment.invoiceSent) {
+    return (
+      <>
+        <button onClick={handleGenerate} disabled={busy} className="text-sky-700 hover:underline disabled:opacity-50">
+          {busy ? "Generating…" : "Regenerate"}
+        </button>
+        <button onClick={handleSend} disabled={busy} className="font-semibold text-sky-700 hover:underline disabled:opacity-50">
+          {busy ? "Sending…" : "Send invoice"}
+        </button>
+      </>
+    );
   }
 
   return (
-    <button onClick={handleSend} disabled={sending} className="text-sky-700 hover:underline disabled:opacity-50">
-      {sending ? "Sending…" : label}
+    <button onClick={handleSend} disabled={busy} className="text-sky-700 hover:underline disabled:opacity-50">
+      {busy ? "Sending…" : "Resend invoice"}
     </button>
   );
 }

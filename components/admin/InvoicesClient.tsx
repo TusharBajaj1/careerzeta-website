@@ -12,6 +12,7 @@ export type InvoiceRow = {
   amount: number;
   invoiceNumber: string;
   invoicePdfUrl: string | null;
+  invoiceSent: boolean;
   invoiceCancelled: boolean;
   invoiceCancelledAt: string | null;
   paidAt: string | null;
@@ -31,9 +32,38 @@ export default function InvoicesClient({ initialInvoices }: { initialInvoices: I
   const [busyId, setBusyId] = useState<number | null>(null);
   const [sendingId, setSendingId] = useState<number | null>(null);
 
+  async function handleGenerate(invoice: InvoiceRow) {
+    setSendingId(invoice.id);
+    const res = await fetch(`/api/admin/payments/${invoice.id}/generate-invoice`, { method: "POST" });
+    const data = await res.json().catch(() => ({}));
+    setSendingId(null);
+
+    if (!res.ok) {
+      alert("Couldn't generate the invoice — try again.");
+      return;
+    }
+    setInvoices((prev) =>
+      prev.map((inv) =>
+        inv.id === invoice.id
+          ? {
+              ...inv,
+              invoiceNumber: data.invoiceNumber,
+              invoicePdfUrl: data.pdfUrl ?? inv.invoicePdfUrl,
+              invoiceCancelled: false,
+              invoiceCancelledAt: null,
+              invoiceSent: false,
+            }
+          : inv,
+      ),
+    );
+  }
+
   async function handleSend(invoice: InvoiceRow) {
-    const verb = invoice.invoiceCancelled ? "issue a new invoice to" : "resend the invoice to";
-    if (!confirm(`${invoice.invoiceCancelled ? "Issue a new invoice" : "Resend this invoice"} to ${invoice.candidateName} (${invoice.candidateEmail})? This will ${verb} their current email.`)) {
+    if (
+      !confirm(
+        `${invoice.invoiceSent ? "Resend this invoice" : "Send this invoice"} to ${invoice.candidateName} (${invoice.candidateEmail})? This will email their current address.`,
+      )
+    ) {
       return;
     }
 
@@ -47,19 +77,11 @@ export default function InvoicesClient({ initialInvoices }: { initialInvoices: I
       return;
     }
     if (!data.sent) {
-      alert("Invoice processed, but the email couldn't be sent — check the address and try again.");
-    } else {
-      alert(`Sent to ${invoice.candidateEmail} (invoice ${data.invoiceNumber}).`);
+      alert("Couldn't send the email — check the address and try again.");
+      return;
     }
-    if (data.fresh) {
-      setInvoices((prev) =>
-        prev.map((inv) =>
-          inv.id === invoice.id
-            ? { ...inv, invoiceNumber: data.invoiceNumber, invoiceCancelled: false, invoiceCancelledAt: null }
-            : inv,
-        ),
-      );
-    }
+    alert(`Sent to ${invoice.candidateEmail} (invoice ${data.invoiceNumber}).`);
+    setInvoices((prev) => prev.map((inv) => (inv.id === invoice.id ? { ...inv, invoiceSent: true } : inv)));
   }
 
   async function handleCancel(invoice: InvoiceRow) {
@@ -89,9 +111,10 @@ export default function InvoicesClient({ initialInvoices }: { initialInvoices: I
     <div className="mt-8">
       <h1 className="font-display text-3xl font-bold">Invoices</h1>
       <p className="mt-2 text-sm opacity-60">
-        Every invoice ever issued, across all enrollments. Cancelling one here is an internal record
-        (and sends a notice to the candidate) — it doesn&apos;t touch the enrollment&apos;s payment or
-        status, see Enrollments for that.
+        Every invoice ever issued, across all enrollments. Cancelling one here is an internal
+        record only — no email goes out — and it doesn&apos;t touch the enrollment&apos;s payment or
+        status, see Enrollments for that. Generating an invoice never emails anyone either; only
+        Send/Resend does.
       </p>
 
       <div className="mt-8 overflow-x-auto">
@@ -130,21 +153,45 @@ export default function InvoicesClient({ initialInvoices }: { initialInvoices: I
                   <td className="py-3 pr-4">
                     <span
                       className={`rounded-full px-3 py-1 text-xs font-bold ${
-                        inv.invoiceCancelled ? "bg-red-100 text-red-700" : "bg-green-100 text-green-700"
+                        inv.invoiceCancelled
+                          ? "bg-red-100 text-red-700"
+                          : inv.invoiceSent
+                            ? "bg-green-100 text-green-700"
+                            : "bg-amber-100 text-amber-700"
                       }`}
                     >
-                      {inv.invoiceCancelled ? "Cancelled" : "Active"}
+                      {inv.invoiceCancelled ? "Cancelled" : inv.invoiceSent ? "Sent" : "Not sent"}
                     </span>
                   </td>
                   <td className="py-3 pr-4">
                     <div className="flex flex-wrap items-center gap-3">
-                      <button
-                        onClick={() => handleSend(inv)}
-                        disabled={sendingId === inv.id}
-                        className="text-xs font-semibold text-sky-700 hover:underline disabled:opacity-50"
-                      >
-                        {sendingId === inv.id ? "Sending…" : inv.invoiceCancelled ? "Issue new invoice" : "Resend"}
-                      </button>
+                      {inv.invoiceCancelled && (
+                        <button
+                          onClick={() => handleGenerate(inv)}
+                          disabled={sendingId === inv.id}
+                          className="text-xs font-semibold text-sky-700 hover:underline disabled:opacity-50"
+                        >
+                          {sendingId === inv.id ? "Generating…" : "Generate new invoice"}
+                        </button>
+                      )}
+                      {!inv.invoiceCancelled && !inv.invoiceSent && (
+                        <button
+                          onClick={() => handleGenerate(inv)}
+                          disabled={sendingId === inv.id}
+                          className="text-xs font-semibold text-sky-700 hover:underline disabled:opacity-50"
+                        >
+                          {sendingId === inv.id ? "Generating…" : "Regenerate"}
+                        </button>
+                      )}
+                      {!inv.invoiceCancelled && (
+                        <button
+                          onClick={() => handleSend(inv)}
+                          disabled={sendingId === inv.id}
+                          className="text-xs font-semibold text-sky-700 hover:underline disabled:opacity-50"
+                        >
+                          {sendingId === inv.id ? "Sending…" : inv.invoiceSent ? "Resend" : "Send"}
+                        </button>
+                      )}
                       <a
                         href={`/api/admin/payments/${inv.id}/download-invoice`}
                         className="text-xs font-semibold text-sky-700 hover:underline"

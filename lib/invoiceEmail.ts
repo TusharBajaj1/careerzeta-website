@@ -29,21 +29,27 @@ async function storeInvoicePdf(invoiceNumber: string, pdf: Buffer): Promise<stri
 }
 
 /**
- * Generates the invoice PDF and emails it to the candidate and to
- * CONTACT.email (the accounting inbox), for recordkeeping. Never throws —
- * email/PDF failures are logged and reflected in the returned `sent` flag
- * rather than blocking the payment-confirmation flow that calls this.
+ * Generates the invoice PDF and persists it (blob + Drive) — does NOT
+ * email anyone. Issues a fresh invoice number only when this payment
+ * doesn't already have a usable one on file (none yet, or the existing
+ * one was cancelled); otherwise reuses the existing (not-yet-sent)
+ * number rather than burning a new one on every regenerate. Pairs with
+ * resendExistingInvoice below, which is the only thing that actually
+ * emails this document — generating and sending are deliberately two
+ * separate manual steps, so nothing goes to a candidate just because an
+ * invoice was produced.
  */
-export async function sendPaymentInvoice(
+export async function generateInvoice(
   payment: Payment,
   enrollment: Enrollment,
-): Promise<{ invoiceNumber: string; sent: boolean; pdfUrl: string | null }> {
+): Promise<{ invoiceNumber: string; pdfUrl: string | null }> {
   const programName = PROGRAMS.find((p) => p.slug === enrollment.programSlug)?.name ?? enrollment.programSlug;
 
   let invoiceNumber: string;
   let pdf: Buffer;
   try {
-    invoiceNumber = await nextInvoiceNumber();
+    invoiceNumber =
+      payment.invoiceNumber && !payment.invoiceCancelled ? payment.invoiceNumber : await nextInvoiceNumber();
     pdf = await generateInvoicePdf({
       invoiceNumber,
       issuedAt: payment.paidAt ?? new Date(),
@@ -61,47 +67,11 @@ export async function sendPaymentInvoice(
     });
   } catch (err) {
     console.error(`Invoice generation failed for payment ${payment.id}:`, err);
-    return { invoiceNumber: "", sent: false, pdfUrl: null };
+    return { invoiceNumber: "", pdfUrl: null };
   }
 
   const pdfUrl = await storeInvoicePdf(invoiceNumber, pdf);
-  const attachments = [{ filename: `${invoiceNumber}.pdf`, content: pdf, contentType: "application/pdf" }];
-  const label = invoiceLineLabel(payment.type, payment.amount, enrollment.amountPaid, enrollment.totalFee);
-  const remaining = enrollment.totalFee - enrollment.amountPaid;
-
-  const candidateSent = await sendMail({
-    to: enrollment.candidateEmail,
-    subject: `Invoice ${invoiceNumber} — ${programName}`,
-    text: [
-      `Hi ${enrollment.candidateName},`,
-      ``,
-      `We've received your payment of ${formatPaiseAsInr(payment.amount)} (${label}) for ${programName}.`,
-      remaining > 0
-        ? `Balance remaining: ${formatPaiseAsInr(remaining)}.`
-        : `Your course fee is now paid in full.`,
-      ``,
-      `Your invoice is attached. Questions? Reach us at ${CONTACT.email}.`,
-      ``,
-      `— Team CareerZeta`,
-    ].join("\n"),
-    attachments,
-  });
-
-  await sendMail({
-    to: CONTACT.email,
-    subject: `[Accounting] Invoice ${invoiceNumber} — ${enrollment.candidateName}`,
-    text: [
-      `Payment recorded for ${enrollment.candidateName} (${enrollment.candidateEmail}, ${enrollment.candidatePhone}).`,
-      `Program: ${programName}`,
-      `Type: ${label}`,
-      `Amount: ${formatPaiseAsInr(payment.amount)}`,
-      `Total paid to date: ${formatPaiseAsInr(enrollment.amountPaid)} of ${formatPaiseAsInr(enrollment.totalFee)}`,
-      `Enrollment ID: ${enrollment.id} / Payment ID: ${payment.id}`,
-    ].join("\n"),
-    attachments,
-  });
-
-  return { invoiceNumber, sent: candidateSent, pdfUrl };
+  return { invoiceNumber, pdfUrl };
 }
 
 /**

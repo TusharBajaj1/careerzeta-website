@@ -17,6 +17,7 @@ export default async function AdminInvoicesPage() {
       amount: payments.amount,
       invoiceNumber: payments.invoiceNumber,
       invoicePdfUrl: payments.invoicePdfUrl,
+      invoiceSent: payments.invoiceSent,
       invoiceCancelled: payments.invoiceCancelled,
       invoiceCancelledAt: payments.invoiceCancelledAt,
       paidAt: payments.paidAt,

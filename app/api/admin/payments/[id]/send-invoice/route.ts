@@ -3,15 +3,14 @@ import { eq } from "drizzle-orm";
 
 import { db } from "@/lib/db";
 import { enrollments, payments } from "@/lib/db/schema";
-import { resendExistingInvoice, sendPaymentInvoice } from "@/lib/invoiceEmail";
+import { resendExistingInvoice } from "@/lib/invoiceEmail";
 
 /**
- * One button for every "send the candidate their invoice" case: a payment
- * that never got one, a candidate asking for another copy, or a payment
- * whose only invoice was cancelled. Re-sends the existing invoice
- * unchanged when there is a valid one on file; issues a fresh invoice
- * number (and persists its PDF) when there isn't — covers both without
- * the admin needing to know which case they're in.
+ * Emails the already-generated invoice on file for this payment — never
+ * generates one itself. Use /api/admin/payments/[id]/generate-invoice
+ * first if there isn't a usable one yet; this route only sends what's
+ * already there, so an invoice can always be reviewed (download-invoice)
+ * before anyone clicks this.
  */
 export async function POST(_request: Request, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -27,29 +26,19 @@ export async function POST(_request: Request, { params }: { params: Promise<{ id
   if (payment.status !== "paid") {
     return NextResponse.json({ error: "payment_not_paid" }, { status: 400 });
   }
+  if (!payment.invoiceNumber || payment.invoiceCancelled) {
+    return NextResponse.json({ error: "no_invoice_generated" }, { status: 400 });
+  }
 
   const [enrollment] = await db.select().from(enrollments).where(eq(enrollments.id, payment.enrollmentId)).limit(1);
   if (!enrollment) {
     return NextResponse.json({ error: "enrollment_not_found" }, { status: 404 });
   }
 
-  const needsFreshInvoice = !payment.invoiceNumber || payment.invoiceCancelled;
-
-  if (needsFreshInvoice) {
-    const { invoiceNumber, sent, pdfUrl } = await sendPaymentInvoice(payment, enrollment);
-    await db
-      .update(payments)
-      .set({
-        invoiceNumber,
-        invoiceSent: sent,
-        invoicePdfUrl: pdfUrl,
-        invoiceCancelled: false,
-        invoiceCancelledAt: null,
-      })
-      .where(eq(payments.id, paymentId));
-    return NextResponse.json({ ok: true, sent, invoiceNumber, fresh: true });
+  const sent = await resendExistingInvoice(payment, enrollment);
+  if (sent) {
+    await db.update(payments).set({ invoiceSent: true }).where(eq(payments.id, paymentId));
   }
 
-  const sent = await resendExistingInvoice(payment, enrollment);
-  return NextResponse.json({ ok: true, sent, invoiceNumber: payment.invoiceNumber, fresh: false });
+  return NextResponse.json({ ok: true, sent, invoiceNumber: payment.invoiceNumber });
 }
