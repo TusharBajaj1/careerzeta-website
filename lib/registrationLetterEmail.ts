@@ -34,11 +34,12 @@ async function storeRegistrationLetterPdf(enrollmentId: number, filename: string
  * Generates the registration-confirmation PDF and emails it to the
  * candidate (cc'd to CONTACT.email) — for an enrollment that just made its
  * first payment but hasn't paid in full yet. Deliberately a different
- * document from the admission letter: no admission number, explicit about
- * the balance still due, and says the real Admission Letter follows once
- * that's paid. Never throws — failures are logged and reflected in the
- * returned `sent` flag rather than blocking the payment-confirmation flow
- * that calls this.
+ * document from the admission letter: no admission number, no total-fee
+ * or balance figures (those vary per learner via coupons/discounts, so
+ * this stays generic about them), and says the real Admission Letter
+ * follows once the balance is paid. Never throws — failures are logged
+ * and reflected in the returned `sent` flag rather than blocking the
+ * payment-confirmation flow that calls this.
  */
 export async function sendRegistrationConfirmation(
   enrollment: Enrollment,
@@ -53,7 +54,6 @@ export async function sendRegistrationConfirmation(
       candidateEmail: enrollment.candidateEmail,
       candidatePhone: enrollment.candidatePhone,
       programName,
-      totalFeePaise: enrollment.totalFee,
       amountPaidPaise: enrollment.amountPaid,
     });
   } catch (err) {
@@ -64,7 +64,6 @@ export async function sendRegistrationConfirmation(
   const filename = registrationLetterFilename(enrollment.candidateName);
   const pdfUrl = await storeRegistrationLetterPdf(enrollment.id, filename, pdf);
   const attachments = [{ filename, content: pdf, contentType: "application/pdf" }];
-  const remaining = enrollment.totalFee - enrollment.amountPaid;
 
   const sent = await sendMail({
     to: enrollment.candidateEmail,
@@ -75,9 +74,7 @@ export async function sendRegistrationConfirmation(
       ``,
       `We've received your registration fee of ${formatPaiseAsInr(enrollment.amountPaid)} for ${programName} — your seat is now reserved.`,
       ``,
-      `Balance remaining: ${formatPaiseAsInr(remaining)}.`,
-      ``,
-      `Your official Admission Letter will follow once the balance is paid in full. A confirmation of this is attached.`,
+      `Please pay the remaining fee at your earliest convenience. Your official Admission Letter will follow once that's done. A confirmation of this is attached.`,
       ``,
       `Questions in the meantime? Reach us at ${CONTACT.email}.`,
       ``,

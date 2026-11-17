@@ -11,7 +11,6 @@ export type RegistrationLetterData = {
   candidateEmail: string;
   candidatePhone: string;
   programName: string;
-  totalFeePaise: number;
   amountPaidPaise: number;
 };
 
@@ -50,24 +49,21 @@ export function generateRegistrationConfirmationPdf(data: RegistrationLetterData
     doc.text("Your seat is reserved", CONTENT_LEFT);
     doc.moveDown(1);
 
-    const remaining = data.totalFeePaise - data.amountPaidPaise;
-
-    // Fee summary — the one thing this letter needs to make unmissable: what's paid, what's left.
+    // Only the registration fee itself is shown here — the total program
+    // fee and remaining balance vary per learner (discounts, coupons), so
+    // this deliberately stays generic about them rather than printing a
+    // number that could be compared across letters.
     {
       const cardX = CONTENT_LEFT;
       const cardTop = doc.y;
       const cardWidth = CONTENT_WIDTH;
       const textWidth = cardWidth - 32;
-      const lines = [
-        `Registration fee paid: ${formatPaiseAsInr(data.amountPaidPaise)}`,
-        `Total program fee: ${formatPaiseAsInr(data.totalFeePaise)}`,
-        `Balance remaining: ${formatPaiseAsInr(remaining)}`,
-      ];
+      const line = `Registration fee paid: ${formatPaiseAsInr(data.amountPaidPaise)}`;
 
       doc.font(BRAND_FONTS.bodyBold).fontSize(10);
       const titleHeight = doc.heightOfString("Fee summary", { width: textWidth });
       doc.font(BRAND_FONTS.body).fontSize(10);
-      const bodyHeight = lines.reduce((sum, line) => sum + doc.heightOfString(line, { width: textWidth }), 0);
+      const bodyHeight = doc.heightOfString(line, { width: textWidth });
       const cardHeight = 16 + titleHeight + 6 + bodyHeight + 16;
 
       drawTintCard(doc, cardX, cardTop, cardWidth, cardHeight);
@@ -75,9 +71,7 @@ export function generateRegistrationConfirmationPdf(data: RegistrationLetterData
       doc.font(BRAND_FONTS.bodyBold).fontSize(10).fillColor(BRAND_COLORS.deepAqua);
       doc.text("Fee summary", cardX + 16, cardTop + 16, { width: textWidth });
       doc.font(BRAND_FONTS.body).fontSize(10).fillColor(BRAND_COLORS.charcoal);
-      for (const line of lines) {
-        doc.text(line, cardX + 16, doc.y + 2, { width: textWidth });
-      }
+      doc.text(line, cardX + 16, doc.y + 2, { width: textWidth });
 
       doc.y = cardTop + cardHeight + 18;
       doc.x = CONTENT_LEFT;
@@ -89,7 +83,7 @@ export function generateRegistrationConfirmationPdf(data: RegistrationLetterData
       ``,
       `We've received your registration fee for ${data.programName}, and your seat is now reserved.`,
       ``,
-      `A balance of ${formatPaiseAsInr(remaining)} remains. Once that's paid in full, we'll send your official Admission Letter confirming your enrollment.`,
+      `Please pay the remaining fee at your earliest convenience — once that's done, we'll send your official Admission Letter confirming your enrollment.`,
       ``,
       `If you have any questions in the meantime, please write to us at hello@careerzeta.com.`,
     ].join("\n");
