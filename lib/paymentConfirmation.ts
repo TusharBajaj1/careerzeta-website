@@ -26,6 +26,16 @@ export function paymentDerivedStatus(
  * history instead of relying on arithmetic that could drift. Leaves a
  * cancelled/refund_requested status alone — those are manual states, not
  * ones payment progress should silently overwrite.
+ *
+ * If this drops the enrollment out of fully_paid (its one payment that
+ * made it fully_paid just got reassigned away), also clears its admission
+ * number and admission-letter-sent state — that candidate was never
+ * actually admitted, so those shouldn't keep looking like they were.
+ * Clearing admissionNumber doesn't reuse or re-sequence it; the gapless
+ * sequence it came from only ever moves forward, it just stops being
+ * shown against an admission that didn't happen. If this enrollment
+ * later reaches fully_paid for real, it gets a fresh number and the
+ * admission letter shows as not-yet-sent, as it should.
  */
 export async function recomputeEnrollmentTotals(enrollmentId: number): Promise<void> {
   const [enrollment] = await db.select().from(enrollments).where(eq(enrollments.id, enrollmentId)).limit(1);
@@ -42,7 +52,23 @@ export async function recomputeEnrollmentTotals(enrollmentId: number): Promise<v
       ? enrollment.status
       : paymentDerivedStatus(amountPaid, enrollment.totalFee);
 
-  await db.update(enrollments).set({ amountPaid, status }).where(eq(enrollments.id, enrollmentId));
+  const droppedBelowFullyPaid = enrollment.status === "fully_paid" && status !== "fully_paid";
+
+  await db
+    .update(enrollments)
+    .set({
+      amountPaid,
+      status,
+      ...(droppedBelowFullyPaid
+        ? {
+            admissionNumber: null,
+            admissionLetterSent: false,
+            admissionLetterSentAt: null,
+            admissionLetterPdfUrl: null,
+          }
+        : {}),
+    })
+    .where(eq(enrollments.id, enrollmentId));
 }
 
 /**

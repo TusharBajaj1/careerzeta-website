@@ -29,6 +29,11 @@ import { recomputeEnrollmentTotals } from "@/lib/paymentConfirmation";
  * admin's "Send invoice" button silently resend that same wrong PDF
  * instead of generating a correct new one for whoever the payment now
  * belongs to.
+ *
+ * recomputeEnrollmentTotals below carries the equivalent fix for the
+ * admission letter: if this move drops the previous enrollment out of
+ * fully_paid, its admission number and "letter sent" state get cleared
+ * too, since that candidate was never actually admitted.
  */
 export async function PATCH(request: Request, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
