@@ -21,6 +21,14 @@ import { recomputeEnrollmentTotals } from "@/lib/paymentConfirmation";
  * their invoice was cancelled — using that enrollment's details as they
  * stand right now, looked up server-side before anything moves, rather
  * than trusting client-supplied recipient details for an email send.
+ *
+ * It DOES always mark that old invoice cancelled (same flag
+ * /api/admin/payments/[id]/cancel-invoice sets) regardless of the
+ * cancellation-notice choice — an invoice bearing the wrong candidate's
+ * name is never valid again, so leaving it un-cancelled would let the
+ * admin's "Send invoice" button silently resend that same wrong PDF
+ * instead of generating a correct new one for whoever the payment now
+ * belongs to.
  */
 export async function PATCH(request: Request, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -59,7 +67,14 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
     .where(eq(enrollments.id, previousEnrollmentId))
     .limit(1);
 
-  await db.update(payments).set({ enrollmentId: targetEnrollmentId }).where(eq(payments.id, paymentId));
+  const invoiceNeedsCancelling = Boolean(payment.invoiceNumber) && !payment.invoiceCancelled;
+  await db
+    .update(payments)
+    .set({
+      enrollmentId: targetEnrollmentId,
+      ...(invoiceNeedsCancelling ? { invoiceCancelled: true, invoiceCancelledAt: new Date() } : {}),
+    })
+    .where(eq(payments.id, paymentId));
   await recomputeEnrollmentTotals(previousEnrollmentId);
   await recomputeEnrollmentTotals(targetEnrollmentId);
 
