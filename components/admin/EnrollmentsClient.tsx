@@ -820,6 +820,13 @@ function EnrollmentCard({
         <BatchDetailsControl enrollment={enrollment} onSaved={onChanged} />
       </div>
 
+      {enrollment.status === "registration_paid" && (
+        <div className="mt-4 flex flex-wrap items-center gap-3 text-sm">
+          <div className="text-xs font-bold tracking-wide uppercase opacity-60">Registration Letter</div>
+          <RegistrationLetterControl enrollment={enrollment} />
+        </div>
+      )}
+
       {enrollment.status === "fully_paid" && (
         <div className="mt-4">
           <div className="flex flex-wrap items-center gap-3 text-sm">
@@ -1112,6 +1119,40 @@ function BatchDetailsControl({ enrollment, onSaved }: { enrollment: EnrollmentRo
         Cancel
       </button>
     </div>
+  );
+}
+
+/** Sends (or resends) the registration-confirmation letter for a registration_paid enrollment — no "already sent" state is tracked for this one, so it's always just a (re)send. */
+function RegistrationLetterControl({ enrollment }: { enrollment: EnrollmentRow }) {
+  const [sending, setSending] = useState(false);
+
+  async function handleSend() {
+    if (!confirm(`Send the registration-confirmation letter to ${enrollment.candidateEmail}?`)) {
+      return;
+    }
+
+    setSending(true);
+    const res = await fetch(`/api/admin/enrollments/${enrollment.id}/send-registration-confirmation`, {
+      method: "POST",
+    });
+    const data = await res.json().catch(() => ({}));
+    setSending(false);
+
+    if (!res.ok) {
+      alert("Couldn't send the registration letter — try again.");
+      return;
+    }
+    if (!data.sent) {
+      alert("Letter processed, but the email couldn't be sent — check the address and try again.");
+    } else {
+      alert(`Sent to ${enrollment.candidateEmail}.`);
+    }
+  }
+
+  return (
+    <button onClick={handleSend} disabled={sending} className="text-sky-700 hover:underline disabled:opacity-50">
+      {sending ? "Sending…" : "Send"}
+    </button>
   );
 }
 
