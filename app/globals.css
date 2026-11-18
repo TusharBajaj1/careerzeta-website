@@ -55,10 +55,16 @@ body {
 @keyframes cz-bubble-float {
   0%,
   100% {
-    transform: translateY(0);
+    transform: translate(0, 0);
+  }
+  25% {
+    transform: translate(var(--fx1, 14px), var(--fy1, -16px));
   }
   50% {
-    transform: translateY(calc(-1 * var(--float-y, 10px)));
+    transform: translate(var(--fx2, -12px), var(--fy2, 10px));
+  }
+  75% {
+    transform: translate(var(--fx3, 10px), var(--fy3, 14px));
   }
 }
 

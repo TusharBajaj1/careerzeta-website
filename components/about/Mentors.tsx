@@ -28,6 +28,35 @@ type MentorsProps = {
   heading?: string;
 };
 
+/** Deterministic (SSR-safe) pseudo-random in [0, 1), seeded by index + a salt so each bubble's path/timing is decorrelated from its neighbors. */
+function seededRand(seed: number) {
+  const x = Math.sin(seed * 12.9898) * 43758.5453;
+  return x - Math.floor(x);
+}
+
+/**
+ * Gives each bubble its own three-point wander path (via the fx/fy custom
+ * properties the cz-bubble-float keyframes read) plus its own
+ * duration/delay, so bubbles drift to different points around their spot
+ * instead of bobbing in place or moving in lockstep. Horizontal range is
+ * kept tighter than vertical so neighbors in the same row never touch.
+ */
+function floatStyle(i: number): CSSProperties {
+  const r = (k: number) => seededRand(i + 1 + k * 7.31);
+  const ampX = 15;
+  const ampY = 22;
+  return {
+    "--fx1": `${((r(1) - 0.5) * 2 * ampX).toFixed(1)}px`,
+    "--fy1": `${((r(2) - 0.5) * 2 * ampY).toFixed(1)}px`,
+    "--fx2": `${((r(3) - 0.5) * 2 * ampX).toFixed(1)}px`,
+    "--fy2": `${((r(4) - 0.5) * 2 * ampY).toFixed(1)}px`,
+    "--fx3": `${((r(5) - 0.5) * 2 * ampX).toFixed(1)}px`,
+    "--fy3": `${((r(6) - 0.5) * 2 * ampY).toFixed(1)}px`,
+    "--float-d": `${(9 + r(7) * 7).toFixed(2)}s`,
+    "--float-delay": `${(-r(8) * 14).toFixed(2)}s`,
+  } as CSSProperties;
+}
+
 export default function Mentors({ heading = "Mentors" }: MentorsProps) {
   return (
     <Reveal
@@ -51,16 +80,10 @@ export default function Mentors({ heading = "Mentors" }: MentorsProps) {
               tabIndex={0}
               className="group relative w-[116px] shrink-0 cursor-default text-center outline-none sm:w-[132px]"
             >
-              {/* Each bubble floats on its own loop — offset duration/delay/amplitude per index so the row drifts like actual bubbles instead of moving in lockstep. Paused on hover so the enlarge doesn't fight the drift. */}
+              {/* Each bubble wanders its own three-point path at its own pace — randomized but deterministic per index — so the row drifts like actual floating bubbles instead of bobbing in place or moving in lockstep. Paused on hover so the enlarge doesn't fight the drift. */}
               <div
                 className="cz-bubble-float group-hover:[animation-play-state:paused] group-focus:[animation-play-state:paused]"
-                style={
-                  {
-                    "--float-d": `${3.6 + (i % 5) * 0.5}s`,
-                    "--float-delay": `${-(i % 7) * 0.4}s`,
-                    "--float-y": `${7 + (i % 4) * 3}px`,
-                  } as CSSProperties
-                }
+                style={floatStyle(i)}
               >
                 {/* Brand rule: photo frame = aqua→deep-aqua gradient border. */}
                 <div className="relative mx-auto h-[116px] w-[116px] origin-bottom rounded-full bg-gradient-to-br from-sky-400 to-sky-700 p-1 transition-transform duration-300 ease-out group-hover:z-10 group-hover:scale-[1.3] group-focus:z-10 group-focus:scale-[1.3] sm:h-[132px] sm:w-[132px]">
