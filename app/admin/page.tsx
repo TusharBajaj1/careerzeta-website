@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { BadgePercent, FileText, GraduationCap, Newspaper, Users, type LucideIcon } from "lucide-react";
+import { BadgePercent, BookOpen, FileText, GraduationCap, Newspaper, Users, type LucideIcon } from "lucide-react";
 
 import DriveBackfillButton from "@/components/admin/DriveBackfillButton";
 
@@ -31,7 +31,15 @@ const SECTIONS: { title: string; items: { href: string; label: string; descripti
   },
   {
     title: "Content",
-    items: [{ href: "/admin/blog", label: "Blog", description: "Posts, series, scheduling", icon: Newspaper }],
+    items: [
+      { href: "/admin/blog", label: "Blog", description: "Posts, series, scheduling", icon: Newspaper },
+      {
+        href: "/admin/word-of-the-day",
+        label: "Word of the Day",
+        description: "Today's word for the W.O.R.D card on /tools",
+        icon: BookOpen,
+      },
+    ],
   },
 ];
 

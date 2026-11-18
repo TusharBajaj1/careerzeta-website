@@ -179,6 +179,19 @@ export const demoRequests = pgTable("demo_requests", {
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 });
 
+/**
+ * The W.O.R.D card on /tools reads the latest row — admin-editable from
+ * /admin/word-of-the-day so it can change daily without a redeploy. Each
+ * update inserts a new row rather than overwriting one, so there's a free
+ * history of past words; the public page only ever reads the newest.
+ */
+export const wordOfTheDay = pgTable("word_of_the_day", {
+  id: serial("id").primaryKey(),
+  word: varchar("word", { length: 64 }).notNull(),
+  definition: varchar("definition", { length: 200 }).notNull(),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+});
+
 export const blogSeries = pgTable("blog_series", {
   id: serial("id").primaryKey(),
   name: varchar("name", { length: 150 }).notNull(),
@@ -221,3 +234,5 @@ export type BlogPost = typeof blogPosts.$inferSelect;
 export type NewBlogPost = typeof blogPosts.$inferInsert;
 export type BlogSeries = typeof blogSeries.$inferSelect;
 export type NewBlogSeries = typeof blogSeries.$inferInsert;
+export type WordOfTheDay = typeof wordOfTheDay.$inferSelect;
+export type NewWordOfTheDay = typeof wordOfTheDay.$inferInsert;

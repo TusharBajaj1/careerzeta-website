@@ -13,7 +13,7 @@ const links = [
   { label: "Programs", href: "/programs" },
   { label: "Resources", href: "/resources" },
   { label: "Blog", href: "/blog" },
-  { label: "Tools", href: "/tools" },
+  { label: "Productivity", href: "/tools", badge: "New" },
   { label: "About Us", href: "/about" },
 ];
 
@@ -108,6 +108,11 @@ export default function Navbar() {
                 }`}
               >
                 {link.label}
+                {link.badge && (
+                  <sup className="ml-0.5 text-[10px] font-bold tracking-wide text-sky-400 uppercase">
+                    {link.badge}
+                  </sup>
+                )}
                 {(link.href === "/resources" || link.href === "/blog") && (
                   <span
                     aria-hidden="true"
@@ -147,6 +152,11 @@ export default function Navbar() {
                   className="flex items-center gap-2 rounded-lg px-2 py-3 text-[15px] font-semibold transition hover:bg-white"
                 >
                   {link.label}
+                  {link.badge && (
+                    <sup className="text-[10px] font-bold tracking-wide text-sky-500 uppercase">
+                      {link.badge}
+                    </sup>
+                  )}
                   {(link.href === "/resources" || link.href === "/blog") && (
                     <span aria-hidden="true" className="h-1.5 w-1.5 rounded-full bg-sky-400" />
                   )}
