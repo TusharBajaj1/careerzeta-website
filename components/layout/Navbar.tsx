@@ -13,11 +13,12 @@ const links = [
   { label: "Programs", href: "/programs" },
   { label: "Resources", href: "/resources" },
   { label: "Blog", href: "/blog" },
+  { label: "Tools", href: "/tools" },
   { label: "About Us", href: "/about" },
 ];
 
 /** Pages with a dark full-bleed hero the nav floats transparently over. */
-const HERO_PAGES = ["/", "/programs", "/resources", "/about"];
+const HERO_PAGES = ["/", "/programs", "/resources", "/about", "/tools"];
 
 type LatestPost = { slug: string; title: string };
 
