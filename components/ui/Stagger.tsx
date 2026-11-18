@@ -49,6 +49,8 @@ type StaggerItemProps = {
   className?: string;
   as?: "div" | "li";
   style?: CSSProperties;
+  /** For an item that's interactive itself (e.g. a hover-reveal card with no inner link/button) rather than purely decorative. */
+  tabIndex?: number;
 };
 
 export function StaggerItem({
@@ -56,10 +58,11 @@ export function StaggerItem({
   className,
   as = "div",
   style,
+  tabIndex,
 }: StaggerItemProps) {
   const MotionTag = as === "li" ? motion.li : motion.div;
   return (
-    <MotionTag className={className} style={style} variants={item}>
+    <MotionTag className={className} style={style} tabIndex={tabIndex} variants={item}>
       {children}
     </MotionTag>
   );

@@ -1,6 +1,4 @@
-"use client";
-
-import { useState } from "react";
+import type { CSSProperties } from "react";
 
 import Reveal from "@/components/ui/Reveal";
 
@@ -9,8 +7,8 @@ export type CompanyLogo = {
   slug: string;
 };
 
-/** Sourced from the client's own program brochures ("Top Destinations"). */
-const FEATURED: CompanyLogo[] = [
+/** Sourced from the client's own program brochures ("Top Destinations"). Split across two rows that scroll in opposite directions. */
+const ROW_1: CompanyLogo[] = [
   { name: "Amazon", slug: "amazon" },
   { name: "Microsoft", slug: "microsoft" },
   { name: "Accenture", slug: "accenture" },
@@ -21,13 +19,13 @@ const FEATURED: CompanyLogo[] = [
   { name: "KPMG", slug: "kpmg" },
   { name: "Citi", slug: "citi" },
   { name: "Wipro", slug: "wipro" },
-];
-
-const REST: CompanyLogo[] = [
   { name: "Target", slug: "target" },
   { name: "Meesho", slug: "meesho" },
   { name: "CRED", slug: "cred" },
   { name: "Ola", slug: "ola" },
+];
+
+const ROW_2: CompanyLogo[] = [
   { name: "Zomato", slug: "zomato" },
   { name: "Uber", slug: "uber" },
   { name: "Cognizant", slug: "cognizant" },
@@ -43,46 +41,49 @@ const REST: CompanyLogo[] = [
   { name: "Paytm", slug: "paytm" },
 ];
 
-export default function Organisations() {
-  const [showAll, setShowAll] = useState(false);
-  const logos = showAll ? [...FEATURED, ...REST] : FEATURED;
-
+function LogoTile({ company }: { company: CompanyLogo }) {
   return (
-    <Reveal
-      id="upskilling"
-      className="scroll-mt-24 bg-sky-100 px-6 py-14 md:px-10 lg:px-16 lg:py-16"
-    >
-      <div className="mx-auto max-w-[1400px]">
+    <div className="flex h-[88px] w-[160px] shrink-0 items-center justify-center rounded-2xl border-2 border-line bg-white p-5">
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img src={`/companies/${company.slug}.png`} alt={company.name} className="max-h-full w-auto object-contain" />
+    </div>
+  );
+}
+
+function MarqueeRow({ logos, reverse, durationS }: { logos: CompanyLogo[]; reverse?: boolean; durationS: number }) {
+  return (
+    <div className="overflow-hidden [mask-image:linear-gradient(90deg,transparent,#000_8%,#000_92%,transparent)]">
+      <div
+        className={`flex w-max gap-4 ${reverse ? "animate-[cz-marquee_var(--d)_linear_infinite_reverse]" : "animate-[cz-marquee_var(--d)_linear_infinite]"} hover:[animation-play-state:paused]`}
+        style={{ "--d": `${durationS}s` } as CSSProperties}
+      >
+        {[0, 1].map((copy) => (
+          <div key={copy} className="flex shrink-0 gap-4 pr-4">
+            {logos.map((company) => (
+              <LogoTile key={`${copy}-${company.slug}`} company={company} />
+            ))}
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+export default function Organisations() {
+  return (
+    <Reveal id="upskilling" className="scroll-mt-24 bg-sky-100 py-14 lg:py-16">
+      <div className="mx-auto max-w-[1400px] px-6 md:px-10 lg:px-16">
         <h6 className="text-sm font-bold tracking-[0.06em] text-sky-700 uppercase">
           Where can upskilling take you?
         </h6>
         <h2 className="mt-3.5 max-w-[32ch] font-display text-4xl font-bold">
           Skills relevant across the organisations shaping data and AI
         </h2>
+      </div>
 
-        <div className="mt-11 grid grid-cols-2 gap-4 sm:grid-cols-4 lg:grid-cols-5">
-          {logos.map((company) => (
-            <div
-              key={company.slug}
-              className="flex h-[88px] items-center justify-center rounded-2xl border-2 border-line bg-white p-5 transition-transform duration-150 hover:scale-[1.04]"
-            >
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src={`/companies/${company.slug}.png`}
-                alt={company.name}
-                className="max-h-full w-auto object-contain"
-              />
-            </div>
-          ))}
-        </div>
-
-        <button
-          type="button"
-          onClick={() => setShowAll((v) => !v)}
-          className="mt-8 cursor-pointer text-sm font-bold text-sky-700 underline decoration-sky-300 underline-offset-4 transition hover:text-sky-800"
-        >
-          {showAll ? "Show fewer" : "View more"}
-        </button>
+      <div className="mt-11 flex flex-col gap-4">
+        <MarqueeRow logos={ROW_1} durationS={32} />
+        <MarqueeRow logos={ROW_2} reverse durationS={28} />
       </div>
     </Reveal>
   );

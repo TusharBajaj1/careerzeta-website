@@ -52,6 +52,16 @@ body {
   }
 }
 
+@keyframes cz-bubble-float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(calc(-1 * var(--float-y, 10px)));
+  }
+}
+
 @keyframes cz-pulse-glow {
   0%,
   100% {
@@ -145,6 +155,13 @@ body {
 
 .cz-pulse-glow {
   animation: cz-pulse-glow 2.4s ease-out infinite;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .cz-bubble-float {
+    animation: cz-bubble-float var(--float-d, 4s) ease-in-out infinite;
+    animation-delay: var(--float-delay, 0s);
+  }
 }
 
 .cz-pulse-glow-green {

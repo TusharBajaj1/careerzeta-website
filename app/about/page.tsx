@@ -3,10 +3,10 @@ import type { Metadata } from "next";
 import AboutCta from "@/components/about/AboutCta";
 import Founders from "@/components/about/Founders";
 import LearningPath from "@/components/about/LearningPath";
+import Mentors from "@/components/about/Mentors";
 import Organisations from "@/components/about/Organisations";
 import VisionHero from "@/components/about/VisionHero";
 import WhyWeStarted from "@/components/about/WhyWeStarted";
-import Mentors from "@/components/home/Mentors";
 import Footer from "@/components/layout/Footer";
 import { buildMetadata } from "@/lib/seo";
 
