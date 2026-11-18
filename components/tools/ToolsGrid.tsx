@@ -1,99 +1,109 @@
-import { ArrowUpRight } from "lucide-react";
+import { FileText } from "lucide-react";
+import { FaInstagram } from "react-icons/fa";
 
 import Reveal from "@/components/ui/Reveal";
 
-type Tool = {
-  name: string;
-  tagline: string;
-  description: string;
-  href: string | null;
-};
-
 /**
- * Each tool lives on its own domain/platform rather than being rebuilt
- * under careerzeta.com — this page is a curated directory, not where the
- * tools themselves run. `href: null` means "not live yet" (shown as a
- * disabled "Coming soon" card instead of a link).
+ * Each card below deliberately breaks from the site's own design system —
+ * it borrows the visual language of the tool it links to (colors,
+ * typography mood, the kind of chip/badge that site actually uses) rather
+ * than forcing everything into CareerZeta's own card style. The Resume
+ * Builder has no real site to borrow from yet, so it stays neutral.
  */
-const TOOLS: Tool[] = [
-  {
-    name: "PDFRookie",
-    tagline: "PDF tools",
-    description:
-      "Merge, split, compress and convert PDFs — free, fast, and no sign-up required.",
-    href: "https://www.pdfrookie.org/",
-  },
-  {
-    name: "W.O.R.D",
-    tagline: "Daily vocabulary",
-    description: "One word, explained simply, every day — a running vocabulary builder on Instagram.",
-    href: "https://www.instagram.com/w.o.r.dd/",
-  },
-  {
-    name: "Resume Builder",
-    tagline: "For students",
-    description: "A free resume builder for students — pick a template, fill it in, export a clean PDF.",
-    href: null,
-  },
-];
 
-function ToolCard({ tool }: { tool: Tool }) {
-  const isLive = tool.href !== null;
-
-  const content = (
-    <>
-      <div className="flex items-start justify-between gap-3">
-        <div className="text-xs font-bold tracking-[0.06em] text-sky-700 uppercase">{tool.tagline}</div>
-        {isLive ? (
-          <ArrowUpRight className="h-5 w-5 shrink-0 text-slate-400 transition group-hover:text-sky-700" />
-        ) : (
-          <span className="shrink-0 rounded-full bg-slate-200 px-3 py-1 text-[11px] font-bold tracking-wide text-slate-600 uppercase">
-            Coming soon
-          </span>
-        )}
-      </div>
-      <h3 className="mt-3 font-display text-2xl font-semibold tracking-tight">{tool.name}</h3>
-      <p className="mt-2 text-[15px] leading-normal text-slate-700">{tool.description}</p>
-      <div className="mt-5 inline-flex rounded-full border border-line px-4 py-1.5 text-xs font-bold tracking-wide text-slate-500 uppercase">
-        Supported by CareerZeta
-      </div>
-    </>
-  );
-
-  if (!isLive) {
-    return (
-      <div className="flex flex-col rounded-[22px] border-2 border-line bg-white p-7 opacity-70">
-        {content}
-      </div>
-    );
-  }
-
+function PdfRookieCard() {
   return (
     <a
-      href={tool.href!}
+      href="https://www.pdfrookie.org/"
       target="_blank"
       rel="noreferrer"
-      className="group flex flex-col rounded-[22px] border-2 border-line bg-white p-7 transition-transform duration-150 hover:scale-[1.02] hover:border-sky-400"
+      className="group flex flex-col rounded-2xl border-[3px] border-black bg-[#FAF6EE] p-7 text-[#1c1814] shadow-[6px_6px_0_0_#111827] transition-transform duration-150 hover:-translate-y-1 hover:shadow-[8px_10px_0_0_#111827]"
     >
-      {content}
+      <div className="flex items-center gap-3">
+        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border-2 border-black bg-[#F15A29] text-white">
+          <FileText className="h-5 w-5" strokeWidth={2.5} />
+        </div>
+        <div className="inline-flex rounded-full border-2 border-[#F15A29] px-3 py-1 text-[11px] font-bold tracking-[0.04em] text-[#F15A29] uppercase">
+          100% Free · No Signup
+        </div>
+      </div>
+
+      <h3 className="mt-5 font-serif text-[28px] leading-[1.1] font-black tracking-tight">
+        Document tools that{" "}
+        <span className="bg-[#FFD93D] px-1">stay free.</span>
+      </h3>
+      <p className="mt-3 text-[15px] leading-normal text-[#44403c]">
+        Merge, split, rotate, convert and OCR your PDFs — 17 tools, no email required.
+      </p>
+
+      <div className="mt-6 inline-flex w-fit items-center gap-2 rounded-lg border-2 border-black bg-[#F15A29] px-5 py-2.5 text-sm font-bold text-white transition-transform duration-150 group-hover:scale-105">
+        Visit PDFRookie →
+      </div>
     </a>
+  );
+}
+
+function WordCard() {
+  return (
+    <a
+      href="https://www.instagram.com/w.o.r.dd/"
+      target="_blank"
+      rel="noreferrer"
+      className="group flex flex-col justify-between overflow-hidden rounded-2xl p-7 text-white transition-transform duration-150 hover:-translate-y-1"
+      style={{
+        backgroundImage: "linear-gradient(135deg, #7c3aed 0%, #c026d3 55%, #f97316 100%)",
+      }}
+    >
+      <div className="flex items-center gap-2 text-[13px] font-bold tracking-[0.04em] uppercase opacity-90">
+        <FaInstagram className="h-4 w-4" />
+        @w.o.r.dd
+      </div>
+
+      <div className="mt-9">
+        <div className="font-display text-[42px] leading-[0.95] font-bold tracking-tight">
+          Sanguine
+        </div>
+        <p className="mt-2 max-w-[28ch] text-[15px] leading-snug text-white/85">
+          cheerful and hopeful, even in tough times
+        </p>
+      </div>
+
+      <div className="mt-8 inline-flex w-fit items-center gap-1.5 rounded-full bg-white/15 px-4 py-2 text-sm font-bold backdrop-blur-sm transition-transform duration-150 group-hover:scale-105">
+        Follow along →
+      </div>
+    </a>
+  );
+}
+
+function ResumeBuilderCard() {
+  return (
+    <div className="flex flex-col justify-between rounded-2xl border-2 border-dashed border-line bg-white/60 p-7 text-slate-500">
+      <div>
+        <span className="rounded-full bg-slate-200 px-3 py-1 text-[11px] font-bold tracking-wide text-slate-600 uppercase">
+          Coming soon
+        </span>
+        <h3 className="mt-5 font-display text-2xl font-semibold tracking-tight text-slate-700">
+          Resume Builder
+        </h3>
+        <p className="mt-3 text-[15px] leading-normal">
+          A free resume builder for students — pick a template, fill it in, export a clean PDF.
+        </p>
+      </div>
+      <p className="mt-8 text-xs font-semibold tracking-wide uppercase opacity-60">
+        In the works — check back soon
+      </p>
+    </div>
   );
 }
 
 export default function ToolsGrid() {
   return (
-    <section className="bg-slate-100">
+    <section className="bg-white">
       <Reveal className="mx-auto max-w-[1400px] px-6 py-20 md:px-10 lg:px-16 lg:py-[110px]">
-        <h2 className="font-display text-3xl font-semibold tracking-tight lg:text-4xl">
-          What&apos;s here so far
-        </h2>
-        <p className="mt-3 max-w-[60ch] text-lg text-slate-700">
-          A growing list — we&apos;ll add more as we build them.
-        </p>
-        <div className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {TOOLS.map((tool) => (
-            <ToolCard key={tool.name} tool={tool} />
-          ))}
+        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          <PdfRookieCard />
+          <WordCard />
+          <ResumeBuilderCard />
         </div>
       </Reveal>
     </section>
