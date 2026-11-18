@@ -1,8 +1,5 @@
-import Image from "next/image";
-
-import FloatingBubble from "@/components/about/FloatingBubble";
+import MentorBubbleField from "@/components/about/MentorBubbleField";
 import Reveal from "@/components/ui/Reveal";
-import { StaggerGroup, StaggerItem } from "@/components/ui/Stagger";
 
 export type Mentor = {
   name: string;
@@ -44,39 +41,7 @@ export default function Mentors({ heading = "Mentors" }: MentorsProps) {
           applied practice, batch by batch. Hover a photo for their role.
         </p>
 
-        <StaggerGroup className="mt-16 flex flex-wrap justify-center gap-x-8 gap-y-16 overflow-visible">
-          {mentors.map((mentor) => (
-            <StaggerItem key={mentor.name} className="shrink-0 overflow-visible">
-              <FloatingBubble
-                tabIndex={0}
-                className="group relative w-[116px] cursor-default text-center outline-none sm:w-[132px]"
-                rangeX={15}
-                rangeY={22}
-              >
-                {/* Brand rule: photo frame = aqua→deep-aqua gradient border. */}
-                <div className="relative mx-auto h-[116px] w-[116px] origin-bottom rounded-full bg-gradient-to-br from-sky-400 to-sky-700 p-1 transition-transform duration-300 ease-out group-hover:z-10 group-hover:scale-[1.3] group-focus:z-10 group-focus:scale-[1.3] sm:h-[132px] sm:w-[132px]">
-                  <div className="relative h-full w-full overflow-hidden rounded-full bg-sky-100 shadow-[0_10px_30px_-8px_rgba(17,24,39,0.3)]">
-                    <Image
-                      src={mentor.photoUrl}
-                      alt={mentor.name}
-                      fill
-                      sizes="140px"
-                      className="object-cover"
-                    />
-                  </div>
-                </div>
-
-                <div className="mt-3 font-display text-sm font-bold">
-                  {mentor.name}
-                </div>
-
-                <div className="pointer-events-none mt-1 max-h-0 overflow-hidden text-xs opacity-0 transition-all duration-300 ease-out group-hover:max-h-10 group-hover:opacity-70 group-focus:max-h-10 group-focus:opacity-70">
-                  {mentor.title}, {mentor.company}
-                </div>
-              </FloatingBubble>
-            </StaggerItem>
-          ))}
-        </StaggerGroup>
+        <MentorBubbleField mentors={mentors} />
       </div>
     </Reveal>
   );
