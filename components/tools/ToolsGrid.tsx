@@ -43,7 +43,8 @@ function PdfRookieCard() {
   );
 }
 
-function WordCard({ word, definition }: { word: string; definition: string }) {
+/** Recreates @w.o.r.dd's own profile-picture lockup rather than a sample word — static, so it never looks stale or needs updating. */
+function WordCard() {
   return (
     <a
       href="https://www.instagram.com/w.o.r.dd/"
@@ -60,10 +61,14 @@ function WordCard({ word, definition }: { word: string; definition: string }) {
       </div>
 
       <div className="mt-9">
-        <div className="font-display text-[42px] leading-[0.95] font-bold tracking-tight">
-          {word}
+        <div className="font-display text-[34px] leading-[0.95] font-bold tracking-tight">
+          W.o.r.dd
         </div>
-        <p className="mt-2 max-w-[28ch] text-[15px] leading-snug text-white/85">{definition}</p>
+        <div className="mt-3 font-display text-xl leading-tight font-bold">
+          /
+          <br />
+          World of Words
+        </div>
       </div>
 
       <div className="mt-8 inline-flex w-fit items-center gap-1.5 rounded-full bg-white/15 px-4 py-2 text-sm font-bold backdrop-blur-sm transition-transform duration-150 group-hover:scale-105">
@@ -94,13 +99,13 @@ function ResumeBuilderCard() {
   );
 }
 
-export default function ToolsGrid({ word, definition }: { word: string; definition: string }) {
+export default function ToolsGrid() {
   return (
     <section className="bg-white">
       <Reveal className="mx-auto max-w-[1400px] px-6 py-20 md:px-10 lg:px-16 lg:py-[110px]">
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
           <PdfRookieCard />
-          <WordCard word={word} definition={definition} />
+          <WordCard />
           <ResumeBuilderCard />
         </div>
       </Reveal>
