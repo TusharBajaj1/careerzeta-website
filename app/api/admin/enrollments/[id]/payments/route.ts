@@ -13,15 +13,22 @@ import {
   sanitizeEasebuzzProductInfo,
 } from "@/lib/easebuzz";
 import { PROGRAMS } from "@/lib/content";
+import { confirmPaymentPaid } from "@/lib/paymentConfirmation";
 
 const SITE_URL = "https://www.careerzeta.com";
 const PAYMENT_TYPES = new Set(["registration", "balance", "full"]);
-const GATEWAYS = new Set(["razorpay", "easebuzz"]);
+const GATEWAYS = new Set(["razorpay", "easebuzz", "manual"]);
 
 /**
- * Manually triggers a Razorpay payment link for an existing enrollment —
- * the registration fee when the sales team first collects a partial
- * amount, or the remaining balance once they're ready to collect it.
+ * Creates a payment for an existing enrollment. For "razorpay"/"easebuzz"
+ * this triggers a real payment link — the registration fee when the
+ * sales team first collects a partial amount, or the remaining balance
+ * once they're ready to collect it. For "manual" there's no link at
+ * all: this covers money already collected directly (e.g. UPI straight
+ * into the account), so the payment is created and immediately marked
+ * paid in one step via confirmPaymentPaid — same downstream effects
+ * (enrollment totals, admission number) as a real gateway webhook,
+ * just without ever generating a link or calling an external API.
  * Amount and type are chosen by the admin each time (case-by-case), not
  * derived automatically.
  */
@@ -59,7 +66,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
     return NextResponse.json({ error: "amount_exceeds_balance", remaining }, { status: 400 });
   }
 
-  if (gateway === "easebuzz" ? !isEasebuzzConfigured() : !getRazorpayClient()) {
+  if (gateway !== "manual" && (gateway === "easebuzz" ? !isEasebuzzConfigured() : !getRazorpayClient())) {
     return NextResponse.json({ error: "not_configured" }, { status: 501 });
   }
 
@@ -73,6 +80,15 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
       gateway,
     })
     .returning();
+
+  if (gateway === "manual") {
+    const result = await confirmPaymentPaid({ paymentId: payment.id, capturedAmountPaise: amountPaise });
+    if (!result.ok) {
+      return NextResponse.json({ error: result.reason }, { status: 400 });
+    }
+    const [paidPayment] = await db.select().from(payments).where(eq(payments.id, payment.id)).limit(1);
+    return NextResponse.json({ payment: paidPayment });
+  }
 
   const programName = PROGRAMS.find((p) => p.slug === enrollment.programSlug)?.name ?? enrollment.programSlug;
   const description = `${programName} — ${type === "registration" ? "Registration Fee" : type === "balance" ? "Balance Payment" : "Course Fee"} — CareerZeta`;

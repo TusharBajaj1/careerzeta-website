@@ -69,6 +69,8 @@ export const paymentTypeEnum = pgEnum("payment_type", [
 export const paymentGatewayEnum = pgEnum("payment_gateway", [
   "razorpay",
   "easebuzz",
+  /** No real gateway — money was collected directly (e.g. UPI straight into the account) and the admin records it as already paid, skipping link generation entirely. */
+  "manual",
 ]);
 
 export const blogPostStatusEnum = pgEnum("blog_post_status", ["draft", "scheduled", "published"]);
@@ -149,7 +151,7 @@ export const payments = pgTable("payments", {
   /** Amount for this specific transaction, in paise. */
   amount: integer("amount").notNull(),
   status: paymentStatusEnum("status").notNull().default("created"),
-  /** Which gateway this payment's link was created on — picked by the candidate at checkout, or by the admin on a manually-triggered link. Existing rows all predate Easebuzz, hence the Razorpay default. */
+  /** Which gateway this payment's link was created on — picked by the candidate at checkout, or by the admin on a manually-triggered link. "manual" means no link was ever created: money was collected directly and the admin recorded it as paid immediately. Existing rows all predate Easebuzz, hence the Razorpay default. */
   gateway: paymentGatewayEnum("gateway").notNull().default("razorpay"),
   razorpayPaymentLinkId: varchar("razorpay_payment_link_id", { length: 128 }),
   razorpayPaymentId: varchar("razorpay_payment_id", { length: 128 }),

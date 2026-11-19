@@ -945,7 +945,7 @@ function MarkPaidControl({ payment, onConfirmed }: { payment: PaymentRow; onConf
 
     if (
       !confirm(
-        "Mark this payment as received? This sends the invoice email to the candidate right away — only do this once the money has actually come in.",
+        "Mark this payment as received? Only do this once the money has actually come in — this does not email anything automatically.",
       )
     ) {
       return;
@@ -1506,8 +1506,9 @@ function AddPaymentForm({
   const hasPaid = enrollment.payments.some((p) => p.status === "paid");
   const [amount, setAmount] = useState("");
   const [type, setType] = useState<"registration" | "balance" | "full">(hasPaid ? "balance" : "registration");
-  const [gateway, setGateway] = useState<"razorpay" | "easebuzz">("razorpay");
+  const [gateway, setGateway] = useState<"razorpay" | "easebuzz" | "manual">("razorpay");
   const [link, setLink] = useState<string | null>(null);
+  const [markedPaid, setMarkedPaid] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
 
@@ -1515,6 +1516,17 @@ function AddPaymentForm({
     e.preventDefault();
     setError(null);
     setLink(null);
+    setMarkedPaid(false);
+
+    if (
+      gateway === "manual" &&
+      !confirm(
+        "Record this as already paid? Only do this once the money has actually come in — this does not email anything automatically.",
+      )
+    ) {
+      return;
+    }
+
     setSubmitting(true);
 
     const res = await fetch(`/api/admin/enrollments/${enrollment.id}/payments`, {
@@ -1531,13 +1543,19 @@ function AddPaymentForm({
           ? "That amount is more than the remaining balance."
           : data.error === "not_configured"
             ? `${gateway === "easebuzz" ? "Easebuzz" : "Razorpay"} isn't configured yet.`
-            : "Couldn't create the payment link — try again.",
+            : gateway === "manual"
+              ? "Couldn't record the payment — try again."
+              : "Couldn't create the payment link — try again.",
       );
       setSubmitting(false);
       return;
     }
 
-    setLink(data.payment.paymentLinkUrl);
+    if (gateway === "manual") {
+      setMarkedPaid(true);
+    } else {
+      setLink(data.payment.paymentLinkUrl);
+    }
     setAmount("");
     setSubmitting(false);
     onAdded();
@@ -1576,13 +1594,22 @@ function AddPaymentForm({
       >
         <option value="razorpay">Razorpay</option>
         <option value="easebuzz">Easebuzz</option>
+        <option value="manual">Already paid (UPI/bank) — mark as paid</option>
       </select>
       <button
         type="submit"
         disabled={submitting}
-        className="rounded-lg bg-[#111827] px-5 py-2.5 text-sm font-bold text-white transition-transform duration-150 hover:scale-105 disabled:opacity-60"
+        className={`rounded-lg px-5 py-2.5 text-sm font-bold text-white transition-transform duration-150 hover:scale-105 disabled:opacity-60 ${
+          gateway === "manual" ? "bg-green-700" : "bg-[#111827]"
+        }`}
       >
-        {submitting ? "Generating…" : "Generate payment link"}
+        {gateway === "manual"
+          ? submitting
+            ? "Recording…"
+            : "Mark as Paid"
+          : submitting
+            ? "Generating…"
+            : "Generate payment link"}
       </button>
       {error && <p className="w-full text-sm text-red-600">{error}</p>}
       {link && (
@@ -1591,6 +1618,11 @@ function AddPaymentForm({
           <a href={link} target="_blank" rel="noreferrer" className="underline">
             {link}
           </a>
+        </p>
+      )}
+      {markedPaid && (
+        <p className="w-full text-sm text-green-700">
+          Recorded as paid. Use the Generate/Send controls above to send the invoice and registration letter.
         </p>
       )}
     </form>
