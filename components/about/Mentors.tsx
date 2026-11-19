@@ -1,5 +1,7 @@
-import MentorBubbleField from "@/components/about/MentorBubbleField";
+import Image from "next/image";
+
 import Reveal from "@/components/ui/Reveal";
+import { StaggerGroup, StaggerItem } from "@/components/ui/Stagger";
 
 export type Mentor = {
   name: string;
@@ -41,7 +43,34 @@ export default function Mentors({ heading = "Mentors" }: MentorsProps) {
           applied practice, batch by batch.
         </p>
 
-        <MentorBubbleField mentors={mentors} />
+        <StaggerGroup className="mt-12 flex flex-wrap justify-center gap-x-8 gap-y-12 lg:mt-14">
+          {mentors.map((mentor) => (
+            <StaggerItem
+              key={mentor.name}
+              tabIndex={0}
+              className="group relative w-[116px] shrink-0 cursor-default text-center outline-none sm:w-[132px]"
+            >
+              {/* Brand rule: photo frame = aqua→deep-aqua gradient border. */}
+              <div className="relative mx-auto h-[116px] w-[116px] origin-bottom rounded-full bg-gradient-to-br from-sky-400 to-sky-700 p-1 transition-transform duration-300 ease-out group-hover:z-10 group-hover:scale-[1.3] group-focus:z-10 group-focus:scale-[1.3] sm:h-[132px] sm:w-[132px]">
+                <div className="relative h-full w-full overflow-hidden rounded-full bg-sky-100 shadow-[0_10px_30px_-8px_rgba(17,24,39,0.3)]">
+                  <Image
+                    src={mentor.photoUrl}
+                    alt={mentor.name}
+                    fill
+                    sizes="140px"
+                    className="object-cover"
+                  />
+                </div>
+              </div>
+
+              <div className="mt-3 font-display text-sm font-bold">{mentor.name}</div>
+
+              <div className="mt-1 text-xs opacity-70">
+                {mentor.title}, {mentor.company}
+              </div>
+            </StaggerItem>
+          ))}
+        </StaggerGroup>
       </div>
     </Reveal>
   );
