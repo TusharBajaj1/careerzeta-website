@@ -38,7 +38,7 @@ export default function Mentors({ heading = "Mentors" }: MentorsProps) {
         <h2 className="mt-3.5 font-display text-4xl font-bold">{heading}</h2>
         <p className="mt-3.5 max-w-[60ch] text-[17px] opacity-75">
           Our mentors work in the industry today, guiding learners through
-          applied practice, batch by batch. Hover a photo for their role.
+          applied practice, batch by batch.
         </p>
 
         <MentorBubbleField mentors={mentors} />

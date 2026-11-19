@@ -9,25 +9,33 @@ type Vec = { x: number; y: number };
 
 /** Size reserved per bubble for arena bounds math. */
 const BUBBLE_SIZE = 132;
-/** Extra vertical room below each circle for its name (and title/company on hover). */
-const CAPTION_HEIGHT = 60;
+/** Extra vertical room below each circle for its name plus its always-visible title/company, which can wrap onto two lines for a longer title. */
+const CAPTION_HEIGHT = 72;
 const SPEED_MIN = 16; // px/s
 const SPEED_MAX = 30; // px/s
-/** Centers closer than this deflect apart instead of overlapping — the actual collision, not just avoidance of a pre-picked point. */
-const REPEL_DIST = 175;
+/**
+ * Centers closer than this deflect apart instead of overlapping — the
+ * actual collision, not just avoidance of a pre-picked point. Sized for
+ * the worst case (one bubble's full-height caption landing right above
+ * a neighbor directly below it: circle radius + caption + circle
+ * radius), not just circle-to-circle, since the caption text is always
+ * visible now rather than only appearing on hover.
+ */
+const REPEL_DIST = 205;
 /** Small per-frame chance of a gentle random heading change, so paths read as organic drift rather than a mechanical, perfectly-predictable bounce loop. */
 const TURN_CHANCE_PER_FRAME = 0.004;
 const MAX_DT = 0.05; // clamp so a slow/dropped frame can't cause a big jump
 /**
  * Below this width there's no honest way to fit 9 roaming, labeled bubbles
- * without them constantly crowding each other — 132px circles alone need
- * ~396px just to sit in a single row with no gap. Below it this renders a
- * plain wrapping grid instead (the browser's own flex-wrap, so it's
- * correct at any width, not a hand-rolled column count that can still get
- * it wrong). It's also what prefers-reduced-motion gets, and what every
- * viewport sees before JS has measured anything, so there's no flash.
+ * — each needing a ~205px clearance bubble now that its caption is always
+ * shown — without them constantly crowding each other. Below it this
+ * renders a plain wrapping grid instead (the browser's own flex-wrap, so
+ * it's correct at any width, not a hand-rolled column count that can
+ * still get it wrong). It's also what prefers-reduced-motion gets, and
+ * what every viewport sees before JS has measured anything, so there's
+ * no flash.
  */
-const MIN_ROAM_WIDTH = 1024;
+const MIN_ROAM_WIDTH = 1200;
 
 type MentorBubbleFieldProps = {
   mentors: Mentor[];
@@ -51,7 +59,7 @@ function BubbleContent({ mentor }: { mentor: Mentor }) {
 
       <div className="mt-3 font-display text-sm font-bold">{mentor.name}</div>
 
-      <div className="pointer-events-none mt-1 max-h-0 overflow-hidden text-xs opacity-0 transition-all duration-300 ease-out group-hover:max-h-10 group-hover:opacity-70 group-focus:max-h-10 group-focus:opacity-70">
+      <div className="mt-1 text-xs opacity-70">
         {mentor.title}, {mentor.company}
       </div>
     </>
@@ -226,7 +234,7 @@ export default function MentorBubbleField({ mentors }: MentorBubbleFieldProps) {
   return (
     <div
       ref={containerRef}
-      className={showGrid ? "w-full" : "relative mt-14 h-[600px] w-full overflow-visible"}
+      className={showGrid ? "w-full" : "relative mt-14 h-[680px] w-full overflow-visible"}
     >
       {showGrid ? (
         <MentorBubbleGrid mentors={mentors} />
