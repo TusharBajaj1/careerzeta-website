@@ -6,22 +6,31 @@ import { enrollments, payments } from "@/lib/db/schema";
 import { isValidEmail, isValidGstin, isValidMobile } from "@/lib/forms";
 import { INDIAN_STATE_NAMES } from "@/lib/indianStates";
 import { rupeesToPaise } from "@/lib/money";
-import { paymentDerivedStatus } from "@/lib/paymentConfirmation";
+import { paymentDerivedStatus, recomputeEnrollmentTotals } from "@/lib/paymentConfirmation";
 import { PROGRAMS } from "@/lib/content";
 
 const PROGRAM_SLUGS = new Set(PROGRAMS.map((p) => p.slug));
 const STATE_SET = new Set(INDIAN_STATE_NAMES);
 
 /**
- * Two unrelated kinds of update, told apart by payload shape:
+ * Several unrelated kinds of update, told apart by payload shape:
  *  - { status: "cancelled" | "refund_requested" } or { undoRefundRequest: true }
  *    — status-only transitions, always allowed.
+ *  - { totalFee } alone — settable at any time, including after payment
+ *    (a negotiated discount, a correction, a scholarship applied later).
+ *    Unlike the full candidate/fee-details edit below, this doesn't touch
+ *    anything an already-sent invoice reflects (an invoice is built from
+ *    what was actually paid, not from totalFee), so it's safe to allow
+ *    post-payment. Recomputes amountPaid/status afterward since lowering
+ *    the fee can bring what's already been paid up to (or past) the new
+ *    total — e.g. a discount that fully covers the remaining balance
+ *    should flip the enrollment to fully_paid right away.
  *  - Candidate/fee details (name, email, phone, state, address, gstin,
- *    programSlug, totalFee, registrationFeeAmount, salesExecutive) — only
- *    allowed while amountPaid is 0. Once a payment (or an invoice built from
- *    these details) exists, editing them would make the invoice on file
- *    inconsistent with the record, so this is enforced server-side, not
- *    just hidden in the UI.
+ *    programSlug, registrationFeeAmount, salesExecutive — totalFee too,
+ *    via this same full-form path) — only allowed while amountPaid is 0.
+ *    Once a payment (or an invoice built from these details) exists,
+ *    editing them would make the invoice on file inconsistent with the
+ *    record, so this is enforced server-side, not just hidden in the UI.
  */
 export async function PATCH(
   request: Request,
@@ -83,6 +92,36 @@ export async function PATCH(
       .set({ admissionLetterBody: body.admissionLetterBody.trim() || null })
       .where(eq(enrollments.id, enrollmentId))
       .returning();
+    return NextResponse.json({ enrollment: updated });
+  }
+
+  // Total fee adjustment on its own — allowed post-payment, unlike the
+  // full candidate/fee-details form below. Can't drop below what's
+  // already been paid (that would mean a negative balance), and clears
+  // registrationFeeAmount if it's no longer below the new total.
+  if (typeof body.totalFee === "number" && Object.keys(body).length === 1) {
+    if (body.totalFee <= 0) {
+      return NextResponse.json({ error: "invalid_payload" }, { status: 400 });
+    }
+    const newTotalFeePaise = rupeesToPaise(body.totalFee);
+    if (newTotalFeePaise < existing.amountPaid) {
+      return NextResponse.json({ error: "total_fee_below_amount_paid" }, { status: 400 });
+    }
+
+    await db
+      .update(enrollments)
+      .set({
+        totalFee: newTotalFeePaise,
+        registrationFeeAmount:
+          existing.registrationFeeAmount !== null && existing.registrationFeeAmount >= newTotalFeePaise
+            ? null
+            : existing.registrationFeeAmount,
+      })
+      .where(eq(enrollments.id, enrollmentId));
+
+    await recomputeEnrollmentTotals(enrollmentId);
+
+    const [updated] = await db.select().from(enrollments).where(eq(enrollments.id, enrollmentId)).limit(1);
     return NextResponse.json({ enrollment: updated });
   }
 

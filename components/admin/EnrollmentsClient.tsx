@@ -803,7 +803,7 @@ function EnrollmentCard({
       <div className="mt-4 grid grid-cols-3 gap-4 border-y border-line/60 py-3 text-sm">
         <div>
           <div className="text-xs opacity-60">Total Fee</div>
-          <div className="font-bold">{formatPaiseAsInr(enrollment.totalFee)}</div>
+          <TotalFeeControl enrollment={enrollment} onSaved={onChanged} />
         </div>
         <div>
           <div className="text-xs opacity-60">Paid</div>
@@ -1096,6 +1096,98 @@ function InvoiceControl({ payment, onChanged }: { payment: PaymentRow; onChanged
  * admission time. Included on the admission letter once set; resending
  * the letter after changing this picks up the new value.
  */
+/**
+ * Edits just the total fee — separate from the full candidate/fee-details
+ * edit form, which the API locks once a payment exists. This one works
+ * at any time (negotiated discount, correction, scholarship applied
+ * later), since the server recomputes amountPaid/status afterward.
+ */
+function TotalFeeControl({ enrollment, onSaved }: { enrollment: EnrollmentRow; onSaved: () => void }) {
+  const [editing, setEditing] = useState(false);
+  const [value, setValue] = useState(String(paiseToRupees(enrollment.totalFee)));
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  async function handleSave() {
+    const amount = Number(value);
+    if (!Number.isFinite(amount) || amount <= 0) {
+      setError("Enter a valid amount.");
+      return;
+    }
+    if (
+      !confirm(
+        "Update the total fee? If this brings the amount already paid up to (or past) the new total, the enrollment will move straight to fully paid.",
+      )
+    ) {
+      return;
+    }
+
+    setError(null);
+    setSaving(true);
+    const res = await fetch(`/api/admin/enrollments/${enrollment.id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ totalFee: amount }),
+    });
+    setSaving(false);
+
+    if (!res.ok) {
+      const data = await res.json().catch(() => ({}));
+      setError(
+        data.error === "total_fee_below_amount_paid"
+          ? "Can't be less than what's already been paid."
+          : "Couldn't save — try again.",
+      );
+      return;
+    }
+    setEditing(false);
+    onSaved();
+  }
+
+  if (!editing) {
+    return (
+      <div className="flex flex-wrap items-center gap-2">
+        <span className="font-bold">{formatPaiseAsInr(enrollment.totalFee)}</span>
+        <button
+          onClick={() => {
+            setValue(String(paiseToRupees(enrollment.totalFee)));
+            setError(null);
+            setEditing(true);
+          }}
+          className="text-xs text-sky-700 hover:underline"
+        >
+          Edit
+        </button>
+      </div>
+    );
+  }
+
+  return (
+    <div className="flex flex-wrap items-center gap-2">
+      <input
+        type="number"
+        min="1"
+        step="0.01"
+        aria-label="Total fee (₹)"
+        value={value}
+        onChange={(e) => setValue(e.target.value)}
+        className="w-28 rounded-lg border-2 border-line px-2 py-1.5 text-sm outline-none focus:border-sky-400"
+      />
+      <button
+        onClick={handleSave}
+        disabled={saving}
+        className="rounded-lg bg-sky-700 px-3 py-1.5 text-xs font-bold text-white disabled:opacity-60"
+      >
+        {saving ? "Saving…" : "Save"}
+      </button>
+      <button onClick={() => setEditing(false)} className="text-xs opacity-60 hover:underline">
+        Cancel
+      </button>
+      {error && <p className="w-full text-xs text-red-600">{error}</p>}
+    </div>
+  );
+}
+
 function BatchDetailsControl({ enrollment, onSaved }: { enrollment: EnrollmentRow; onSaved: () => void }) {
   const [editing, setEditing] = useState(false);
   const [value, setValue] = useState(enrollment.batchDetails ?? "");
