@@ -64,6 +64,8 @@ export const paymentTypeEnum = pgEnum("payment_type", [
   "full",
   "registration",
   "balance",
+  /** One of an installment plan's equal monthly slices of the balance remaining after the registration fee — see installmentNumber/installmentTotal/dueDate below. */
+  "installment",
 ]);
 
 export const paymentGatewayEnum = pgEnum("payment_gateway", [
@@ -168,6 +170,11 @@ export const payments = pgTable("payments", {
   /** Internal record that this invoice number is void (no credit note needed if it was never recorded/reported) — see /api/admin/payments/[id]/cancel-invoice. */
   invoiceCancelled: boolean("invoice_cancelled").notNull().default(false),
   invoiceCancelledAt: timestamp("invoice_cancelled_at", { withTimezone: true }),
+  /** Set only on type "installment" rows — this row's position (1-based) and the plan's total count, e.g. 2 of 3. Null for every other payment type. */
+  installmentNumber: integer("installment_number"),
+  installmentTotal: integer("installment_total"),
+  /** When this installment is expected to be paid — admin-facing only (nothing automated reads this yet), shown next to the payment so the team knows what's coming due. */
+  dueDate: timestamp("due_date", { withTimezone: true }),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 });
 

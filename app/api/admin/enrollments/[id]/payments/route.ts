@@ -4,18 +4,10 @@ import { eq } from "drizzle-orm";
 import { db } from "@/lib/db";
 import { enrollments, payments } from "@/lib/db/schema";
 import { rupeesToPaise } from "@/lib/money";
-import { getRazorpayClient } from "@/lib/razorpay";
-import {
-  createEasebuzzPaymentLink,
-  generateEasebuzzTxnId,
-  isEasebuzzConfigured,
-  sanitizeEasebuzzPhone,
-  sanitizeEasebuzzProductInfo,
-} from "@/lib/easebuzz";
 import { PROGRAMS } from "@/lib/content";
 import { confirmPaymentPaid } from "@/lib/paymentConfirmation";
+import { generatePaymentLink, isGatewayConfigured } from "@/lib/createPaymentLink";
 
-const SITE_URL = "https://www.careerzeta.com";
 const PAYMENT_TYPES = new Set(["registration", "balance", "full"]);
 const GATEWAYS = new Set(["razorpay", "easebuzz", "manual"]);
 
@@ -66,7 +58,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
     return NextResponse.json({ error: "amount_exceeds_balance", remaining }, { status: 400 });
   }
 
-  if (gateway !== "manual" && (gateway === "easebuzz" ? !isEasebuzzConfigured() : !getRazorpayClient())) {
+  if (gateway !== "manual" && !isGatewayConfigured(gateway)) {
     return NextResponse.json({ error: "not_configured" }, { status: 501 });
   }
 
@@ -93,63 +85,11 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
   const programName = PROGRAMS.find((p) => p.slug === enrollment.programSlug)?.name ?? enrollment.programSlug;
   const description = `${programName} — ${type === "registration" ? "Registration Fee" : type === "balance" ? "Balance Payment" : "Course Fee"} — CareerZeta`;
 
-  if (gateway === "easebuzz") {
-    const txnid = generateEasebuzzTxnId(payment.id);
-    try {
-      const link = await createEasebuzzPaymentLink({
-        txnid,
-        amountPaise,
-        productInfo: sanitizeEasebuzzProductInfo(description),
-        firstName: enrollment.candidateName,
-        email: enrollment.candidateEmail,
-        phone: sanitizeEasebuzzPhone(enrollment.candidatePhone),
-        successUrl: `${SITE_URL}/enroll/thank-you`,
-        failureUrl: `${SITE_URL}/enroll/thank-you`,
-        udf1: String(enrollment.id),
-        udf2: String(payment.id),
-      });
-
-      const [updatedPayment] = await db
-        .update(payments)
-        .set({ easebuzzTxnId: link.txnid, paymentLinkUrl: link.paymentLinkUrl })
-        .where(eq(payments.id, payment.id))
-        .returning();
-
-      return NextResponse.json({ payment: updatedPayment });
-    } catch (err) {
-      console.error("Easebuzz payment link creation failed:", err);
-      return NextResponse.json({ error: "payment_link_failed" }, { status: 502 });
-    }
-  }
-
-  const razorpay = getRazorpayClient()!;
   try {
-    const link = await razorpay.paymentLink.create({
-      amount: amountPaise,
-      currency: "INR",
-      accept_partial: false,
-      customer: {
-        name: enrollment.candidateName,
-        email: enrollment.candidateEmail,
-        contact: enrollment.candidatePhone,
-      },
-      notify: { email: true, sms: true },
-      reference_id: `enrollment-${enrollment.id}-payment-${payment.id}`,
-      notes: { enrollmentId: String(enrollment.id), paymentId: String(payment.id) },
-      description,
-      callback_url: `${SITE_URL}/enroll/thank-you`,
-      callback_method: "get",
-    });
-
-    const [updatedPayment] = await db
-      .update(payments)
-      .set({ razorpayPaymentLinkId: link.id, paymentLinkUrl: link.short_url })
-      .where(eq(payments.id, payment.id))
-      .returning();
-
+    const updatedPayment = await generatePaymentLink({ enrollment, payment, gateway, description });
     return NextResponse.json({ payment: updatedPayment });
   } catch (err) {
-    console.error("Razorpay payment link creation failed:", err);
+    console.error(`${gateway} payment link creation failed:`, err);
     return NextResponse.json({ error: "payment_link_failed" }, { status: 502 });
   }
 }

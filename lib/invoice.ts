@@ -15,7 +15,7 @@ export type InvoiceData = {
   candidateAddress?: string | null;
   candidateGstin?: string | null;
   programName: string;
-  paymentType: "full" | "registration" | "balance";
+  paymentType: "full" | "registration" | "balance" | "installment";
   /** GST-inclusive amount for this specific transaction, in paise — program fees are quoted inclusive of all taxes. */
   amountPaidNowPaise: number;
   totalFeePaise: number;
@@ -26,6 +26,7 @@ const PAYMENT_TYPE_LABEL: Record<InvoiceData["paymentType"], string> = {
   full: "Course Fee",
   registration: "Registration Fee",
   balance: "Balance Payment",
+  installment: "Installment Payment",
 };
 
 /**
