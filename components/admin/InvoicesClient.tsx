@@ -8,7 +8,7 @@ import { formatPaiseAsInr } from "@/lib/money";
 export type InvoiceRow = {
   id: number;
   enrollmentId: number;
-  type: "full" | "registration" | "balance" | "installment";
+  type: "full" | "registration" | "balance";
   amount: number;
   invoiceNumber: string;
   invoicePdfUrl: string | null;
@@ -25,7 +25,6 @@ const PAYMENT_TYPE_LABEL: Record<InvoiceRow["type"], string> = {
   full: "Full Payment",
   registration: "Registration Fee",
   balance: "Balance Payment",
-  installment: "Installment",
 };
 
 export default function InvoicesClient({ initialInvoices }: { initialInvoices: InvoiceRow[] }) {

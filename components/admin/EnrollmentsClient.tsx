@@ -12,7 +12,7 @@ import { formatPaiseAsInr, paiseToRupees } from "@/lib/money";
 export type PaymentRow = {
   id: number;
   enrollmentId: number;
-  type: "full" | "registration" | "balance" | "installment";
+  type: "full" | "registration" | "balance";
   amount: number;
   status: "created" | "paid" | "failed" | "expired";
   razorpayPaymentLinkId: string | null;
@@ -23,9 +23,6 @@ export type PaymentRow = {
   invoiceNumber: string | null;
   invoiceCancelled: boolean;
   invoiceCancelledAt: string | null;
-  installmentNumber: number | null;
-  installmentTotal: number | null;
-  dueDate: string | null;
   createdAt: string;
 };
 
@@ -88,12 +85,7 @@ const PAYMENT_TYPE_LABEL: Record<PaymentRow["type"], string> = {
   full: "Full Payment",
   registration: "Registration Fee",
   balance: "Balance Payment",
-  installment: "Installment",
 };
-
-function formatDueDate(dueDate: string): string {
-  return new Date(dueDate).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" });
-}
 
 export default function EnrollmentsClient({
   initialEnrollments,
@@ -906,17 +898,10 @@ function EnrollmentCard({
             {enrollment.payments.map((p) => (
               <li key={p.id} className="flex flex-wrap items-center justify-between gap-2 text-sm">
                 <span>
-                  {PAYMENT_TYPE_LABEL[p.type]}
-                  {p.type === "installment" && p.installmentNumber && p.installmentTotal
-                    ? ` ${p.installmentNumber} of ${p.installmentTotal}`
-                    : ""}{" "}
-                  — {formatPaiseAsInr(p.amount)} —{" "}
+                  {PAYMENT_TYPE_LABEL[p.type]} — {formatPaiseAsInr(p.amount)} —{" "}
                   <span className={p.status === "paid" ? "font-bold text-green-700" : "opacity-70"}>
                     {p.status}
                   </span>
-                  {p.dueDate && p.status !== "paid" && (
-                    <span className="opacity-60"> · due {formatDueDate(p.dueDate)}</span>
-                  )}
                   {p.invoiceNumber && (
                     <span className="opacity-60">
                       {" "}
@@ -965,12 +950,7 @@ function EnrollmentCard({
       )}
 
       {remaining > 0 && enrollment.status !== "cancelled" && (
-        <>
-          <AddPaymentForm enrollment={enrollment} onAdded={onChanged} />
-          {enrollment.amountPaid > 0 && !enrollment.payments.some((p) => p.type === "installment") && (
-            <InstallmentPlanForm enrollment={enrollment} onAdded={onChanged} />
-          )}
-        </>
+        <AddPaymentForm enrollment={enrollment} onAdded={onChanged} />
       )}
     </div>
   );
@@ -1760,106 +1740,6 @@ function AddPaymentForm({
           Recorded as paid. Use the Generate/Send controls above to send the invoice and registration letter.
         </p>
       )}
-    </form>
-  );
-}
-
-const INSTALLMENT_MONTH_OPTIONS = [2, 3, 6, 9] as const;
-
-/**
- * Splits the remaining balance (after the registration fee) into N equal
- * monthly installments and generates a real payment link for each one up
- * front — the team shares each link as its month comes due, or uses the
- * existing per-row "Mark as Paid" control once money actually comes in.
- * Hidden once a plan already exists for this enrollment (the payments
- * list above is how it's managed from then on) so it can't be run twice.
- */
-function InstallmentPlanForm({
-  enrollment,
-  onAdded,
-}: {
-  enrollment: EnrollmentRow;
-  onAdded: () => void;
-}) {
-  const [months, setMonths] = useState<(typeof INSTALLMENT_MONTH_OPTIONS)[number]>(3);
-  const [gateway, setGateway] = useState<"razorpay" | "easebuzz">("razorpay");
-  const [error, setError] = useState<string | null>(null);
-  const [submitting, setSubmitting] = useState(false);
-
-  const remaining = enrollment.totalFee - enrollment.amountPaid;
-  const perInstallment = Math.floor(remaining / months);
-
-  async function handleSubmit(e: FormEvent<HTMLFormElement>) {
-    e.preventDefault();
-    setError(null);
-
-    if (
-      !confirm(
-        `Split the remaining ${formatPaiseAsInr(remaining)} into ${months} monthly installments of about ${formatPaiseAsInr(perInstallment)} each, and generate a payment link for each?`,
-      )
-    ) {
-      return;
-    }
-
-    setSubmitting(true);
-    const res = await fetch(`/api/admin/enrollments/${enrollment.id}/installment-plan`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ months, gateway }),
-    });
-    const data = await res.json().catch(() => ({}));
-    setSubmitting(false);
-
-    if (!res.ok) {
-      setError(
-        data.error === "not_configured"
-          ? `${gateway === "easebuzz" ? "Easebuzz" : "Razorpay"} isn't configured yet.`
-          : data.error === "nothing_remaining"
-            ? "Nothing left to split into installments."
-            : "Couldn't set up the plan — try again.",
-      );
-      return;
-    }
-
-    onAdded();
-  }
-
-  return (
-    <form
-      onSubmit={handleSubmit}
-      className="mt-3 flex flex-wrap items-center gap-3 border-t border-line/60 pt-4"
-    >
-      <span className="text-xs font-bold tracking-wide uppercase opacity-60">Installment plan</span>
-      <select
-        aria-label="Number of months"
-        value={months}
-        onChange={(e) => setMonths(Number(e.target.value) as typeof months)}
-        className="rounded-lg border-2 border-line px-3 py-2.5 text-sm outline-none focus:border-sky-400"
-      >
-        {INSTALLMENT_MONTH_OPTIONS.map((m) => (
-          <option key={m} value={m}>
-            {m} months
-          </option>
-        ))}
-      </select>
-      <select
-        aria-label="Installment plan gateway"
-        value={gateway}
-        onChange={(e) => setGateway(e.target.value as typeof gateway)}
-        className="rounded-lg border-2 border-line px-3 py-2.5 text-sm outline-none focus:border-sky-400"
-      >
-        <option value="razorpay">Razorpay</option>
-        <option value="easebuzz">Easebuzz</option>
-      </select>
-      <span className="text-xs opacity-60">~{formatPaiseAsInr(perInstallment)}/month</span>
-      <button
-        type="submit"
-        disabled={submitting}
-        className="rounded-lg bg-[#111827] px-5 py-2.5 text-sm font-bold text-white transition-transform duration-150 hover:scale-105 disabled:opacity-60"
-      >
-        {submitting ? "Setting up…" : "Set up plan"}
-      </button>
-      {error && <p className="w-full text-sm text-red-600">{error}</p>}
     </form>
   );
 }
