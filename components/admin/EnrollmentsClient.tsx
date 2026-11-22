@@ -87,6 +87,14 @@ const PAYMENT_TYPE_LABEL: Record<PaymentRow["type"], string> = {
   balance: "Balance Payment",
 };
 
+const STATUS_FILTERS: { status: EnrollmentStatus; label: string }[] = [
+  { status: "pending", label: STATUS_LABEL.pending },
+  { status: "registration_paid", label: STATUS_LABEL.registration_paid },
+  { status: "fully_paid", label: STATUS_LABEL.fully_paid },
+  { status: "refund_requested", label: STATUS_LABEL.refund_requested },
+  { status: "cancelled", label: STATUS_LABEL.cancelled },
+];
+
 export default function EnrollmentsClient({
   initialEnrollments,
 }: {
@@ -94,6 +102,7 @@ export default function EnrollmentsClient({
 }) {
   const [enrollments, setEnrollments] = useState<EnrollmentRow[]>(initialEnrollments);
   const [showCreate, setShowCreate] = useState(false);
+  const [statusFilter, setStatusFilter] = useState<EnrollmentStatus | "all">("all");
 
   async function refresh() {
     const res = await fetch("/api/admin/enrollments");
@@ -108,6 +117,23 @@ export default function EnrollmentsClient({
     const pending = live.reduce((sum, e) => sum + Math.max(e.totalFee - e.amountPaid, 0), 0);
     return { received, pending };
   }, [enrollments]);
+
+  const statusCounts = useMemo(() => {
+    const counts: Record<EnrollmentStatus, number> = {
+      pending: 0,
+      registration_paid: 0,
+      fully_paid: 0,
+      refund_requested: 0,
+      cancelled: 0,
+    };
+    for (const e of enrollments) counts[e.status]++;
+    return counts;
+  }, [enrollments]);
+
+  const filteredEnrollments = useMemo(() => {
+    if (statusFilter === "all") return enrollments;
+    return enrollments.filter((e) => e.status === statusFilter);
+  }, [enrollments, statusFilter]);
 
   return (
     <>
@@ -164,11 +190,35 @@ export default function EnrollmentsClient({
         />
       )}
 
-      <div className="mt-10 flex flex-col gap-6">
-        {enrollments.length === 0 ? (
-          <p className="text-sm opacity-60">No enrollments yet.</p>
+      <div className="mt-10 flex flex-wrap items-center gap-2">
+        <button
+          onClick={() => setStatusFilter("all")}
+          className={`rounded-full px-4 py-1.5 text-xs font-bold transition ${
+            statusFilter === "all" ? "bg-sky-400 text-slate-900" : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+          }`}
+        >
+          All ({enrollments.length})
+        </button>
+        {STATUS_FILTERS.map(({ status, label }) => (
+          <button
+            key={status}
+            onClick={() => setStatusFilter(status)}
+            className={`rounded-full px-4 py-1.5 text-xs font-bold transition ${
+              statusFilter === status ? "bg-sky-400 text-slate-900" : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+            }`}
+          >
+            {label} ({statusCounts[status]})
+          </button>
+        ))}
+      </div>
+
+      <div className="mt-6 flex flex-col gap-6">
+        {filteredEnrollments.length === 0 ? (
+          <p className="text-sm opacity-60">
+            {enrollments.length === 0 ? "No enrollments yet." : "No enrollments match this filter."}
+          </p>
         ) : (
-          enrollments.map((enrollment) => (
+          filteredEnrollments.map((enrollment) => (
             <EnrollmentCard
               key={enrollment.id}
               enrollment={enrollment}
