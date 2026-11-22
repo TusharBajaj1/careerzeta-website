@@ -37,12 +37,9 @@ export default function InvoicesClient({ initialInvoices }: { initialInvoices: I
   const summary = useMemo(() => {
     const active = invoices.filter((inv) => !inv.invoiceCancelled);
     const totalRevenue = active.reduce((sum, inv) => sum + inv.amount, 0);
-    const sentCount = active.filter((inv) => inv.invoiceSent).length;
     return {
       totalRevenue,
       count: active.length,
-      sentCount,
-      notSentCount: active.length - sentCount,
       cancelledCount: invoices.length - active.length,
     };
   }, [invoices]);
@@ -132,7 +129,7 @@ export default function InvoicesClient({ initialInvoices }: { initialInvoices: I
         Send/Resend does.
       </p>
 
-      <div className="mt-6 grid grid-cols-2 gap-4 rounded-2xl border-2 border-line bg-slate-50 p-5 sm:grid-cols-4">
+      <div className="mt-6 grid grid-cols-2 gap-4 rounded-2xl border-2 border-line bg-slate-50 p-5">
         <div>
           <div className="text-xs font-bold tracking-wide uppercase opacity-60">Total Revenue</div>
           <div className="mt-1 font-display text-2xl font-bold text-green-700">
@@ -147,14 +144,6 @@ export default function InvoicesClient({ initialInvoices }: { initialInvoices: I
         <div>
           <div className="text-xs font-bold tracking-wide uppercase opacity-60">Invoices Issued</div>
           <div className="mt-1 font-display text-2xl font-bold">{summary.count}</div>
-        </div>
-        <div>
-          <div className="text-xs font-bold tracking-wide uppercase opacity-60">Sent</div>
-          <div className="mt-1 font-display text-2xl font-bold">{summary.sentCount}</div>
-        </div>
-        <div>
-          <div className="text-xs font-bold tracking-wide uppercase opacity-60">Not Sent</div>
-          <div className="mt-1 font-display text-2xl font-bold text-amber-700">{summary.notSentCount}</div>
         </div>
       </div>
 
