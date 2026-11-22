@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 
 import { PROGRAMS } from "@/lib/content";
 import { formatPaiseAsInr } from "@/lib/money";
@@ -32,6 +32,20 @@ export default function InvoicesClient({ initialInvoices }: { initialInvoices: I
   const [invoices, setInvoices] = useState<InvoiceRow[]>(initialInvoices);
   const [busyId, setBusyId] = useState<number | null>(null);
   const [sendingId, setSendingId] = useState<number | null>(null);
+
+  /** Cancelled invoices are void — excluded from revenue the same way they're excluded from any accounting record. */
+  const summary = useMemo(() => {
+    const active = invoices.filter((inv) => !inv.invoiceCancelled);
+    const totalRevenue = active.reduce((sum, inv) => sum + inv.amount, 0);
+    const sentCount = active.filter((inv) => inv.invoiceSent).length;
+    return {
+      totalRevenue,
+      count: active.length,
+      sentCount,
+      notSentCount: active.length - sentCount,
+      cancelledCount: invoices.length - active.length,
+    };
+  }, [invoices]);
 
   async function handleGenerate(invoice: InvoiceRow) {
     setSendingId(invoice.id);
@@ -117,6 +131,32 @@ export default function InvoicesClient({ initialInvoices }: { initialInvoices: I
         status, see Enrollments for that. Generating an invoice never emails anyone either; only
         Send/Resend does.
       </p>
+
+      <div className="mt-6 grid grid-cols-2 gap-4 rounded-2xl border-2 border-line bg-slate-50 p-5 sm:grid-cols-4">
+        <div>
+          <div className="text-xs font-bold tracking-wide uppercase opacity-60">Total Revenue</div>
+          <div className="mt-1 font-display text-2xl font-bold text-green-700">
+            {formatPaiseAsInr(summary.totalRevenue)}
+          </div>
+          {summary.cancelledCount > 0 && (
+            <div className="mt-0.5 text-xs opacity-50">
+              excludes {summary.cancelledCount} cancelled invoice{summary.cancelledCount === 1 ? "" : "s"}
+            </div>
+          )}
+        </div>
+        <div>
+          <div className="text-xs font-bold tracking-wide uppercase opacity-60">Invoices Issued</div>
+          <div className="mt-1 font-display text-2xl font-bold">{summary.count}</div>
+        </div>
+        <div>
+          <div className="text-xs font-bold tracking-wide uppercase opacity-60">Sent</div>
+          <div className="mt-1 font-display text-2xl font-bold">{summary.sentCount}</div>
+        </div>
+        <div>
+          <div className="text-xs font-bold tracking-wide uppercase opacity-60">Not Sent</div>
+          <div className="mt-1 font-display text-2xl font-bold text-amber-700">{summary.notSentCount}</div>
+        </div>
+      </div>
 
       <div className="mt-8 overflow-x-auto">
         {invoices.length === 0 ? (
