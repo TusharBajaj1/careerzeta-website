@@ -109,6 +109,14 @@ export default function EnrollmentsClient({
     setEnrollments(data.enrollments ?? []);
   }
 
+  /** Cancelled enrollments are dropped, same as the invoices summary — their balance will never be collected. */
+  const summary = useMemo(() => {
+    const live = enrollments.filter((e) => e.status !== "cancelled");
+    const received = live.reduce((sum, e) => sum + e.amountPaid, 0);
+    const pending = live.reduce((sum, e) => sum + Math.max(e.totalFee - e.amountPaid, 0), 0);
+    return { received, pending };
+  }, [enrollments]);
+
   return (
     <>
       <div className="mt-8 flex flex-wrap items-center justify-between gap-4">
@@ -135,6 +143,21 @@ export default function EnrollmentsClient({
               </>
             )}
           </button>
+        </div>
+      </div>
+
+      <div className="mt-6 grid grid-cols-2 gap-4 rounded-2xl border-2 border-line bg-slate-50 p-5">
+        <div>
+          <div className="text-xs font-bold tracking-wide uppercase opacity-60">Amount Received</div>
+          <div className="mt-1 font-display text-2xl font-bold text-green-700">
+            {formatPaiseAsInr(summary.received)}
+          </div>
+        </div>
+        <div>
+          <div className="text-xs font-bold tracking-wide uppercase opacity-60">Amount Pending</div>
+          <div className="mt-1 font-display text-2xl font-bold text-amber-700">
+            {formatPaiseAsInr(summary.pending)}
+          </div>
         </div>
       </div>
 
