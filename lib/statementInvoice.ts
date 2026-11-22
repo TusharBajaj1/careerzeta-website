@@ -13,7 +13,6 @@ const PAYMENT_TYPE_LABEL: Record<Payment["type"], string> = {
   full: "Course Fee",
   registration: "Registration Fee",
   balance: "Balance Payment",
-  installment: "Installment Payment",
 };
 
 /**

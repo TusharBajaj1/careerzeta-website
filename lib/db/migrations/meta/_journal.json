@@ -134,13 +134,6 @@
       "when": 1795065747844,
       "tag": "0018_lovely_redwing",
       "breakpoints": true
-    },
-    {
-      "idx": 19,
-      "version": "7",
-      "when": 1795329009887,
-      "tag": "0019_chief_leopardon",
-      "breakpoints": true
     }
   ]
 }

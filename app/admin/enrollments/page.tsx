@@ -24,7 +24,6 @@ export default async function AdminEnrollmentsPage() {
         ...p,
         paidAt: p.paidAt ? p.paidAt.toISOString() : null,
         invoiceCancelledAt: p.invoiceCancelledAt ? p.invoiceCancelledAt.toISOString() : null,
-        dueDate: p.dueDate ? p.dueDate.toISOString() : null,
         createdAt: p.createdAt.toISOString(),
       })),
   }));
