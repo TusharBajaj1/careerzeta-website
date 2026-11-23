@@ -110,10 +110,15 @@ function RegistrationRowItem({ registration }: { registration: RegistrationRow }
     const res = await fetch(`/api/admin/enrollments/${registration.id}/refresh-registration-letter-drive`, {
       method: "POST",
     });
+    const data = await res.json().catch(() => ({}));
     setRefreshing(false);
 
     if (!res.ok) {
-      alert("Couldn't refresh the Drive copy — try again.");
+      alert(
+        data.error === "not_configured"
+          ? "Google Drive sync isn't configured on this environment — nothing to refresh here."
+          : "Couldn't refresh the Drive copy — try again.",
+      );
       return;
     }
     alert("Drive copy refreshed.");

@@ -188,8 +188,26 @@ export async function refreshInvoiceDriveCopy(
     return { ok: false, pdfUrl: null, error: "generation_failed" };
   }
 
-  const pdfUrl = await storeInvoicePdf(payment.invoiceNumber, pdf);
-  return { ok: true, pdfUrl };
+  // Deliberately not storeInvoicePdf here — that helper discards Drive's
+  // own success/failure (by design, for the normal send flow where Drive
+  // being unconfigured shouldn't block anything). This action exists
+  // specifically to fix a Drive copy, so its caller needs to know whether
+  // Drive itself actually succeeded, not just whether blob storage did.
+  const safeName = payment.invoiceNumber.replace(/[^a-zA-Z0-9_-]/g, "-");
+  const [blobResult, driveResult] = await Promise.all([
+    put(`invoices/${safeName}.pdf`, pdf, { access: "public", contentType: "application/pdf", addRandomSuffix: false }).catch(
+      (err) => {
+        console.error(`Storing invoice PDF failed for ${payment.invoiceNumber}:`, err);
+        return null;
+      },
+    ),
+    uploadToDrive("Invoices", `${safeName}.pdf`, pdf),
+  ]);
+
+  if (!driveResult.ok) {
+    return { ok: false, pdfUrl: blobResult?.url ?? null, error: driveResult.error ?? "drive_upload_failed" };
+  }
+  return { ok: true, pdfUrl: blobResult?.url ?? null };
 }
 
 /**

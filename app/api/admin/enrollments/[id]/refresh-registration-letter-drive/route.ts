@@ -36,7 +36,7 @@ export async function POST(_request: Request, { params }: { params: Promise<{ id
 
   const result = await refreshRegistrationLetterDriveCopy(enrollment, issuedAt);
   if (!result.ok) {
-    return NextResponse.json({ error: "refresh_failed" }, { status: 502 });
+    return NextResponse.json({ error: result.error ?? "refresh_failed" }, { status: 502 });
   }
 
   return NextResponse.json({ ok: true, pdfUrl: result.pdfUrl });

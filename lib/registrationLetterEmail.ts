@@ -96,7 +96,7 @@ export async function sendRegistrationConfirmation(
 export async function refreshRegistrationLetterDriveCopy(
   enrollment: Enrollment,
   issuedAt: Date,
-): Promise<{ ok: boolean; pdfUrl: string | null }> {
+): Promise<{ ok: boolean; pdfUrl: string | null; error?: string }> {
   const programName = PROGRAMS.find((p) => p.slug === enrollment.programSlug)?.name ?? enrollment.programSlug;
 
   let pdf: Buffer;
@@ -114,7 +114,24 @@ export async function refreshRegistrationLetterDriveCopy(
     return { ok: false, pdfUrl: null };
   }
 
+  // Deliberately not storeRegistrationLetterPdf here — see
+  // refreshInvoiceDriveCopy in lib/invoiceEmail.ts for why this action
+  // needs Drive's actual success/failure, not just blob storage's.
   const filename = registrationLetterFilename(enrollment.candidateName);
-  const pdfUrl = await storeRegistrationLetterPdf(enrollment.id, filename, pdf);
-  return { ok: true, pdfUrl };
+  const [blobResult, driveResult] = await Promise.all([
+    put(`registration-letters/REG-${enrollment.id}.pdf`, pdf, {
+      access: "public",
+      contentType: "application/pdf",
+      addRandomSuffix: false,
+    }).catch((err) => {
+      console.error(`Storing registration letter PDF failed for enrollment ${enrollment.id}:`, err);
+      return null;
+    }),
+    uploadToDrive("Registration Letters", filename, pdf),
+  ]);
+
+  if (!driveResult.ok) {
+    return { ok: false, pdfUrl: blobResult?.url ?? null, error: driveResult.error ?? "drive_upload_failed" };
+  }
+  return { ok: true, pdfUrl: blobResult?.url ?? null };
 }

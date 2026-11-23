@@ -98,10 +98,15 @@ export default function InvoicesClient({ initialInvoices }: { initialInvoices: I
   async function handleRefreshDrive(invoice: InvoiceRow) {
     setBusyId(invoice.id);
     const res = await fetch(`/api/admin/payments/${invoice.id}/refresh-drive-invoice`, { method: "POST" });
+    const data = await res.json().catch(() => ({}));
     setBusyId(null);
 
     if (!res.ok) {
-      alert("Couldn't refresh the Drive copy — try again.");
+      alert(
+        data.error === "not_configured"
+          ? "Google Drive sync isn't configured on this environment — nothing to refresh here."
+          : "Couldn't refresh the Drive copy — try again.",
+      );
       return;
     }
     alert("Drive copy refreshed.");
