@@ -36,66 +36,43 @@ export default function RegistrationsClient({ initialRegistrations }: { initialR
       </p>
 
       <h2 className="mt-8 text-xs font-bold tracking-wide uppercase opacity-60">New ({newOnes.length})</h2>
-      <div className="mt-3 overflow-x-auto">
-        {newOnes.length === 0 ? (
-          <p className="text-sm opacity-60">No one&apos;s at the registration-paid stage right now.</p>
-        ) : (
-          <table className="w-full text-left text-sm">
-            <thead>
-              <tr className="border-b-2 border-line text-xs tracking-wide uppercase opacity-60">
-                <th className="py-2 pr-4">Candidate</th>
-                <th className="py-2 pr-4">Program</th>
-                <th className="py-2 pr-4">Registration Fee Paid</th>
-                <th className="py-2 pr-4">Remaining</th>
-                <th className="py-2 pr-4"></th>
-              </tr>
-            </thead>
-            <tbody>
-              {newOnes.map((r) => (
-                <RegistrationRowItem key={r.id} registration={r} />
-              ))}
-            </tbody>
-          </table>
-        )}
-      </div>
+      <RegistrationsTable
+        rows={newOnes}
+        emptyMessage="No one's at the registration-paid stage right now."
+      />
 
       <h2 className="mt-12 text-xs font-bold tracking-wide uppercase opacity-60">Admitted ({admitted.length})</h2>
-      <div className="mt-3 overflow-x-auto">
-        {admitted.length === 0 ? (
-          <p className="text-sm opacity-60">No one from the registration-fee path has been admitted yet.</p>
-        ) : (
-          <table className="w-full text-left text-sm">
-            <thead>
-              <tr className="border-b-2 border-line text-xs tracking-wide uppercase opacity-60">
-                <th className="py-2 pr-4">Candidate</th>
-                <th className="py-2 pr-4">Program</th>
-                <th className="py-2 pr-4">Total Fee Paid</th>
-                <th className="py-2 pr-4"></th>
-              </tr>
-            </thead>
-            <tbody>
-              {admitted.map((r) => {
-                const programName = PROGRAMS.find((p) => p.slug === r.programSlug)?.name ?? r.programSlug;
-                return (
-                  <tr key={r.id} className="border-b border-line/60">
-                    <td className="py-3 pr-4">
-                      <div className="font-semibold">{r.candidateName}</div>
-                      <div className="text-xs opacity-60">{r.candidateEmail}</div>
-                    </td>
-                    <td className="py-3 pr-4 opacity-70">{programName}</td>
-                    <td className="py-3 pr-4 font-semibold">{formatPaiseAsInr(r.amountPaid)}</td>
-                    <td className="py-3 pr-4">
-                      <Link href="/admin/admissions" className="text-xs font-semibold text-sky-700 hover:underline">
-                        View in Admissions →
-                      </Link>
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        )}
-      </div>
+      <RegistrationsTable
+        rows={admitted}
+        emptyMessage="No one from the registration-fee path has been admitted yet."
+      />
+    </div>
+  );
+}
+
+function RegistrationsTable({ rows, emptyMessage }: { rows: RegistrationRow[]; emptyMessage: string }) {
+  return (
+    <div className="mt-3 overflow-x-auto">
+      {rows.length === 0 ? (
+        <p className="text-sm opacity-60">{emptyMessage}</p>
+      ) : (
+        <table className="w-full text-left text-sm">
+          <thead>
+            <tr className="border-b-2 border-line text-xs tracking-wide uppercase opacity-60">
+              <th className="py-2 pr-4">Candidate</th>
+              <th className="py-2 pr-4">Program</th>
+              <th className="py-2 pr-4">Registration Fee Paid</th>
+              <th className="py-2 pr-4">Remaining</th>
+              <th className="py-2 pr-4"></th>
+            </tr>
+          </thead>
+          <tbody>
+            {rows.map((r) => (
+              <RegistrationRowItem key={r.id} registration={r} />
+            ))}
+          </tbody>
+        </table>
+      )}
     </div>
   );
 }
@@ -173,6 +150,11 @@ function RegistrationRowItem({ registration }: { registration: RegistrationRow }
           >
             {refreshing ? "Refreshing…" : "Refresh in Drive"}
           </button>
+          {registration.status === "fully_paid" && (
+            <Link href="/admin/admissions" className="text-xs font-semibold text-sky-700 hover:underline">
+              View in Admissions →
+            </Link>
+          )}
         </div>
       </td>
     </tr>
