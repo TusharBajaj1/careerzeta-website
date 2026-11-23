@@ -146,6 +146,53 @@ export async function resendExistingInvoice(payment: Payment, enrollment: Enroll
 }
 
 /**
+ * Re-renders this invoice's PDF from current data under its existing
+ * invoice number and pushes the result to blob storage + Drive — doesn't
+ * email anyone and doesn't touch invoiceSent/invoiceCancelled. For when a
+ * template/wording bug is fixed after invoices have already been issued:
+ * lets the admin refresh just the stored/Drive copy of a specific invoice
+ * without re-issuing it or changing its number. Deliberately a manual,
+ * one-invoice-at-a-time action rather than a bulk job — regenerating from
+ * today's enrollment.amountPaid/totalFee is only correct for whichever
+ * invoice is the LATEST one for that enrollment; an older invoice's
+ * "total paid to date" would come out wrong if later payments have been
+ * made since, so the admin picks which ones are safe to refresh.
+ */
+export async function refreshInvoiceDriveCopy(
+  payment: Payment,
+  enrollment: Enrollment,
+): Promise<{ ok: boolean; pdfUrl: string | null; error?: string }> {
+  if (!payment.invoiceNumber) return { ok: false, pdfUrl: null, error: "no_invoice" };
+
+  const programName = PROGRAMS.find((p) => p.slug === enrollment.programSlug)?.name ?? enrollment.programSlug;
+
+  let pdf: Buffer;
+  try {
+    pdf = await generateInvoicePdf({
+      invoiceNumber: payment.invoiceNumber,
+      issuedAt: payment.paidAt ?? payment.createdAt,
+      candidateName: enrollment.candidateName,
+      candidateEmail: enrollment.candidateEmail,
+      candidatePhone: enrollment.candidatePhone,
+      candidateState: enrollment.candidateState,
+      candidateAddress: enrollment.candidateAddress,
+      candidateGstin: enrollment.candidateGstin,
+      programName,
+      paymentType: payment.type,
+      amountPaidNowPaise: payment.amount,
+      totalFeePaise: enrollment.totalFee,
+      amountPaidTotalPaise: enrollment.amountPaid,
+    });
+  } catch (err) {
+    console.error(`Refreshing invoice PDF failed for payment ${payment.id}:`, err);
+    return { ok: false, pdfUrl: null, error: "generation_failed" };
+  }
+
+  const pdfUrl = await storeInvoicePdf(payment.invoiceNumber, pdf);
+  return { ok: true, pdfUrl };
+}
+
+/**
  * Notifies someone that an invoice they received was issued in error and
  * is void — for when a payment gets reassigned off their enrollment onto
  * the correct one (see /api/admin/payments/[id]/reassign). Deliberately

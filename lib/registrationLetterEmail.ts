@@ -85,3 +85,36 @@ export async function sendRegistrationConfirmation(
 
   return { sent, pdfUrl };
 }
+
+/**
+ * Re-renders the registration letter from current data and pushes the
+ * result to blob storage + Drive — doesn't email the candidate. For
+ * refreshing the Drive copy after a template/wording fix without
+ * resending the letter (and re-notifying the candidate) just to update
+ * that copy.
+ */
+export async function refreshRegistrationLetterDriveCopy(
+  enrollment: Enrollment,
+  issuedAt: Date,
+): Promise<{ ok: boolean; pdfUrl: string | null }> {
+  const programName = PROGRAMS.find((p) => p.slug === enrollment.programSlug)?.name ?? enrollment.programSlug;
+
+  let pdf: Buffer;
+  try {
+    pdf = await generateRegistrationConfirmationPdf({
+      issuedAt,
+      candidateName: enrollment.candidateName,
+      candidateEmail: enrollment.candidateEmail,
+      candidatePhone: enrollment.candidatePhone,
+      programName,
+      amountPaidPaise: enrollment.amountPaid,
+    });
+  } catch (err) {
+    console.error(`Refreshing registration letter PDF failed for enrollment ${enrollment.id}:`, err);
+    return { ok: false, pdfUrl: null };
+  }
+
+  const filename = registrationLetterFilename(enrollment.candidateName);
+  const pdfUrl = await storeRegistrationLetterPdf(enrollment.id, filename, pdf);
+  return { ok: true, pdfUrl };
+}

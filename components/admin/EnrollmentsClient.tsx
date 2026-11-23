@@ -903,6 +903,7 @@ function EnrollmentCard({
             <Download size={14} /> Download
           </a>
           <RegistrationLetterControl enrollment={enrollment} />
+          <RefreshDriveCopyButton url={`/api/admin/enrollments/${enrollment.id}/refresh-registration-letter-drive`} />
         </div>
       )}
 
@@ -1324,6 +1325,29 @@ function BatchDetailsControl({ enrollment, onSaved }: { enrollment: EnrollmentRo
 }
 
 /** Sends (or resends) the registration-confirmation letter for a registration_paid enrollment — no "already sent" state is tracked for this one, so it's always just a (re)send. */
+/** Re-renders a letter from current data and pushes it to Drive without emailing anyone — for refreshing a stale Drive copy after a template/wording fix. */
+function RefreshDriveCopyButton({ url }: { url: string }) {
+  const [busy, setBusy] = useState(false);
+
+  async function handleRefresh() {
+    setBusy(true);
+    const res = await fetch(url, { method: "POST" });
+    setBusy(false);
+
+    if (!res.ok) {
+      alert("Couldn't refresh the Drive copy — try again.");
+      return;
+    }
+    alert("Drive copy refreshed.");
+  }
+
+  return (
+    <button onClick={handleRefresh} disabled={busy} className="text-sky-700 hover:underline disabled:opacity-50">
+      {busy ? "Refreshing…" : "Refresh in Drive"}
+    </button>
+  );
+}
+
 function RegistrationLetterControl({ enrollment }: { enrollment: EnrollmentRow }) {
   const [sending, setSending] = useState(false);
 
