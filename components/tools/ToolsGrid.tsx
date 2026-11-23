@@ -1,4 +1,5 @@
 import { FileText } from "lucide-react";
+import Image from "next/image";
 import { FaInstagram } from "react-icons/fa";
 
 import Reveal from "@/components/ui/Reveal";
@@ -8,7 +9,8 @@ import Reveal from "@/components/ui/Reveal";
  * it borrows the visual language of the tool it links to (colors,
  * typography mood, the kind of chip/badge that site actually uses) rather
  * than forcing everything into CareerZeta's own card style. The Resume
- * Builder has no real site to borrow from yet, so it stays neutral.
+ * Builder is CareerZeta's own tool, so its card uses the site's own brand
+ * language instead of borrowing someone else's.
  */
 
 function PdfRookieCard() {
@@ -78,23 +80,53 @@ function WordCard() {
   );
 }
 
+/** CareerZeta's own tool — unlike the other two cards, this borrows the site's own brand language (sky-400 accent) rather than someone else's. */
 function ResumeBuilderCard() {
+  return (
+    <a
+      href="https://resumebuilder-beta-lemon.vercel.app/"
+      target="_blank"
+      rel="noreferrer"
+      className="group flex flex-col justify-between rounded-2xl border-2 border-line bg-slate-50 p-7 text-slate-900 transition-transform duration-150 hover:-translate-y-1 hover:border-sky-400"
+    >
+      <div>
+        <div className="relative mb-6 flex h-32 items-center justify-center overflow-hidden rounded-xl bg-white">
+          <Image
+            src="/tools/resume-builder-preview.png"
+            alt="Before and after resume preview from the Resume Builder"
+            width={989}
+            height={1008}
+            className="h-full w-auto object-contain transition-transform duration-150 group-hover:scale-105"
+          />
+        </div>
+        <span className="rounded-full bg-sky-100 px-3 py-1 text-[11px] font-bold tracking-wide text-sky-700 uppercase">
+          Beta
+        </span>
+        <h3 className="mt-5 font-display text-2xl font-semibold tracking-tight">Resume Builder</h3>
+        <p className="mt-3 text-[15px] leading-normal opacity-70">
+          A free resume builder for students — pick a template, fill it in, export a clean PDF.
+        </p>
+      </div>
+      <div className="mt-8 inline-flex w-fit items-center gap-2 rounded-lg bg-sky-400 px-5 py-2.5 text-sm font-bold text-slate-900 transition-transform duration-150 group-hover:scale-105">
+        Try Resume Builder →
+      </div>
+    </a>
+  );
+}
+
+function MoreToolsCard() {
   return (
     <div className="flex flex-col justify-between rounded-2xl border-2 border-dashed border-line bg-white/60 p-7 text-slate-500">
       <div>
         <span className="rounded-full bg-slate-200 px-3 py-1 text-[11px] font-bold tracking-wide text-slate-600 uppercase">
           Coming soon
         </span>
-        <h3 className="mt-5 font-display text-2xl font-semibold tracking-tight text-slate-700">
-          Resume Builder
-        </h3>
+        <h3 className="mt-5 font-display text-2xl font-semibold tracking-tight text-slate-700">More Tools</h3>
         <p className="mt-3 text-[15px] leading-normal">
-          A free resume builder for students — pick a template, fill it in, export a clean PDF.
+          We&apos;re adding more free tools for students here over time — check back soon.
         </p>
       </div>
-      <p className="mt-8 text-xs font-semibold tracking-wide uppercase opacity-60">
-        In the works — check back soon
-      </p>
+      <p className="mt-8 text-xs font-semibold tracking-wide uppercase opacity-60">In the works — check back soon</p>
     </div>
   );
 }
@@ -107,6 +139,7 @@ export default function ToolsGrid() {
           <PdfRookieCard />
           <WordCard />
           <ResumeBuilderCard />
+          <MoreToolsCard />
         </div>
       </Reveal>
     </section>
