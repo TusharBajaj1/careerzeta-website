@@ -80,35 +80,44 @@ function WordCard() {
   );
 }
 
-/** CareerZeta's own tool — unlike the other two cards, this borrows the site's own brand language (sky-400 accent) rather than someone else's. */
-function ResumeBuilderCard() {
+/** Borrows DefineYou!'s own brand language (black borders, yellow CTA, navy logo chip, orange accent) — same treatment as PdfRookieCard/WordCard. */
+function DefineYouCard() {
   return (
     <a
       href="https://resumebuilder-beta-lemon.vercel.app/"
       target="_blank"
       rel="noreferrer"
-      className="group flex flex-col justify-between rounded-2xl border-2 border-line bg-slate-50 p-7 text-slate-900 transition-transform duration-150 hover:-translate-y-1 hover:border-sky-400"
+      className="group flex flex-col rounded-2xl border-[3px] border-black bg-white p-7 text-black shadow-[6px_6px_0_0_#111827] transition-transform duration-150 hover:-translate-y-1 hover:shadow-[8px_10px_0_0_#111827]"
     >
-      <div>
-        <div className="relative mb-6 flex h-32 items-center justify-center overflow-hidden rounded-xl bg-white">
-          <Image
-            src="/tools/resume-builder-preview.png"
-            alt="Before and after resume preview from the Resume Builder"
-            width={989}
-            height={1008}
-            className="h-full w-auto object-contain transition-transform duration-150 group-hover:scale-105"
-          />
+      <div className="flex items-center gap-3">
+        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border-2 border-black bg-[#1d4ed8] text-base font-black text-white">
+          D
         </div>
-        <span className="rounded-full bg-sky-100 px-3 py-1 text-[11px] font-bold tracking-wide text-sky-700 uppercase">
-          Beta
-        </span>
-        <h3 className="mt-5 font-display text-2xl font-semibold tracking-tight">Resume Builder</h3>
-        <p className="mt-3 text-[15px] leading-normal opacity-70">
-          A free resume builder for students — pick a template, fill it in, export a clean PDF.
-        </p>
+        <div className="inline-flex rounded-full border-2 border-[#ea580c] px-3 py-1 text-[11px] font-bold tracking-[0.04em] text-[#ea580c] uppercase">
+          Free · No Account
+        </div>
       </div>
-      <div className="mt-8 inline-flex w-fit items-center gap-2 rounded-lg bg-sky-400 px-5 py-2.5 text-sm font-bold text-slate-900 transition-transform duration-150 group-hover:scale-105">
-        Try Resume Builder →
+
+      <h3 className="mt-5 font-serif text-[26px] leading-[1.15] font-black tracking-tight">
+        Your resume,{" "}
+        <span className="bg-[#FACC15] px-1">redone in minutes.</span>
+      </h3>
+      <p className="mt-3 text-[15px] leading-normal text-[#44403c]">
+        Drop in your resume, pick a layout, export a PDF hiring software can actually read.
+      </p>
+
+      <div className="relative mt-5 flex h-28 items-center justify-center overflow-hidden rounded-lg bg-slate-50">
+        <Image
+          src="/tools/resume-builder-preview.png"
+          alt="Before and after resume preview from DefineYou!"
+          width={989}
+          height={1008}
+          className="h-full w-auto object-contain transition-transform duration-150 group-hover:scale-105"
+        />
+      </div>
+
+      <div className="mt-6 inline-flex w-fit items-center gap-2 rounded-lg border-2 border-black bg-[#FACC15] px-5 py-2.5 text-sm font-bold text-black transition-transform duration-150 group-hover:scale-105">
+        Try DefineYou! →
       </div>
     </a>
   );
@@ -138,7 +147,7 @@ export default function ToolsGrid() {
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
           <PdfRookieCard />
           <WordCard />
-          <ResumeBuilderCard />
+          <DefineYouCard />
           <MoreToolsCard />
         </div>
       </Reveal>
