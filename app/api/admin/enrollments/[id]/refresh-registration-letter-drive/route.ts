@@ -25,16 +25,23 @@ export async function POST(_request: Request, { params }: { params: Promise<{ id
     return NextResponse.json({ error: "not_found" }, { status: 404 });
   }
 
-  const [registrationPayment] = await db
-    .select({ paidAt: payments.paidAt })
+  const registrationPaymentRows = await db
+    .select({ paidAt: payments.paidAt, amount: payments.amount })
     .from(payments)
     .where(and(eq(payments.enrollmentId, enrollmentId), eq(payments.type, "registration"), eq(payments.status, "paid")))
-    .orderBy(asc(payments.paidAt))
-    .limit(1);
+    .orderBy(asc(payments.paidAt));
 
-  const issuedAt = registrationPayment?.paidAt ?? enrollment.createdAt;
+  if (registrationPaymentRows.length === 0) {
+    return NextResponse.json({ error: "no_registration_payment" }, { status: 400 });
+  }
 
-  const result = await refreshRegistrationLetterDriveCopy(enrollment, issuedAt);
+  const issuedAt = registrationPaymentRows[0].paidAt ?? enrollment.createdAt;
+  // The actual amount paid at registration — not enrollment.amountPaid,
+  // which for an Admitted (fully_paid) candidate has since grown to cover
+  // the whole fee and would misstate what this letter is actually about.
+  const registrationFeeAmountPaise = registrationPaymentRows.reduce((sum, p) => sum + p.amount, 0);
+
+  const result = await refreshRegistrationLetterDriveCopy(enrollment, issuedAt, registrationFeeAmountPaise);
   if (!result.ok) {
     return NextResponse.json({ error: result.error ?? "refresh_failed" }, { status: 502 });
   }
