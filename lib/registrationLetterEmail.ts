@@ -96,6 +96,7 @@ export async function sendRegistrationConfirmation(
 export async function refreshRegistrationLetterDriveCopy(
   enrollment: Enrollment,
   issuedAt: Date,
+  registrationFeeAmountPaise: number,
 ): Promise<{ ok: boolean; pdfUrl: string | null; error?: string }> {
   const programName = PROGRAMS.find((p) => p.slug === enrollment.programSlug)?.name ?? enrollment.programSlug;
 
@@ -107,7 +108,7 @@ export async function refreshRegistrationLetterDriveCopy(
       candidateEmail: enrollment.candidateEmail,
       candidatePhone: enrollment.candidatePhone,
       programName,
-      amountPaidPaise: enrollment.amountPaid,
+      amountPaidPaise: registrationFeeAmountPaise,
     });
   } catch (err) {
     console.error(`Refreshing registration letter PDF failed for enrollment ${enrollment.id}:`, err);
