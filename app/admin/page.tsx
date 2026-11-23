@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { BadgePercent, FileText, GraduationCap, Newspaper, Users, type LucideIcon } from "lucide-react";
+import { BadgePercent, ClipboardCheck, FileText, GraduationCap, Newspaper, Users, type LucideIcon } from "lucide-react";
 
 import DriveBackfillButton from "@/components/admin/DriveBackfillButton";
 
@@ -14,6 +14,12 @@ const SECTIONS: { title: string; items: { href: string; label: string; descripti
     title: "Candidates",
     items: [
       { href: "/admin/enrollments", label: "Enrollments", description: "Leads, payments, and the enrollment pipeline", icon: Users },
+      {
+        href: "/admin/registrations",
+        label: "Registrations",
+        description: "Registration-fee-paid candidates and their confirmation letters",
+        icon: ClipboardCheck,
+      },
       {
         href: "/admin/admissions",
         label: "Admissions",

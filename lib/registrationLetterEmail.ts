@@ -85,3 +85,53 @@ export async function sendRegistrationConfirmation(
 
   return { sent, pdfUrl };
 }
+
+/**
+ * Re-renders the registration letter from current data and pushes the
+ * result to blob storage + Drive — doesn't email the candidate. For
+ * refreshing the Drive copy after a template/wording fix without
+ * resending the letter (and re-notifying the candidate) just to update
+ * that copy.
+ */
+export async function refreshRegistrationLetterDriveCopy(
+  enrollment: Enrollment,
+  issuedAt: Date,
+): Promise<{ ok: boolean; pdfUrl: string | null; error?: string }> {
+  const programName = PROGRAMS.find((p) => p.slug === enrollment.programSlug)?.name ?? enrollment.programSlug;
+
+  let pdf: Buffer;
+  try {
+    pdf = await generateRegistrationConfirmationPdf({
+      issuedAt,
+      candidateName: enrollment.candidateName,
+      candidateEmail: enrollment.candidateEmail,
+      candidatePhone: enrollment.candidatePhone,
+      programName,
+      amountPaidPaise: enrollment.amountPaid,
+    });
+  } catch (err) {
+    console.error(`Refreshing registration letter PDF failed for enrollment ${enrollment.id}:`, err);
+    return { ok: false, pdfUrl: null };
+  }
+
+  // Deliberately not storeRegistrationLetterPdf here — see
+  // refreshInvoiceDriveCopy in lib/invoiceEmail.ts for why this action
+  // needs Drive's actual success/failure, not just blob storage's.
+  const filename = registrationLetterFilename(enrollment.candidateName);
+  const [blobResult, driveResult] = await Promise.all([
+    put(`registration-letters/REG-${enrollment.id}.pdf`, pdf, {
+      access: "public",
+      contentType: "application/pdf",
+      addRandomSuffix: false,
+    }).catch((err) => {
+      console.error(`Storing registration letter PDF failed for enrollment ${enrollment.id}:`, err);
+      return null;
+    }),
+    uploadToDrive("Registration Letters", filename, pdf),
+  ]);
+
+  if (!driveResult.ok) {
+    return { ok: false, pdfUrl: blobResult?.url ?? null, error: driveResult.error ?? "drive_upload_failed" };
+  }
+  return { ok: true, pdfUrl: blobResult?.url ?? null };
+}

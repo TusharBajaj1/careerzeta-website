@@ -95,6 +95,23 @@ export default function InvoicesClient({ initialInvoices }: { initialInvoices: I
     setInvoices((prev) => prev.map((inv) => (inv.id === invoice.id ? { ...inv, invoiceSent: true } : inv)));
   }
 
+  async function handleRefreshDrive(invoice: InvoiceRow) {
+    setBusyId(invoice.id);
+    const res = await fetch(`/api/admin/payments/${invoice.id}/refresh-drive-invoice`, { method: "POST" });
+    const data = await res.json().catch(() => ({}));
+    setBusyId(null);
+
+    if (!res.ok) {
+      alert(
+        data.error === "not_configured"
+          ? "Google Drive sync isn't configured on this environment — nothing to refresh here."
+          : "Couldn't refresh the Drive copy — try again.",
+      );
+      return;
+    }
+    alert("Drive copy refreshed.");
+  }
+
   async function handleCancel(invoice: InvoiceRow) {
     if (!confirm(`Cancel invoice ${invoice.invoiceNumber}? No email is sent — this just marks it void.`)) {
       return;
@@ -227,6 +244,13 @@ export default function InvoicesClient({ initialInvoices }: { initialInvoices: I
                       >
                         Download
                       </a>
+                      <button
+                        onClick={() => handleRefreshDrive(inv)}
+                        disabled={busyId === inv.id}
+                        className="text-xs font-semibold text-sky-700 hover:underline disabled:opacity-50"
+                      >
+                        {busyId === inv.id ? "Refreshing…" : "Refresh in Drive"}
+                      </button>
                       {!inv.invoiceCancelled && (
                         <button
                           onClick={() => handleCancel(inv)}
