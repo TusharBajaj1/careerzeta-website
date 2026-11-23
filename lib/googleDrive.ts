@@ -78,11 +78,14 @@ async function ensureSubfolder(name: string): Promise<string | null> {
 
 /**
  * Uploads a PDF into the given named subfolder (created under the
- * configured parent folder if it doesn't exist yet). Skips the upload if a
- * file with the same name is already there — makes this safe to call
- * repeatedly for the same document (e.g. a backfill run twice) without
- * creating duplicates. Never throws; logs and returns false on any
- * failure, including simply not being configured yet.
+ * configured parent folder if it doesn't exist yet). If a file with the
+ * same name is already there, its content is replaced in place (same file
+ * id, so any existing Drive link to it keeps working) rather than skipped
+ * — a regenerated/corrected document should always overwrite the stale
+ * copy in Drive, not leave it stuck on whatever was first uploaded. Still
+ * safe to call repeatedly for identical content (e.g. a backfill run
+ * twice) since it just re-writes the same bytes. Never throws; logs and
+ * returns false on any failure, including simply not being configured yet.
  */
 export async function uploadToDrive(
   subfolder: "Invoices" | "Admission Letters" | "Registration Letters",
@@ -106,8 +109,15 @@ export async function uploadToDrive(
       includeItemsFromAllDrives: true,
       corpora: "allDrives",
     });
-    if (existing.data.files && existing.data.files.length > 0) {
-      return { ok: true }; // already there
+    const existingId = existing.data.files?.[0]?.id;
+
+    if (existingId) {
+      await drive.files.update({
+        fileId: existingId,
+        media: { mimeType: "application/pdf", body: bufferToStream(pdf) },
+        supportsAllDrives: true,
+      });
+      return { ok: true };
     }
 
     await drive.files.create({
