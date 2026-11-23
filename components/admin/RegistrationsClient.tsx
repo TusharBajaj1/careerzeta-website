@@ -14,6 +14,8 @@ export type RegistrationRow = {
   programSlug: string;
   totalFee: number;
   amountPaid: number;
+  /** What was actually paid at the registration stage — stays fixed even once amountPaid grows past it toward fully_paid. */
+  registrationFeePaid: number;
   status: "registration_paid" | "fully_paid";
 };
 
@@ -131,7 +133,7 @@ function RegistrationRowItem({ registration }: { registration: RegistrationRow }
         <div className="text-xs opacity-60">{registration.candidateEmail}</div>
       </td>
       <td className="py-3 pr-4 opacity-70">{programName}</td>
-      <td className="py-3 pr-4 font-semibold">{formatPaiseAsInr(registration.amountPaid)}</td>
+      <td className="py-3 pr-4 font-semibold">{formatPaiseAsInr(registration.registrationFeePaid)}</td>
       <td className="py-3 pr-4 font-semibold">{formatPaiseAsInr(Math.max(remaining, 0))}</td>
       <td className="py-3 pr-4">
         <div className="flex flex-wrap items-center gap-3">
