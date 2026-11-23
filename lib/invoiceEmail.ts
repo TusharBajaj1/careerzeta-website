@@ -151,16 +151,18 @@ export async function resendExistingInvoice(payment: Payment, enrollment: Enroll
  * email anyone and doesn't touch invoiceSent/invoiceCancelled. For when a
  * template/wording bug is fixed after invoices have already been issued:
  * lets the admin refresh just the stored/Drive copy of a specific invoice
- * without re-issuing it or changing its number. Deliberately a manual,
- * one-invoice-at-a-time action rather than a bulk job — regenerating from
- * today's enrollment.amountPaid/totalFee is only correct for whichever
- * invoice is the LATEST one for that enrollment; an older invoice's
- * "total paid to date" would come out wrong if later payments have been
- * made since, so the admin picks which ones are safe to refresh.
+ * without re-issuing it or changing its number.
+ *
+ * Takes amountPaidTotalPaise as a parameter rather than reading
+ * enrollment.amountPaid directly — the caller computes the running total
+ * as of (and including) this specific payment, so an older invoice's
+ * "total paid to date"/"balance remaining" keeps reflecting what was true
+ * when it was issued, not whatever the enrollment has grown to since.
  */
 export async function refreshInvoiceDriveCopy(
   payment: Payment,
   enrollment: Enrollment,
+  amountPaidTotalPaise: number,
 ): Promise<{ ok: boolean; pdfUrl: string | null; error?: string }> {
   if (!payment.invoiceNumber) return { ok: false, pdfUrl: null, error: "no_invoice" };
 
@@ -181,7 +183,12 @@ export async function refreshInvoiceDriveCopy(
       paymentType: payment.type,
       amountPaidNowPaise: payment.amount,
       totalFeePaise: enrollment.totalFee,
-      amountPaidTotalPaise: enrollment.amountPaid,
+      // The running total as of THIS payment, not enrollment.amountPaid —
+      // same bug class as the registration letter: enrollment.amountPaid is
+      // today's cumulative total, which overstates "paid to date" and
+      // understates "balance remaining" on any invoice that isn't the
+      // latest one for this enrollment.
+      amountPaidTotalPaise,
     });
   } catch (err) {
     console.error(`Refreshing invoice PDF failed for payment ${payment.id}:`, err);

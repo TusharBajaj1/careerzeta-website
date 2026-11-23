@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { eq } from "drizzle-orm";
+import { and, asc, eq } from "drizzle-orm";
 
 import { db } from "@/lib/db";
 import { enrollments, payments } from "@/lib/db/schema";
@@ -32,7 +32,25 @@ export async function POST(_request: Request, { params }: { params: Promise<{ id
     return NextResponse.json({ error: "enrollment_not_found" }, { status: 404 });
   }
 
-  const result = await refreshInvoiceDriveCopy(payment, enrollment);
+  // Running total as of (and including) this payment, in the order
+  // payments actually cleared — what "total paid to date" genuinely was
+  // when this invoice was issued, not whatever it's grown to since.
+  const paidPayments = await db
+    .select({ id: payments.id, amount: payments.amount })
+    .from(payments)
+    .where(and(eq(payments.enrollmentId, payment.enrollmentId), eq(payments.status, "paid")))
+    .orderBy(asc(payments.paidAt), asc(payments.id));
+
+  let amountPaidTotalPaise = enrollment.amountPaid;
+  if (paidPayments.some((p) => p.id === payment.id)) {
+    amountPaidTotalPaise = 0;
+    for (const p of paidPayments) {
+      amountPaidTotalPaise += p.amount;
+      if (p.id === payment.id) break;
+    }
+  }
+
+  const result = await refreshInvoiceDriveCopy(payment, enrollment, amountPaidTotalPaise);
   if (!result.ok) {
     return NextResponse.json({ error: result.error ?? "refresh_failed" }, { status: 502 });
   }
