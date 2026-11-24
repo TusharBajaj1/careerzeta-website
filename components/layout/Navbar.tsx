@@ -167,8 +167,15 @@ export default function Navbar() {
           </button>
         </div>
 
-        {open ? (
-          <div className="border-t-2 border-line bg-[#fafafa] px-6 pb-5 md:hidden">
+        {/*
+          Edmingle's signup-sdk.js binds its click handler to .loginButton.login
+          once, at script-load time — if this panel (and the mobile Student
+          Login link inside it) only entered the DOM once the hamburger was
+          first opened, the SDK would never find it and the mobile button
+          would be dead. So this always renders, just toggled by CSS, instead
+          of being conditionally mounted/unmounted.
+        */}
+        <div className={`${open ? "block" : "hidden"} border-t-2 border-line bg-[#fafafa] px-6 pb-5 md:hidden`}>
             <div className="flex flex-col gap-1 pt-3">
               {links.map((link) => (
                 <Link
@@ -220,8 +227,7 @@ export default function Navbar() {
                 Contact Us
               </Link>
             </div>
-          </div>
-        ) : null}
+        </div>
       </nav>
     </>
   );
