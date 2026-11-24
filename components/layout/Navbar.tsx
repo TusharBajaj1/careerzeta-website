@@ -7,6 +7,7 @@ import { useEffect, useState } from "react";
 import { Menu, X } from "lucide-react";
 
 import ScrollProgress from "@/components/ui/ScrollProgress";
+import { isEdmingleConfigured } from "@/lib/edmingle";
 
 const links = [
   { label: "Home", href: "/" },
@@ -116,6 +117,37 @@ export default function Navbar() {
               </Link>
             ))}
 
+            {isEdmingleConfigured() && (
+              <>
+                <a
+                  href="#"
+                  className={`loginButton login shrink-0 text-[15px] font-semibold whitespace-nowrap transition ${
+                    isHeroOverlay ? "text-white hover:text-sky-300" : "hover:text-sky-700"
+                  }`}
+                >
+                  Student Login
+                </a>
+                <a
+                  href="#"
+                  style={{ display: "none" }}
+                  className={`postLogin goToAccountButton shrink-0 text-[15px] font-semibold whitespace-nowrap transition ${
+                    isHeroOverlay ? "text-white hover:text-sky-300" : "hover:text-sky-700"
+                  }`}
+                >
+                  My Account
+                </a>
+                <a
+                  href="#"
+                  style={{ display: "none" }}
+                  className={`postLogin logout shrink-0 text-[15px] font-semibold whitespace-nowrap transition ${
+                    isHeroOverlay ? "text-white hover:text-sky-300" : "hover:text-sky-700"
+                  }`}
+                >
+                  Log Out
+                </a>
+              </>
+            )}
+
             <Link
               href="/contact"
               className="shrink-0 rounded-lg bg-sky-400 px-5 py-3 text-[15px] font-bold whitespace-nowrap text-slate-900 transition-transform duration-150 hover:scale-105"
@@ -151,6 +183,34 @@ export default function Navbar() {
                   )}
                 </Link>
               ))}
+
+              {isEdmingleConfigured() && (
+                <>
+                  <a
+                    href="#"
+                    onClick={() => setOpen(false)}
+                    className="loginButton login flex items-center gap-2 rounded-lg px-2 py-3 text-[15px] font-semibold transition hover:bg-white"
+                  >
+                    Student Login
+                  </a>
+                  <a
+                    href="#"
+                    onClick={() => setOpen(false)}
+                    style={{ display: "none" }}
+                    className="postLogin goToAccountButton flex items-center gap-2 rounded-lg px-2 py-3 text-[15px] font-semibold transition hover:bg-white"
+                  >
+                    My Account
+                  </a>
+                  <a
+                    href="#"
+                    onClick={() => setOpen(false)}
+                    style={{ display: "none" }}
+                    className="postLogin logout flex items-center gap-2 rounded-lg px-2 py-3 text-[15px] font-semibold transition hover:bg-white"
+                  >
+                    Log Out
+                  </a>
+                </>
+              )}
 
               <Link
                 href="/contact"

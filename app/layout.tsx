@@ -3,6 +3,7 @@ import { GoogleTagManager } from "@next/third-parties/google";
 import { Manrope, Poppins } from "next/font/google";
 import "./globals.css";
 
+import EdmingleWidget from "@/components/edmingle/EdmingleWidget";
 import LeadCaptureProvider from "@/components/lead-capture/LeadCaptureProvider";
 import Navbar from "@/components/layout/Navbar";
 import WhatsAppButton from "@/components/layout/WhatsAppButton";
@@ -80,6 +81,7 @@ export default function RootLayout({
           <main>{children}</main>
 
           <WhatsAppButton />
+          <EdmingleWidget />
         </LeadCaptureProvider>
       </body>
     </html>
