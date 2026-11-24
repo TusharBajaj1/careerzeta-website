@@ -98,7 +98,7 @@ export default function Navbar() {
             </span>
           </Link>
 
-          <div className="ml-auto hidden items-center gap-9 md:flex">
+          <div className="ml-auto hidden items-center gap-6 md:flex">
             {links.map((link) => (
               <Link
                 key={link.href}
@@ -121,8 +121,8 @@ export default function Navbar() {
               <>
                 <a
                   href="#"
-                  className={`loginButton login shrink-0 text-[15px] font-semibold whitespace-nowrap transition ${
-                    isHeroOverlay ? "text-white hover:text-sky-300" : "hover:text-sky-700"
+                  className={`loginButton login shrink-0 rounded-lg border-2 px-4 py-2.5 text-[15px] font-bold whitespace-nowrap transition-transform duration-150 hover:scale-105 ${
+                    isHeroOverlay ? "border-white text-white" : "border-sky-400 text-sky-700 hover:bg-sky-50"
                   }`}
                 >
                   Student Login
@@ -130,8 +130,8 @@ export default function Navbar() {
                 <a
                   href="#"
                   style={{ display: "none" }}
-                  className={`postLogin goToAccountButton shrink-0 text-[15px] font-semibold whitespace-nowrap transition ${
-                    isHeroOverlay ? "text-white hover:text-sky-300" : "hover:text-sky-700"
+                  className={`postLogin goToAccountButton shrink-0 rounded-lg border-2 px-4 py-2.5 text-[15px] font-bold whitespace-nowrap transition-transform duration-150 hover:scale-105 ${
+                    isHeroOverlay ? "border-white text-white" : "border-sky-400 text-sky-700 hover:bg-sky-50"
                   }`}
                 >
                   My Account
@@ -189,7 +189,7 @@ export default function Navbar() {
                   <a
                     href="#"
                     onClick={() => setOpen(false)}
-                    className="loginButton login flex items-center gap-2 rounded-lg px-2 py-3 text-[15px] font-semibold transition hover:bg-white"
+                    className="loginButton login mt-2 flex items-center justify-center gap-2 rounded-lg border-2 border-sky-400 px-5 py-3 text-center text-[15px] font-bold text-sky-700 transition hover:bg-sky-50"
                   >
                     Student Login
                   </a>
@@ -197,7 +197,7 @@ export default function Navbar() {
                     href="#"
                     onClick={() => setOpen(false)}
                     style={{ display: "none" }}
-                    className="postLogin goToAccountButton flex items-center gap-2 rounded-lg px-2 py-3 text-[15px] font-semibold transition hover:bg-white"
+                    className="postLogin goToAccountButton mt-2 flex items-center justify-center gap-2 rounded-lg border-2 border-sky-400 px-5 py-3 text-center text-[15px] font-bold text-sky-700 transition hover:bg-sky-50"
                   >
                     My Account
                   </a>
