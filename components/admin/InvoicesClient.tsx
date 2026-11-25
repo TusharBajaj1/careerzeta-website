@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { Fragment, useMemo, useState } from "react";
 
 import { PROGRAMS } from "@/lib/content";
 import { formatPaiseAsInr } from "@/lib/money";
@@ -20,6 +20,8 @@ export type InvoiceRow = {
   candidateName: string;
   candidateEmail: string;
   programSlug: string;
+  creditNoteNumber: string | null;
+  creditNoteSent: boolean;
 };
 
 const PAYMENT_TYPE_LABEL: Record<InvoiceRow["type"], string> = {
@@ -48,6 +50,10 @@ export default function InvoicesClient({
   const [booksClosedThrough, setBooksClosedThrough] = useState<string | null>(initialBooksClosedThrough);
   const [closeDateInput, setCloseDateInput] = useState(defaultCloseDate());
   const [closing, setClosing] = useState(false);
+  const [creditNoteFormOpenId, setCreditNoteFormOpenId] = useState<number | null>(null);
+  const [creditNoteReason, setCreditNoteReason] = useState("");
+  const [issuingCreditNoteId, setIssuingCreditNoteId] = useState<number | null>(null);
+  const [sendingCreditNoteId, setSendingCreditNoteId] = useState<number | null>(null);
 
   /** Cancelled invoices are void — excluded from revenue the same way they're excluded from any accounting record. */
   const summary = useMemo(() => {
@@ -207,6 +213,73 @@ export default function InvoicesClient({
     );
   }
 
+  function openCreditNoteForm(invoiceId: number) {
+    setCreditNoteReason("");
+    setCreditNoteFormOpenId(invoiceId);
+  }
+
+  async function handleIssueCreditNote(invoice: InvoiceRow) {
+    const reason = creditNoteReason.trim();
+    if (!reason) {
+      alert("A reason is required for the credit note.");
+      return;
+    }
+    if (
+      !confirm(
+        `Issue a credit note for the full amount of invoice ${invoice.invoiceNumber} (${formatPaiseAsInr(invoice.amount)})? This can't be undone.`,
+      )
+    ) {
+      return;
+    }
+
+    setIssuingCreditNoteId(invoice.id);
+    const res = await fetch(`/api/admin/payments/${invoice.id}/credit-note`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ reason }),
+    });
+    const data = await res.json().catch(() => ({}));
+    setIssuingCreditNoteId(null);
+
+    if (!res.ok) {
+      alert(
+        data.error === "credit_note_already_exists"
+          ? "A credit note has already been issued for this invoice."
+          : "Couldn't issue the credit note — try again.",
+      );
+      return;
+    }
+
+    setCreditNoteFormOpenId(null);
+    setInvoices((prev) =>
+      prev.map((inv) =>
+        inv.id === invoice.id ? { ...inv, creditNoteNumber: data.creditNote.creditNoteNumber, creditNoteSent: false } : inv,
+      ),
+    );
+  }
+
+  async function handleSendCreditNote(invoice: InvoiceRow) {
+    if (
+      !confirm(
+        `${invoice.creditNoteSent ? "Resend" : "Send"} credit note ${invoice.creditNoteNumber} to ${invoice.candidateName} (${invoice.candidateEmail})?`,
+      )
+    ) {
+      return;
+    }
+
+    setSendingCreditNoteId(invoice.id);
+    const res = await fetch(`/api/admin/payments/${invoice.id}/credit-note/send`, { method: "POST" });
+    const data = await res.json().catch(() => ({}));
+    setSendingCreditNoteId(null);
+
+    if (!res.ok || !data.sent) {
+      alert("Couldn't send the credit note — check the address and try again.");
+      return;
+    }
+    alert(`Sent to ${invoice.candidateEmail}.`);
+    setInvoices((prev) => prev.map((inv) => (inv.id === invoice.id ? { ...inv, creditNoteSent: true } : inv)));
+  }
+
   return (
     <div className="mt-8">
       <h1 className="font-display text-3xl font-bold">Invoices</h1>
@@ -293,100 +366,177 @@ export default function InvoicesClient({
               {invoices.map((inv) => {
                 const locked = isLocked(inv);
                 return (
-                  <tr key={inv.id} className="border-b border-line/60">
-                    <td className="py-3 pr-4 font-semibold whitespace-nowrap">{inv.invoiceNumber}</td>
-                    <td className="py-3 pr-4">
-                      <div className="font-semibold">{inv.candidateName}</div>
-                      <div className="text-xs opacity-60">{inv.candidateEmail}</div>
-                    </td>
-                    <td className="py-3 pr-4 opacity-70">
-                      {PROGRAMS.find((p) => p.slug === inv.programSlug)?.name ?? inv.programSlug}
-                    </td>
-                    <td className="py-3 pr-4 opacity-70">{PAYMENT_TYPE_LABEL[inv.type]}</td>
-                    <td className="py-3 pr-4 font-semibold">{formatPaiseAsInr(inv.amount)}</td>
-                    <td className="py-3 pr-4">
-                      {inv.paidAt ? new Date(inv.paidAt).toLocaleDateString("en-IN") : "—"}
-                    </td>
-                    <td className="py-3 pr-4">
-                      <span
-                        className={`rounded-full px-3 py-1 text-xs font-bold ${
-                          inv.invoiceCancelled
-                            ? "bg-red-100 text-red-700"
-                            : inv.invoiceSent
-                              ? "bg-green-100 text-green-700"
-                              : "bg-amber-100 text-amber-700"
-                        }`}
-                      >
-                        {inv.invoiceCancelled ? "Cancelled" : inv.invoiceSent ? "Sent" : "Not sent"}
-                      </span>
-                    </td>
-                    <td className="py-3 pr-4">
-                      <div className="flex flex-wrap items-center gap-3">
-                        {locked ? (
-                          <span
-                            title="Booked in the accounts — a credit note is needed to correct this invoice."
-                            className="text-xs font-semibold text-slate-500"
-                          >
-                            🔒 Booked
-                          </span>
-                        ) : (
-                          <>
-                            {inv.invoiceCancelled && (
-                              <button
-                                onClick={() => handleGenerate(inv)}
-                                disabled={sendingId === inv.id}
-                                className="text-xs font-semibold text-sky-700 hover:underline disabled:opacity-50"
-                              >
-                                {sendingId === inv.id ? "Generating…" : "Generate new invoice"}
-                              </button>
-                            )}
-                            {!inv.invoiceCancelled && !inv.invoiceSent && (
-                              <button
-                                onClick={() => handleGenerate(inv)}
-                                disabled={sendingId === inv.id}
-                                className="text-xs font-semibold text-sky-700 hover:underline disabled:opacity-50"
-                              >
-                                {sendingId === inv.id ? "Generating…" : "Regenerate"}
-                              </button>
-                            )}
-                          </>
-                        )}
-                        {!inv.invoiceCancelled && (
-                          <button
-                            onClick={() => handleSend(inv)}
-                            disabled={sendingId === inv.id}
-                            className="text-xs font-semibold text-sky-700 hover:underline disabled:opacity-50"
-                          >
-                            {sendingId === inv.id ? "Sending…" : inv.invoiceSent ? "Resend" : "Send"}
-                          </button>
-                        )}
-                        <a
-                          href={`/api/admin/payments/${inv.id}/download-invoice`}
-                          className="text-xs font-semibold text-sky-700 hover:underline"
+                  <Fragment key={inv.id}>
+                    <tr className="border-b border-line/60">
+                      <td className="py-3 pr-4 font-semibold whitespace-nowrap">{inv.invoiceNumber}</td>
+                      <td className="py-3 pr-4">
+                        <div className="font-semibold">{inv.candidateName}</div>
+                        <div className="text-xs opacity-60">{inv.candidateEmail}</div>
+                      </td>
+                      <td className="py-3 pr-4 opacity-70">
+                        {PROGRAMS.find((p) => p.slug === inv.programSlug)?.name ?? inv.programSlug}
+                      </td>
+                      <td className="py-3 pr-4 opacity-70">{PAYMENT_TYPE_LABEL[inv.type]}</td>
+                      <td className="py-3 pr-4 font-semibold">{formatPaiseAsInr(inv.amount)}</td>
+                      <td className="py-3 pr-4">
+                        {inv.paidAt ? new Date(inv.paidAt).toLocaleDateString("en-IN") : "—"}
+                      </td>
+                      <td className="py-3 pr-4">
+                        <span
+                          className={`rounded-full px-3 py-1 text-xs font-bold ${
+                            inv.invoiceCancelled
+                              ? "bg-red-100 text-red-700"
+                              : inv.invoiceSent
+                                ? "bg-green-100 text-green-700"
+                                : "bg-amber-100 text-amber-700"
+                          }`}
                         >
-                          Download
-                        </a>
-                        {!locked && (
-                          <button
-                            onClick={() => handleRefreshDrive(inv)}
-                            disabled={busyId === inv.id}
-                            className="text-xs font-semibold text-sky-700 hover:underline disabled:opacity-50"
-                          >
-                            {busyId === inv.id ? "Refreshing…" : "Refresh in Drive"}
-                          </button>
+                          {inv.invoiceCancelled ? "Cancelled" : inv.invoiceSent ? "Sent" : "Not sent"}
+                        </span>
+                        {inv.creditNoteNumber && (
+                          <div className="mt-1 text-xs font-semibold text-amber-700">
+                            CN: {inv.creditNoteNumber}
+                          </div>
                         )}
-                        {!locked && !inv.invoiceCancelled && (
-                          <button
-                            onClick={() => handleCancel(inv)}
-                            disabled={busyId === inv.id}
-                            className="text-xs font-semibold text-red-600 hover:underline disabled:opacity-50"
+                      </td>
+                      <td className="py-3 pr-4">
+                        <div className="flex flex-wrap items-center gap-3">
+                          {locked && (
+                            <span
+                              title="Booked in the accounts — a credit note is needed to correct this invoice."
+                              className="text-xs font-semibold text-slate-500"
+                            >
+                              🔒 Booked
+                            </span>
+                          )}
+                          {!locked && (
+                            <>
+                              {inv.invoiceCancelled && (
+                                <button
+                                  onClick={() => handleGenerate(inv)}
+                                  disabled={sendingId === inv.id}
+                                  className="text-xs font-semibold text-sky-700 hover:underline disabled:opacity-50"
+                                >
+                                  {sendingId === inv.id ? "Generating…" : "Generate new invoice"}
+                                </button>
+                              )}
+                              {!inv.invoiceCancelled && !inv.invoiceSent && (
+                                <button
+                                  onClick={() => handleGenerate(inv)}
+                                  disabled={sendingId === inv.id}
+                                  className="text-xs font-semibold text-sky-700 hover:underline disabled:opacity-50"
+                                >
+                                  {sendingId === inv.id ? "Generating…" : "Regenerate"}
+                                </button>
+                              )}
+                            </>
+                          )}
+                          {!inv.invoiceCancelled && (
+                            <button
+                              onClick={() => handleSend(inv)}
+                              disabled={sendingId === inv.id}
+                              className="text-xs font-semibold text-sky-700 hover:underline disabled:opacity-50"
+                            >
+                              {sendingId === inv.id ? "Sending…" : inv.invoiceSent ? "Resend" : "Send"}
+                            </button>
+                          )}
+                          <a
+                            href={`/api/admin/payments/${inv.id}/download-invoice`}
+                            className="text-xs font-semibold text-sky-700 hover:underline"
                           >
-                            {busyId === inv.id ? "Cancelling…" : "Cancel invoice"}
-                          </button>
-                        )}
-                      </div>
-                    </td>
-                  </tr>
+                            Download
+                          </a>
+                          {!locked && (
+                            <button
+                              onClick={() => handleRefreshDrive(inv)}
+                              disabled={busyId === inv.id}
+                              className="text-xs font-semibold text-sky-700 hover:underline disabled:opacity-50"
+                            >
+                              {busyId === inv.id ? "Refreshing…" : "Refresh in Drive"}
+                            </button>
+                          )}
+                          {!locked && !inv.invoiceCancelled && (
+                            <button
+                              onClick={() => handleCancel(inv)}
+                              disabled={busyId === inv.id}
+                              className="text-xs font-semibold text-red-600 hover:underline disabled:opacity-50"
+                            >
+                              {busyId === inv.id ? "Cancelling…" : "Cancel invoice"}
+                            </button>
+                          )}
+
+                          {inv.creditNoteNumber ? (
+                            <>
+                              <a
+                                href={`/api/admin/payments/${inv.id}/credit-note/download`}
+                                className="text-xs font-semibold text-amber-700 hover:underline"
+                              >
+                                Download CN
+                              </a>
+                              <button
+                                onClick={() => handleSendCreditNote(inv)}
+                                disabled={sendingCreditNoteId === inv.id}
+                                className="text-xs font-semibold text-amber-700 hover:underline disabled:opacity-50"
+                              >
+                                {sendingCreditNoteId === inv.id
+                                  ? "Sending…"
+                                  : inv.creditNoteSent
+                                    ? "Resend CN"
+                                    : "Send CN"}
+                              </button>
+                            </>
+                          ) : (
+                            !inv.invoiceCancelled && (
+                              <button
+                                onClick={() =>
+                                  creditNoteFormOpenId === inv.id
+                                    ? setCreditNoteFormOpenId(null)
+                                    : openCreditNoteForm(inv.id)
+                                }
+                                className="text-xs font-semibold text-amber-700 hover:underline"
+                              >
+                                {creditNoteFormOpenId === inv.id ? "Cancel" : "Issue Credit Note"}
+                              </button>
+                            )
+                          )}
+                        </div>
+                      </td>
+                    </tr>
+                    {creditNoteFormOpenId === inv.id && (
+                      <tr className="border-b border-line/60">
+                        <td colSpan={8} className="bg-amber-50 py-4 pr-4">
+                          <div className="flex flex-col gap-2 px-2">
+                            <label htmlFor={`cn-reason-${inv.id}`} className="text-xs font-bold tracking-wide uppercase opacity-60">
+                              Reason for credit note (required)
+                            </label>
+                            <textarea
+                              id={`cn-reason-${inv.id}`}
+                              value={creditNoteReason}
+                              onChange={(e) => setCreditNoteReason(e.target.value)}
+                              rows={2}
+                              placeholder="e.g. Candidate name corrected from X to Y"
+                              className="w-full max-w-xl rounded-lg border-2 border-line bg-white px-3 py-2 text-sm outline-none focus:border-amber-400"
+                            />
+                            <div className="flex items-center gap-3">
+                              <button
+                                onClick={() => handleIssueCreditNote(inv)}
+                                disabled={issuingCreditNoteId === inv.id}
+                                className="rounded-lg bg-amber-500 px-4 py-2 text-xs font-bold text-white disabled:opacity-60"
+                              >
+                                {issuingCreditNoteId === inv.id ? "Issuing…" : "Issue Credit Note"}
+                              </button>
+                              <button
+                                onClick={() => setCreditNoteFormOpenId(null)}
+                                className="text-xs opacity-60 hover:underline"
+                              >
+                                Cancel
+                              </button>
+                            </div>
+                          </div>
+                        </td>
+                      </tr>
+                    )}
+                  </Fragment>
                 );
               })}
             </tbody>

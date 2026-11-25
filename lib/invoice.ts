@@ -55,11 +55,11 @@ export function invoiceLineLabel(
  * excludes the ₹ glyph (U+20B9) — it renders as a stray superscript "1"
  * without embedding a custom Unicode font. "Rs." avoids that entirely.
  */
-function formatInr(paise: number): string {
+export function formatInr(paise: number): string {
   return `Rs. ${paiseToRupees(paise).toLocaleString("en-IN")}`;
 }
 
-type GstBreakdown = {
+export type GstBreakdown = {
   taxableValuePaise: number;
   cgstPaise: number;
   sgstPaise: number;
@@ -68,7 +68,7 @@ type GstBreakdown = {
 };
 
 /** Backs the taxable value and GST split out of a GST-inclusive total, per the candidate's state vs CareerZeta's (Uttar Pradesh). */
-function computeGst(totalInclusivePaise: number, candidateState: string | null): GstBreakdown {
+export function computeGst(totalInclusivePaise: number, candidateState: string | null): GstBreakdown {
   const taxableValuePaise = Math.round(totalInclusivePaise / (1 + GST_RATE_PERCENT / 100));
   const gstAmountPaise = totalInclusivePaise - taxableValuePaise;
   const isIntraState = candidateState === COMPANY.state;

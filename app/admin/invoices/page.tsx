@@ -4,7 +4,7 @@ import { desc, eq, isNotNull } from "drizzle-orm";
 import InvoicesClient from "@/components/admin/InvoicesClient";
 import { getBooksClosedThrough } from "@/lib/accountingLock";
 import { db } from "@/lib/db";
-import { enrollments, payments } from "@/lib/db/schema";
+import { creditNotes, enrollments, payments } from "@/lib/db/schema";
 
 /** Admin pages read live data on every request — never statically prerendered/cached. */
 export const dynamic = "force-dynamic";
@@ -26,9 +26,12 @@ export default async function AdminInvoicesPage() {
       candidateName: enrollments.candidateName,
       candidateEmail: enrollments.candidateEmail,
       programSlug: enrollments.programSlug,
+      creditNoteNumber: creditNotes.creditNoteNumber,
+      creditNoteSent: creditNotes.sent,
     })
     .from(payments)
     .innerJoin(enrollments, eq(payments.enrollmentId, enrollments.id))
+    .leftJoin(creditNotes, eq(creditNotes.paymentId, payments.id))
     .where(isNotNull(payments.invoiceNumber))
     .orderBy(desc(payments.id));
 
@@ -38,6 +41,7 @@ export default async function AdminInvoicesPage() {
     invoiceCancelledAt: row.invoiceCancelledAt ? row.invoiceCancelledAt.toISOString() : null,
     paidAt: row.paidAt ? row.paidAt.toISOString() : null,
     createdAt: row.createdAt.toISOString(),
+    creditNoteSent: row.creditNoteSent ?? false,
   }));
 
   const booksClosedThrough = await getBooksClosedThrough();
