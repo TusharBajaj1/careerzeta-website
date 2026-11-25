@@ -27,10 +27,15 @@ const STATE_SET = new Set(INDIAN_STATE_NAMES);
  *    should flip the enrollment to fully_paid right away.
  *  - Candidate/fee details (name, email, phone, state, address, gstin,
  *    programSlug, registrationFeeAmount, salesExecutive — totalFee too,
- *    via this same full-form path) — only allowed while amountPaid is 0.
- *    Once a payment (or an invoice built from these details) exists,
- *    editing them would make the invoice on file inconsistent with the
- *    record, so this is enforced server-side, not just hidden in the UI.
+ *    via this same full-form path) — allowed at any time, including after
+ *    payment, for correcting a data-entry mistake or a genuine change
+ *    (address, phone, etc). Already-issued invoices/letters are built from
+ *    a snapshot at generation time and don't retroactively update — the
+ *    admin UI warns about this and each document has its own Regenerate/
+ *    Refresh-in-Drive action if it needs to reflect the correction. Can't
+ *    drop totalFee below amountPaid (would mean a negative balance); does
+ *    recompute amountPaid/status afterward since changing totalFee can
+ *    change which side of fully_paid the enrollment falls on.
  */
 export async function PATCH(
   request: Request,
@@ -125,11 +130,10 @@ export async function PATCH(
     return NextResponse.json({ enrollment: updated });
   }
 
-  // Otherwise: an edit to candidate/fee details.
-  if (existing.amountPaid > 0) {
-    return NextResponse.json({ error: "enrollment_already_paid" }, { status: 400 });
-  }
-
+  // Otherwise: an edit to candidate/fee details. Allowed post-payment too —
+  // the admin UI warns that already-issued invoices/letters were built from
+  // whatever the details were at the time and won't retroactively update;
+  // each document's own Regenerate/Refresh-in-Drive action handles that.
   const { name, email, phone, state, address, gstin, programSlug, totalFee, salesExecutive, registrationFeeAmount } =
     body;
 
@@ -156,7 +160,12 @@ export async function PATCH(
     return NextResponse.json({ error: "invalid_payload" }, { status: 400 });
   }
 
-  const [updated] = await db
+  const newTotalFeePaise = rupeesToPaise(totalFee);
+  if (newTotalFeePaise < existing.amountPaid) {
+    return NextResponse.json({ error: "total_fee_below_amount_paid" }, { status: 400 });
+  }
+
+  await db
     .update(enrollments)
     .set({
       candidateName: name.trim(),
@@ -167,13 +176,18 @@ export async function PATCH(
       candidateGstin: typeof gstin === "string" && gstin.trim() ? gstin.trim().toUpperCase() : null,
       programSlug,
       salesExecutive: typeof salesExecutive === "string" && salesExecutive.trim() ? salesExecutive.trim() : null,
-      totalFee: rupeesToPaise(totalFee),
+      totalFee: newTotalFeePaise,
       registrationFeeAmount:
         typeof registrationFeeAmount === "number" ? rupeesToPaise(registrationFeeAmount) : null,
     })
-    .where(eq(enrollments.id, enrollmentId))
-    .returning();
+    .where(eq(enrollments.id, enrollmentId));
 
+  // totalFee can change here too, same as the dedicated Total Fee control —
+  // recompute so amountPaid/status stay derived correctly (e.g. lowering it
+  // to meet what's already been paid should flip the enrollment to fully_paid).
+  await recomputeEnrollmentTotals(enrollmentId);
+
+  const [updated] = await db.select().from(enrollments).where(eq(enrollments.id, enrollmentId)).limit(1);
   return NextResponse.json({ enrollment: updated });
 }
 
