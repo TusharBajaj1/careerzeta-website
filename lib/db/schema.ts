@@ -211,6 +211,20 @@ export const blogPosts = pgTable("blog_posts", {
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
 });
 
+/**
+ * A single global row (always id 1) recording the accounting-period close
+ * point — any invoice issued on or before booksClosedThrough is locked:
+ * it can no longer be regenerated, refreshed, or cancelled, since it's
+ * been booked in the books. Correcting a locked invoice is a credit-note
+ * question for accounting, not something this app does in place. Null
+ * means nothing has been closed yet (everything stays editable).
+ */
+export const accountingSettings = pgTable("accounting_settings", {
+  id: serial("id").primaryKey(),
+  booksClosedThrough: timestamp("books_closed_through", { withTimezone: true }),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+});
+
 export type Coupon = typeof coupons.$inferSelect;
 export type NewCoupon = typeof coupons.$inferInsert;
 export type Enrollment = typeof enrollments.$inferSelect;
@@ -223,3 +237,4 @@ export type BlogPost = typeof blogPosts.$inferSelect;
 export type NewBlogPost = typeof blogPosts.$inferInsert;
 export type BlogSeries = typeof blogSeries.$inferSelect;
 export type NewBlogSeries = typeof blogSeries.$inferInsert;
+export type AccountingSettings = typeof accountingSettings.$inferSelect;

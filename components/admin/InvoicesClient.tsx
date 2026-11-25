@@ -16,6 +16,7 @@ export type InvoiceRow = {
   invoiceCancelled: boolean;
   invoiceCancelledAt: string | null;
   paidAt: string | null;
+  createdAt: string;
   candidateName: string;
   candidateEmail: string;
   programSlug: string;
@@ -27,10 +28,26 @@ const PAYMENT_TYPE_LABEL: Record<InvoiceRow["type"], string> = {
   balance: "Balance Payment",
 };
 
-export default function InvoicesClient({ initialInvoices }: { initialInvoices: InvoiceRow[] }) {
+/** Default input value: the last day of the current month, in YYYY-MM-DD. */
+function defaultCloseDate(): string {
+  const now = new Date();
+  const lastDay = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+  return lastDay.toISOString().slice(0, 10);
+}
+
+export default function InvoicesClient({
+  initialInvoices,
+  initialBooksClosedThrough,
+}: {
+  initialInvoices: InvoiceRow[];
+  initialBooksClosedThrough: string | null;
+}) {
   const [invoices, setInvoices] = useState<InvoiceRow[]>(initialInvoices);
   const [busyId, setBusyId] = useState<number | null>(null);
   const [sendingId, setSendingId] = useState<number | null>(null);
+  const [booksClosedThrough, setBooksClosedThrough] = useState<string | null>(initialBooksClosedThrough);
+  const [closeDateInput, setCloseDateInput] = useState(defaultCloseDate());
+  const [closing, setClosing] = useState(false);
 
   /** Cancelled invoices are void — excluded from revenue the same way they're excluded from any accounting record. */
   const summary = useMemo(() => {
@@ -43,6 +60,50 @@ export default function InvoicesClient({ initialInvoices }: { initialInvoices: I
     };
   }, [invoices]);
 
+  /** An invoice issued on or before the close point is booked — no more regenerate/refresh/cancel, a credit note is needed instead. */
+  function isLocked(inv: InvoiceRow): boolean {
+    if (!booksClosedThrough) return false;
+    const issuedAt = new Date(inv.paidAt ?? inv.createdAt).getTime();
+    return issuedAt <= new Date(booksClosedThrough).getTime();
+  }
+
+  async function handleCloseBooks() {
+    if (!closeDateInput) return;
+    const label = new Date(closeDateInput).toLocaleDateString("en-IN", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    });
+    if (
+      !confirm(
+        `Close the books through ${label}? Every invoice issued on or before this date becomes locked — no more regenerating, refreshing, or cancelling. This can't be undone (the close point can only move forward).`,
+      )
+    ) {
+      return;
+    }
+
+    setClosing(true);
+    // End of the chosen day, so an invoice issued any time that day counts as before the close point.
+    const endOfDay = new Date(`${closeDateInput}T23:59:59.999`);
+    const res = await fetch("/api/admin/accounting-settings", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ date: endOfDay.toISOString() }),
+    });
+    const data = await res.json().catch(() => ({}));
+    setClosing(false);
+
+    if (!res.ok) {
+      alert(
+        data.error === "must_be_later_than_current"
+          ? "That date isn't later than the current close point — pick a later date."
+          : "Couldn't close the books — try again.",
+      );
+      return;
+    }
+    setBooksClosedThrough(data.booksClosedThrough);
+  }
+
   async function handleGenerate(invoice: InvoiceRow) {
     setSendingId(invoice.id);
     const res = await fetch(`/api/admin/payments/${invoice.id}/generate-invoice`, { method: "POST" });
@@ -50,7 +111,11 @@ export default function InvoicesClient({ initialInvoices }: { initialInvoices: I
     setSendingId(null);
 
     if (!res.ok) {
-      alert("Couldn't generate the invoice — try again.");
+      alert(
+        data.error === "invoice_locked"
+          ? "This invoice is booked in the accounts and locked — a credit note is needed to correct it, not a regenerate."
+          : "Couldn't generate the invoice — try again.",
+      );
       return;
     }
     setInvoices((prev) =>
@@ -105,7 +170,9 @@ export default function InvoicesClient({ initialInvoices }: { initialInvoices: I
       alert(
         data.error === "not_configured"
           ? "Google Drive sync isn't configured on this environment — nothing to refresh here."
-          : "Couldn't refresh the Drive copy — try again.",
+          : data.error === "invoice_locked"
+            ? "This invoice is booked in the accounts and locked — a credit note is needed to correct it, not a refresh."
+            : "Couldn't refresh the Drive copy — try again.",
       );
       return;
     }
@@ -119,10 +186,15 @@ export default function InvoicesClient({ initialInvoices }: { initialInvoices: I
 
     setBusyId(invoice.id);
     const res = await fetch(`/api/admin/payments/${invoice.id}/cancel-invoice`, { method: "POST" });
+    const data = await res.json().catch(() => ({}));
     setBusyId(null);
 
     if (!res.ok) {
-      alert("Couldn't cancel this invoice — try again.");
+      alert(
+        data.error === "invoice_locked"
+          ? "This invoice is booked in the accounts and locked — a credit note is needed to void it, not a cancel."
+          : "Couldn't cancel this invoice — try again.",
+      );
       return;
     }
 
@@ -163,6 +235,43 @@ export default function InvoicesClient({ initialInvoices }: { initialInvoices: I
         </div>
       </div>
 
+      <div className="mt-6 rounded-2xl border-2 border-amber-300 bg-amber-50 p-5">
+        <div className="text-xs font-bold tracking-wide uppercase text-amber-800">Accounting Lock</div>
+        <p className="mt-1 text-sm text-amber-900">
+          {booksClosedThrough ? (
+            <>
+              Books are closed through{" "}
+              <span className="font-bold">
+                {new Date(booksClosedThrough).toLocaleDateString("en-IN", {
+                  year: "numeric",
+                  month: "long",
+                  day: "numeric",
+                })}
+              </span>
+              . Any invoice issued on or before that date is locked — regenerate, refresh, and
+              cancel are disabled for it; a credit note is needed to correct it instead.
+            </>
+          ) : (
+            "Nothing is locked yet — every invoice can still be regenerated, refreshed, or cancelled."
+          )}
+        </p>
+        <div className="mt-3 flex flex-wrap items-center gap-3">
+          <input
+            type="date"
+            value={closeDateInput}
+            onChange={(e) => setCloseDateInput(e.target.value)}
+            className="rounded-lg border-2 border-line bg-white px-3 py-2 text-sm outline-none focus:border-sky-400"
+          />
+          <button
+            onClick={handleCloseBooks}
+            disabled={closing}
+            className="rounded-lg bg-amber-500 px-4 py-2 text-sm font-bold text-white transition-transform duration-150 hover:scale-105 disabled:opacity-60"
+          >
+            {closing ? "Closing…" : "Close books through this date"}
+          </button>
+        </div>
+      </div>
+
       <div className="mt-8 overflow-x-auto">
         {invoices.length === 0 ? (
           <p className="text-sm opacity-60">No invoices issued yet.</p>
@@ -181,89 +290,105 @@ export default function InvoicesClient({ initialInvoices }: { initialInvoices: I
               </tr>
             </thead>
             <tbody>
-              {invoices.map((inv) => (
-                <tr key={inv.id} className="border-b border-line/60">
-                  <td className="py-3 pr-4 font-semibold whitespace-nowrap">{inv.invoiceNumber}</td>
-                  <td className="py-3 pr-4">
-                    <div className="font-semibold">{inv.candidateName}</div>
-                    <div className="text-xs opacity-60">{inv.candidateEmail}</div>
-                  </td>
-                  <td className="py-3 pr-4 opacity-70">
-                    {PROGRAMS.find((p) => p.slug === inv.programSlug)?.name ?? inv.programSlug}
-                  </td>
-                  <td className="py-3 pr-4 opacity-70">{PAYMENT_TYPE_LABEL[inv.type]}</td>
-                  <td className="py-3 pr-4 font-semibold">{formatPaiseAsInr(inv.amount)}</td>
-                  <td className="py-3 pr-4">
-                    {inv.paidAt ? new Date(inv.paidAt).toLocaleDateString("en-IN") : "—"}
-                  </td>
-                  <td className="py-3 pr-4">
-                    <span
-                      className={`rounded-full px-3 py-1 text-xs font-bold ${
-                        inv.invoiceCancelled
-                          ? "bg-red-100 text-red-700"
-                          : inv.invoiceSent
-                            ? "bg-green-100 text-green-700"
-                            : "bg-amber-100 text-amber-700"
-                      }`}
-                    >
-                      {inv.invoiceCancelled ? "Cancelled" : inv.invoiceSent ? "Sent" : "Not sent"}
-                    </span>
-                  </td>
-                  <td className="py-3 pr-4">
-                    <div className="flex flex-wrap items-center gap-3">
-                      {inv.invoiceCancelled && (
-                        <button
-                          onClick={() => handleGenerate(inv)}
-                          disabled={sendingId === inv.id}
-                          className="text-xs font-semibold text-sky-700 hover:underline disabled:opacity-50"
-                        >
-                          {sendingId === inv.id ? "Generating…" : "Generate new invoice"}
-                        </button>
-                      )}
-                      {!inv.invoiceCancelled && !inv.invoiceSent && (
-                        <button
-                          onClick={() => handleGenerate(inv)}
-                          disabled={sendingId === inv.id}
-                          className="text-xs font-semibold text-sky-700 hover:underline disabled:opacity-50"
-                        >
-                          {sendingId === inv.id ? "Generating…" : "Regenerate"}
-                        </button>
-                      )}
-                      {!inv.invoiceCancelled && (
-                        <button
-                          onClick={() => handleSend(inv)}
-                          disabled={sendingId === inv.id}
-                          className="text-xs font-semibold text-sky-700 hover:underline disabled:opacity-50"
-                        >
-                          {sendingId === inv.id ? "Sending…" : inv.invoiceSent ? "Resend" : "Send"}
-                        </button>
-                      )}
-                      <a
-                        href={`/api/admin/payments/${inv.id}/download-invoice`}
-                        className="text-xs font-semibold text-sky-700 hover:underline"
+              {invoices.map((inv) => {
+                const locked = isLocked(inv);
+                return (
+                  <tr key={inv.id} className="border-b border-line/60">
+                    <td className="py-3 pr-4 font-semibold whitespace-nowrap">{inv.invoiceNumber}</td>
+                    <td className="py-3 pr-4">
+                      <div className="font-semibold">{inv.candidateName}</div>
+                      <div className="text-xs opacity-60">{inv.candidateEmail}</div>
+                    </td>
+                    <td className="py-3 pr-4 opacity-70">
+                      {PROGRAMS.find((p) => p.slug === inv.programSlug)?.name ?? inv.programSlug}
+                    </td>
+                    <td className="py-3 pr-4 opacity-70">{PAYMENT_TYPE_LABEL[inv.type]}</td>
+                    <td className="py-3 pr-4 font-semibold">{formatPaiseAsInr(inv.amount)}</td>
+                    <td className="py-3 pr-4">
+                      {inv.paidAt ? new Date(inv.paidAt).toLocaleDateString("en-IN") : "—"}
+                    </td>
+                    <td className="py-3 pr-4">
+                      <span
+                        className={`rounded-full px-3 py-1 text-xs font-bold ${
+                          inv.invoiceCancelled
+                            ? "bg-red-100 text-red-700"
+                            : inv.invoiceSent
+                              ? "bg-green-100 text-green-700"
+                              : "bg-amber-100 text-amber-700"
+                        }`}
                       >
-                        Download
-                      </a>
-                      <button
-                        onClick={() => handleRefreshDrive(inv)}
-                        disabled={busyId === inv.id}
-                        className="text-xs font-semibold text-sky-700 hover:underline disabled:opacity-50"
-                      >
-                        {busyId === inv.id ? "Refreshing…" : "Refresh in Drive"}
-                      </button>
-                      {!inv.invoiceCancelled && (
-                        <button
-                          onClick={() => handleCancel(inv)}
-                          disabled={busyId === inv.id}
-                          className="text-xs font-semibold text-red-600 hover:underline disabled:opacity-50"
+                        {inv.invoiceCancelled ? "Cancelled" : inv.invoiceSent ? "Sent" : "Not sent"}
+                      </span>
+                    </td>
+                    <td className="py-3 pr-4">
+                      <div className="flex flex-wrap items-center gap-3">
+                        {locked ? (
+                          <span
+                            title="Booked in the accounts — a credit note is needed to correct this invoice."
+                            className="text-xs font-semibold text-slate-500"
+                          >
+                            🔒 Booked
+                          </span>
+                        ) : (
+                          <>
+                            {inv.invoiceCancelled && (
+                              <button
+                                onClick={() => handleGenerate(inv)}
+                                disabled={sendingId === inv.id}
+                                className="text-xs font-semibold text-sky-700 hover:underline disabled:opacity-50"
+                              >
+                                {sendingId === inv.id ? "Generating…" : "Generate new invoice"}
+                              </button>
+                            )}
+                            {!inv.invoiceCancelled && !inv.invoiceSent && (
+                              <button
+                                onClick={() => handleGenerate(inv)}
+                                disabled={sendingId === inv.id}
+                                className="text-xs font-semibold text-sky-700 hover:underline disabled:opacity-50"
+                              >
+                                {sendingId === inv.id ? "Generating…" : "Regenerate"}
+                              </button>
+                            )}
+                          </>
+                        )}
+                        {!inv.invoiceCancelled && (
+                          <button
+                            onClick={() => handleSend(inv)}
+                            disabled={sendingId === inv.id}
+                            className="text-xs font-semibold text-sky-700 hover:underline disabled:opacity-50"
+                          >
+                            {sendingId === inv.id ? "Sending…" : inv.invoiceSent ? "Resend" : "Send"}
+                          </button>
+                        )}
+                        <a
+                          href={`/api/admin/payments/${inv.id}/download-invoice`}
+                          className="text-xs font-semibold text-sky-700 hover:underline"
                         >
-                          {busyId === inv.id ? "Cancelling…" : "Cancel invoice"}
-                        </button>
-                      )}
-                    </div>
-                  </td>
-                </tr>
-              ))}
+                          Download
+                        </a>
+                        {!locked && (
+                          <button
+                            onClick={() => handleRefreshDrive(inv)}
+                            disabled={busyId === inv.id}
+                            className="text-xs font-semibold text-sky-700 hover:underline disabled:opacity-50"
+                          >
+                            {busyId === inv.id ? "Refreshing…" : "Refresh in Drive"}
+                          </button>
+                        )}
+                        {!locked && !inv.invoiceCancelled && (
+                          <button
+                            onClick={() => handleCancel(inv)}
+                            disabled={busyId === inv.id}
+                            className="text-xs font-semibold text-red-600 hover:underline disabled:opacity-50"
+                          >
+                            {busyId === inv.id ? "Cancelling…" : "Cancel invoice"}
+                          </button>
+                        )}
+                      </div>
+                    </td>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
         )}

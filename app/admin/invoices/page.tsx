@@ -2,6 +2,7 @@ import Link from "next/link";
 import { desc, eq, isNotNull } from "drizzle-orm";
 
 import InvoicesClient from "@/components/admin/InvoicesClient";
+import { getBooksClosedThrough } from "@/lib/accountingLock";
 import { db } from "@/lib/db";
 import { enrollments, payments } from "@/lib/db/schema";
 
@@ -21,6 +22,7 @@ export default async function AdminInvoicesPage() {
       invoiceCancelled: payments.invoiceCancelled,
       invoiceCancelledAt: payments.invoiceCancelledAt,
       paidAt: payments.paidAt,
+      createdAt: payments.createdAt,
       candidateName: enrollments.candidateName,
       candidateEmail: enrollments.candidateEmail,
       programSlug: enrollments.programSlug,
@@ -35,7 +37,10 @@ export default async function AdminInvoicesPage() {
     invoiceNumber: row.invoiceNumber!,
     invoiceCancelledAt: row.invoiceCancelledAt ? row.invoiceCancelledAt.toISOString() : null,
     paidAt: row.paidAt ? row.paidAt.toISOString() : null,
+    createdAt: row.createdAt.toISOString(),
   }));
+
+  const booksClosedThrough = await getBooksClosedThrough();
 
   return (
     <div className="mx-auto max-w-[1200px] px-6 py-16">
@@ -43,7 +48,10 @@ export default async function AdminInvoicesPage() {
         ← Admin
       </Link>
 
-      <InvoicesClient initialInvoices={initialInvoices} />
+      <InvoicesClient
+        initialInvoices={initialInvoices}
+        initialBooksClosedThrough={booksClosedThrough ? booksClosedThrough.toISOString() : null}
+      />
     </div>
   );
 }
