@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { eq } from "drizzle-orm";
 
+import { getBooksClosedThrough, isInvoiceLocked } from "@/lib/accountingLock";
 import { db } from "@/lib/db";
 import { payments } from "@/lib/db/schema";
 
@@ -32,6 +33,11 @@ export async function POST(_request: Request, { params }: { params: Promise<{ id
   }
   if (payment.invoiceCancelled) {
     return NextResponse.json({ error: "already_cancelled" }, { status: 400 });
+  }
+
+  const booksClosedThrough = await getBooksClosedThrough();
+  if (isInvoiceLocked(payment.paidAt ?? payment.createdAt, booksClosedThrough)) {
+    return NextResponse.json({ error: "invoice_locked" }, { status: 400 });
   }
 
   await db
