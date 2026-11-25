@@ -36,6 +36,12 @@ export const admissionNumberSeq = pgSequence("admission_number_seq", {
   increment: 1,
 });
 
+/** Same gapless-sequence reasoning as invoiceNumberSeq — credit notes need their own independent, unique, consecutive number series for GST compliance, not reused invoice numbers. */
+export const creditNoteNumberSeq = pgSequence("credit_note_number_seq", {
+  startWith: 1,
+  increment: 1,
+});
+
 /** All money columns are in paise (smallest INR unit) — matches Razorpay's own API, avoids float rounding. */
 
 export const couponStatusEnum = pgEnum("coupon_status", [
@@ -171,6 +177,29 @@ export const payments = pgTable("payments", {
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 });
 
+/**
+ * A formal reversal of an already-booked (locked) invoice — one per
+ * payment, always for its full amount for now (no partial credit notes
+ * yet). Doesn't touch the original invoice or its payments row at all;
+ * it's a separate document that exists alongside it, same as a real CN
+ * would. Not emailed automatically — same manual-send pattern as every
+ * other candidate-facing document here.
+ */
+export const creditNotes = pgTable("credit_notes", {
+  id: serial("id").primaryKey(),
+  paymentId: integer("payment_id")
+    .notNull()
+    .references(() => payments.id),
+  creditNoteNumber: varchar("credit_note_number", { length: 64 }).notNull().unique(),
+  /** Always the original invoice's full amount, in paise — matches payments.amount for the referenced payment. */
+  amount: integer("amount").notNull(),
+  /** Required free-text reason, for the audit trail (e.g. "candidate name corrected from X to Y"). */
+  reason: text("reason").notNull(),
+  pdfUrl: text("pdf_url"),
+  sent: boolean("sent").notNull().default(false),
+  issuedAt: timestamp("issued_at", { withTimezone: true }).notNull().defaultNow(),
+});
+
 export const demoRequests = pgTable("demo_requests", {
   id: serial("id").primaryKey(),
   candidateName: varchar("candidate_name", { length: 255 }).notNull(),
@@ -231,6 +260,8 @@ export type Enrollment = typeof enrollments.$inferSelect;
 export type NewEnrollment = typeof enrollments.$inferInsert;
 export type Payment = typeof payments.$inferSelect;
 export type NewPayment = typeof payments.$inferInsert;
+export type CreditNote = typeof creditNotes.$inferSelect;
+export type NewCreditNote = typeof creditNotes.$inferInsert;
 export type DemoRequest = typeof demoRequests.$inferSelect;
 export type NewDemoRequest = typeof demoRequests.$inferInsert;
 export type BlogPost = typeof blogPosts.$inferSelect;
