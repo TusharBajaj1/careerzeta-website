@@ -729,6 +729,15 @@ function EditEnrollmentForm({
       onSubmit={handleSubmit}
       className="mt-4 grid gap-5 rounded-xl border-2 border-sky-400 bg-sky-50 p-5 sm:grid-cols-2"
     >
+      {enrollment.amountPaid > 0 && (
+        <p className="rounded-lg border-2 border-amber-300 bg-amber-50 p-3 text-xs text-amber-800 sm:col-span-2">
+          This candidate has already paid — any invoice, admission letter or registration letter
+          already issued was built from the old details and won&apos;t update on its own. After
+          saving, use each document&apos;s Regenerate/Refresh in Drive action if it needs to reflect
+          this correction.
+        </p>
+      )}
+
       <EnrollmentFields
         idPrefix={`edit-${enrollment.id}`}
         value={fields}
@@ -767,7 +776,7 @@ function EnrollmentCard({
   const [editingLetter, setEditingLetter] = useState(false);
   const programName = PROGRAMS.find((p) => p.slug === enrollment.programSlug)?.name ?? enrollment.programSlug;
   const remaining = enrollment.totalFee - enrollment.amountPaid;
-  const canEdit = enrollment.amountPaid === 0 && enrollment.status !== "cancelled";
+  const canEdit = enrollment.status !== "cancelled";
 
   async function handleCancel() {
     if (!confirm("Cancel this enrollment? It can't be un-cancelled.")) return;
