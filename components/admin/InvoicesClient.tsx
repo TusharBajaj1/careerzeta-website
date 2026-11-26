@@ -186,7 +186,11 @@ export default function InvoicesClient({
   }
 
   async function handleCancel(invoice: InvoiceRow) {
-    if (!confirm(`Cancel invoice ${invoice.invoiceNumber}? No email is sent — this just marks it void.`)) {
+    if (
+      !confirm(
+        `Cancel invoice ${invoice.invoiceNumber}? No email is sent — this just marks it void.\n\nProcess: issue a credit note for it afterward (not automatic — use "Issue Credit Note" below once cancelled).`,
+      )
+    ) {
       return;
     }
 
@@ -486,18 +490,16 @@ export default function InvoicesClient({
                               </button>
                             </>
                           ) : (
-                            !inv.invoiceCancelled && (
-                              <button
-                                onClick={() =>
-                                  creditNoteFormOpenId === inv.id
-                                    ? setCreditNoteFormOpenId(null)
-                                    : openCreditNoteForm(inv.id)
-                                }
-                                className="text-xs font-semibold text-amber-700 hover:underline"
-                              >
-                                {creditNoteFormOpenId === inv.id ? "Cancel" : "Issue Credit Note"}
-                              </button>
-                            )
+                            <button
+                              onClick={() =>
+                                creditNoteFormOpenId === inv.id
+                                  ? setCreditNoteFormOpenId(null)
+                                  : openCreditNoteForm(inv.id)
+                              }
+                              className="text-xs font-semibold text-amber-700 hover:underline"
+                            >
+                              {creditNoteFormOpenId === inv.id ? "Cancel" : "Issue Credit Note"}
+                            </button>
                           )}
                         </div>
                       </td>

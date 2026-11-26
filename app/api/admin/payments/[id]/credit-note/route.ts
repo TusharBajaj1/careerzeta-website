@@ -10,10 +10,10 @@ import { PROGRAMS } from "@/lib/content";
 /**
  * Issues a credit note against this payment's invoice, for its full
  * amount — the mechanism for correcting a locked (booked) invoice instead
- * of editing it in place. Doesn't touch the original invoice or payment
- * row at all. One credit note per invoice: blocked if one already exists,
- * or if the invoice is already marked cancelled (that's the other,
- * separate "never recorded" void path — the two shouldn't overlap).
+ * of editing it in place, and also the documentation step for a plain
+ * cancellation: process is cancel the invoice, then issue a credit note
+ * against it (no auto-generation — this stays a separate, manual action).
+ * One credit note per invoice: blocked only if one already exists.
  */
 export async function POST(request: Request, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -34,9 +34,6 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
   }
   if (!payment.invoiceNumber) {
     return NextResponse.json({ error: "no_invoice" }, { status: 400 });
-  }
-  if (payment.invoiceCancelled) {
-    return NextResponse.json({ error: "invoice_already_cancelled" }, { status: 400 });
   }
 
   const [existing] = await db
