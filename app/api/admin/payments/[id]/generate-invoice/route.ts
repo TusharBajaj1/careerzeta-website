@@ -11,10 +11,12 @@ import { generateInvoice } from "@/lib/invoiceEmail";
  * Separate manual step from send-invoice, so an invoice can be reviewed
  * (via download-invoice) before anyone emails it to the candidate.
  *
- * Blocked once the current invoice has already been sent: at that point
- * it's a real issued document, and correcting it is a cancel-then-generate-
- * fresh question (see /api/admin/payments/[id]/cancel-invoice), not
- * something this silently overwrites in place.
+ * Reuses the existing invoice number as long as it isn't cancelled (see
+ * generateInvoice), and resets invoiceSent back to false so a changed
+ * document gets explicitly resent rather than assumed delivered. Blocked
+ * only once the invoice is locked (booked in the accounts) — at that
+ * point correcting it is a credit-note question, not a regenerate, even
+ * if it was never sent.
  */
 export async function POST(_request: Request, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -29,9 +31,6 @@ export async function POST(_request: Request, { params }: { params: Promise<{ id
   }
   if (payment.status !== "paid") {
     return NextResponse.json({ error: "payment_not_paid" }, { status: 400 });
-  }
-  if (payment.invoiceSent && !payment.invoiceCancelled) {
-    return NextResponse.json({ error: "already_sent" }, { status: 400 });
   }
 
   const booksClosedThrough = await getBooksClosedThrough();

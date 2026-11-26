@@ -1073,20 +1073,15 @@ function MarkPaidControl({ payment, onConfirmed }: { payment: PaymentRow; onConf
 }
 
 /**
- * Sends the invoice email again — for a candidate asking for another
- * copy, or a payment that never got one sent the first time. Resends the
- * existing invoice unchanged when there's a valid one on file; issues a
- * fresh invoice number when there isn't (no invoice yet, or the only one
- * was cancelled) — the admin doesn't need to know which case applies.
- */
-/**
  * Invoice lifecycle for a paid payment, as two deliberately separate
- * manual steps: Generate (builds and stores the PDF, never emails
- * anything — safe to click any number of times to review via Download
- * first) and Send (the only action that actually emails it). Once an
- * invoice has been sent, Generate is no longer offered — fixing a real,
- * already-issued invoice is a cancel-then-generate-fresh question, not
- * something to silently overwrite in place.
+ * manual steps: Generate/Regenerate (builds and stores the PDF, never
+ * emails anything — safe to click any number of times to review via
+ * Download first) and Send (the only action that actually emails it).
+ * Regenerate reuses the existing invoice number unless it was cancelled,
+ * and resets invoiceSent back to false so a changed document gets
+ * explicitly resent. It stays available even after an invoice has been
+ * sent — only blocked once the invoice is locked (booked in the
+ * accounts), at which point a credit note is the right tool instead.
  */
 function InvoiceControl({ payment, onChanged }: { payment: PaymentRow; onChanged: () => void }) {
   const [busy, setBusy] = useState(false);
@@ -1095,10 +1090,15 @@ function InvoiceControl({ payment, onChanged }: { payment: PaymentRow; onChanged
   async function handleGenerate() {
     setBusy(true);
     const res = await fetch(`/api/admin/payments/${payment.id}/generate-invoice`, { method: "POST" });
+    const data = await res.json().catch(() => ({}));
     setBusy(false);
 
     if (!res.ok) {
-      alert("Couldn't generate the invoice — try again.");
+      alert(
+        data.error === "invoice_locked"
+          ? "This invoice is booked in the accounts and locked — a credit note is needed to correct it, not a regenerate."
+          : "Couldn't generate the invoice — try again.",
+      );
       return;
     }
     onChanged();
@@ -1138,23 +1138,15 @@ function InvoiceControl({ payment, onChanged }: { payment: PaymentRow; onChanged
     );
   }
 
-  if (!payment.invoiceSent) {
-    return (
-      <>
-        <button onClick={handleGenerate} disabled={busy} className="text-sky-700 hover:underline disabled:opacity-50">
-          {busy ? "Generating…" : "Regenerate"}
-        </button>
-        <button onClick={handleSend} disabled={busy} className="font-semibold text-sky-700 hover:underline disabled:opacity-50">
-          {busy ? "Sending…" : "Send invoice"}
-        </button>
-      </>
-    );
-  }
-
   return (
-    <button onClick={handleSend} disabled={busy} className="text-sky-700 hover:underline disabled:opacity-50">
-      {busy ? "Sending…" : "Resend invoice"}
-    </button>
+    <>
+      <button onClick={handleGenerate} disabled={busy} className="text-sky-700 hover:underline disabled:opacity-50">
+        {busy ? "Generating…" : "Regenerate"}
+      </button>
+      <button onClick={handleSend} disabled={busy} className="font-semibold text-sky-700 hover:underline disabled:opacity-50">
+        {busy ? "Sending…" : payment.invoiceSent ? "Resend invoice" : "Send invoice"}
+      </button>
+    </>
   );
 }
 

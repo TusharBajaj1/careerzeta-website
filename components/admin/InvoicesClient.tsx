@@ -414,26 +414,17 @@ export default function InvoicesClient({
                             </span>
                           )}
                           {!locked && (
-                            <>
-                              {inv.invoiceCancelled && (
-                                <button
-                                  onClick={() => handleGenerate(inv)}
-                                  disabled={sendingId === inv.id}
-                                  className="text-xs font-semibold text-sky-700 hover:underline disabled:opacity-50"
-                                >
-                                  {sendingId === inv.id ? "Generating…" : "Generate new invoice"}
-                                </button>
-                              )}
-                              {!inv.invoiceCancelled && !inv.invoiceSent && (
-                                <button
-                                  onClick={() => handleGenerate(inv)}
-                                  disabled={sendingId === inv.id}
-                                  className="text-xs font-semibold text-sky-700 hover:underline disabled:opacity-50"
-                                >
-                                  {sendingId === inv.id ? "Generating…" : "Regenerate"}
-                                </button>
-                              )}
-                            </>
+                            <button
+                              onClick={() => handleGenerate(inv)}
+                              disabled={sendingId === inv.id}
+                              className="text-xs font-semibold text-sky-700 hover:underline disabled:opacity-50"
+                            >
+                              {sendingId === inv.id
+                                ? "Generating…"
+                                : inv.invoiceCancelled
+                                  ? "Generate new invoice"
+                                  : "Regenerate"}
+                            </button>
                           )}
                           {!inv.invoiceCancelled && (
                             <button
