@@ -7,6 +7,7 @@ import { useEffect, useState } from "react";
 import { Menu, X } from "lucide-react";
 
 import ScrollProgress from "@/components/ui/ScrollProgress";
+import { isEdmingleConfigured } from "@/lib/edmingle";
 
 const links = [
   { label: "Home", href: "/" },
@@ -97,7 +98,7 @@ export default function Navbar() {
             </span>
           </Link>
 
-          <div className="ml-auto hidden items-center gap-9 md:flex">
+          <div className="ml-auto hidden items-center gap-6 md:flex">
             {links.map((link) => (
               <Link
                 key={link.href}
@@ -115,6 +116,37 @@ export default function Navbar() {
                 )}
               </Link>
             ))}
+
+            {isEdmingleConfigured() && (
+              <>
+                <a
+                  href="#"
+                  className={`loginButton login shrink-0 rounded-lg border-2 px-4 py-2.5 text-[15px] font-bold whitespace-nowrap transition-transform duration-150 hover:scale-105 ${
+                    isHeroOverlay ? "border-white text-white" : "border-sky-400 text-sky-700 hover:bg-sky-50"
+                  }`}
+                >
+                  Student Login
+                </a>
+                <a
+                  href="#"
+                  style={{ display: "none" }}
+                  className={`postLogin goToAccountButton shrink-0 rounded-lg border-2 px-4 py-2.5 text-[15px] font-bold whitespace-nowrap transition-transform duration-150 hover:scale-105 ${
+                    isHeroOverlay ? "border-white text-white" : "border-sky-400 text-sky-700 hover:bg-sky-50"
+                  }`}
+                >
+                  My Account
+                </a>
+                <a
+                  href="#"
+                  style={{ display: "none" }}
+                  className={`postLogin logout shrink-0 text-[15px] font-semibold whitespace-nowrap transition ${
+                    isHeroOverlay ? "text-white hover:text-sky-300" : "hover:text-sky-700"
+                  }`}
+                >
+                  Log Out
+                </a>
+              </>
+            )}
 
             <Link
               href="/contact"
@@ -135,8 +167,15 @@ export default function Navbar() {
           </button>
         </div>
 
-        {open ? (
-          <div className="border-t-2 border-line bg-[#fafafa] px-6 pb-5 md:hidden">
+        {/*
+          Edmingle's signup-sdk.js binds its click handler to .loginButton.login
+          once, at script-load time — if this panel (and the mobile Student
+          Login link inside it) only entered the DOM once the hamburger was
+          first opened, the SDK would never find it and the mobile button
+          would be dead. So this always renders, just toggled by CSS, instead
+          of being conditionally mounted/unmounted.
+        */}
+        <div className={`${open ? "block" : "hidden"} border-t-2 border-line bg-[#fafafa] px-6 pb-5 md:hidden`}>
             <div className="flex flex-col gap-1 pt-3">
               {links.map((link) => (
                 <Link
@@ -152,6 +191,34 @@ export default function Navbar() {
                 </Link>
               ))}
 
+              {isEdmingleConfigured() && (
+                <>
+                  <a
+                    href="#"
+                    onClick={() => setOpen(false)}
+                    className="loginButton login mt-2 flex items-center justify-center gap-2 rounded-lg border-2 border-sky-400 px-5 py-3 text-center text-[15px] font-bold text-sky-700 transition hover:bg-sky-50"
+                  >
+                    Student Login
+                  </a>
+                  <a
+                    href="#"
+                    onClick={() => setOpen(false)}
+                    style={{ display: "none" }}
+                    className="postLogin goToAccountButton mt-2 flex items-center justify-center gap-2 rounded-lg border-2 border-sky-400 px-5 py-3 text-center text-[15px] font-bold text-sky-700 transition hover:bg-sky-50"
+                  >
+                    My Account
+                  </a>
+                  <a
+                    href="#"
+                    onClick={() => setOpen(false)}
+                    style={{ display: "none" }}
+                    className="postLogin logout flex items-center gap-2 rounded-lg px-2 py-3 text-[15px] font-semibold transition hover:bg-white"
+                  >
+                    Log Out
+                  </a>
+                </>
+              )}
+
               <Link
                 href="/contact"
                 onClick={() => setOpen(false)}
@@ -160,8 +227,7 @@ export default function Navbar() {
                 Contact Us
               </Link>
             </div>
-          </div>
-        ) : null}
+        </div>
       </nav>
     </>
   );
